@@ -20,7 +20,7 @@ After creating an authorized user you can run ``mvn tomcat7:deploy ``, ``mvn tom
 
 After completing installation and deployment steps the server will be up and running at "http://localhost:8080/FriesToBiopaxServer". You can send a post request to "http://localhost:8080/FactoidToBiopaxServer/ConvertToOwl" to consume the service. 
 
-The service takes fries content as a JSON formatted String, converts it to BioPax format and returns a String to represent it.
+The service takes a String in JSON array format (see Input section below), converts it to BioPax format and returns a String to represent it.
 
 The following is a sample Node.js client
 
