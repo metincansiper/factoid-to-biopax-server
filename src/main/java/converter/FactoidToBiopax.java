@@ -103,7 +103,7 @@ public class FactoidToBiopax {
 				JsonArray moleculeNamesJSON = template.get("moleculeList").getAsJsonArray();
 				List<String> moleculeNames = gson.fromJson(moleculeNamesJSON, List.class);
 				
-				addComplexDissociation(moleculeNames);
+				addPhysicalInteraction(moleculeNames);
 			}
 			else if(matchesTemplateType(typeStr, TemplateType.PROTEIN_MODIFICATION)) {
 				String modifiedProteinName = template.get("modifiedProtein").getAsString();

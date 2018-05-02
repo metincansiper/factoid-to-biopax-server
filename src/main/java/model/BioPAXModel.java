@@ -7,7 +7,6 @@ package model;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -33,8 +32,6 @@ import org.biopax.paxtools.model.level3.EntityReference;
 import org.biopax.paxtools.model.level3.ModificationFeature;
 import org.biopax.paxtools.model.level3.PhysicalEntity;
 import org.biopax.paxtools.model.level3.Process;
-import org.biopax.paxtools.model.level3.Protein;
-import org.biopax.paxtools.model.level3.ProteinReference;
 import org.biopax.paxtools.model.level3.SequenceModificationVocabulary;
 import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
 
@@ -203,7 +200,7 @@ public class BioPAXModel {
 	}
 	
 	// Find the physical entity that has the expected cellular location and modification types
-	private <T extends PhysicalEntity> T findMatchingEntity(Set<T> entities, CellularLocationVocabulary cellularLocation, Set<String> modificationTypes){		
+	private static <T extends PhysicalEntity> T findMatchingEntity(Set<T> entities, CellularLocationVocabulary cellularLocation, Set<String> modificationTypes){		
 		
 		Optional<T> match = entities.stream().filter(t -> {
 			CellularLocationVocabulary clv = t.getCellularLocation();
@@ -233,8 +230,7 @@ public class BioPAXModel {
 		return (Set) entityFeatures;
 	}
 	
-	// TODO why cannot make static?
-	private <T extends PhysicalEntity> void assertSimplePhysicalEntityOrSubclass(Class<T> c, String messageOpt) {
+	private static <T extends PhysicalEntity> void assertSimplePhysicalEntityOrSubclass(Class<T> c, String messageOpt) {
 		
 		String message = null;
 		
@@ -248,13 +244,13 @@ public class BioPAXModel {
 		assert SimplePhysicalEntity.class.isAssignableFrom(c) : message;
 	}
 	
-	private <T extends PhysicalEntity> void assertSimplePhysicalEntityOrSubclass(Class<T> c) {
+	private static <T extends PhysicalEntity> void assertSimplePhysicalEntityOrSubclass(Class<T> c) {
 		assertSimplePhysicalEntityOrSubclass(c, null);
 	}
 	
-	// TODO try converting this to allInstanceOfModificationFeature(Class? c, Collection collection)
-	private static boolean allAreInstanceOfModificationFeature(Collection collection) {
-		Iterator it = collection.iterator();
+	// TODO try converting this to allAreInstanceOf(Class? c, Collection collection)
+	private static <T extends EntityFeature> boolean allAreInstanceOfModificationFeature(Collection<T> collection) {
+		Iterator<T> it = collection.iterator();
 		while(it.hasNext()) {
 			Object o = it.next();
 			if (!(o instanceof ModificationFeature)) {
