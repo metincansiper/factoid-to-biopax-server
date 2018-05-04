@@ -132,12 +132,12 @@ public class TemplatesModel {
 		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
 	}
 
-	public void addActivationInhibition(String regulatorProteinName, String targetProteinName, ControlType effectType) {
+	public void addActivationInhibition(String regulatorProteinName, String targetProteinName, ControlType controlType) {
 		
 		Set<String> leftModificationTypes = new HashSet<String>();
 		Set<String> rightModificationTypes = new HashSet<String>();
 		
-		addActiveInactiveModifications(effectType, leftModificationTypes, rightModificationTypes);
+		addActiveInactiveModifications(controlType, leftModificationTypes, rightModificationTypes);
 		
 		ProteinReference targetProtRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName);
 		ProteinReference regulatorProtRef = model.getOrCreateEntityReference(ProteinReference.class, regulatorProteinName);
@@ -147,10 +147,10 @@ public class TemplatesModel {
 		Protein rightProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, rightModificationTypes);
 		
 		Conversion conversion = model.addNewConversion(Conversion.class, leftProtein, rightProtein);
-		model.addNewControl(Control.class, regulatorProtein, conversion, effectType);
+		model.addNewControl(Control.class, regulatorProtein, conversion, controlType);
 	}
 	
-	public void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, ControlType effectType) {
+	public void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, ControlType controlType) {
 		
 		ProteinReference targetRef = model.getOrCreateEntityReference(ProteinReference.class, targetProtName);
 		ProteinReference tfRef = model.getOrCreateEntityReference(ProteinReference.class, transcriptionFactorName);
@@ -161,7 +161,7 @@ public class TemplatesModel {
 		TemplateReaction reaction = model.addNew(TemplateReaction.class);
 		reaction.addProduct(product);
 		
-		model.addNewControl(TemplateReactionRegulation.class, tf, reaction, effectType);
+		model.addNewControl(TemplateReactionRegulation.class, tf, reaction, controlType);
 	}
 	
 	// accessors

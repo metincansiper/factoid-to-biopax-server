@@ -53,10 +53,10 @@ public class FactoidToBiopax {
 			
 			if (matchesTemplateType(typeStr, TemplateType.ACTIVITION_INHIBITION)) {
 				String regulatorProteinName = template.get("regulatorProtein").getAsString();
-				String effectTypeStr = (String) template.get("effectType").getAsString();
+				String controlTypeStr = (String) template.get("controlType").getAsString();
 				String targetProteinName = (String) template.get("targetProtein").getAsString();
 				
-				addActivationInhibition(regulatorProteinName, targetProteinName, effectTypeStr);
+				addActivationInhibition(regulatorProteinName, targetProteinName, controlTypeStr);
 			}
 			else if (matchesTemplateType(typeStr, TemplateType.BIOCHEMICAL_REACTION)) {
 				String catalyzerName = template.get("catalyzerName").getAsString();
@@ -84,9 +84,9 @@ public class FactoidToBiopax {
 			else if (matchesTemplateType(typeStr, TemplateType.EXPRESSION_REGULATION)) {
 				String transcriptionFactorName = template.get("transcriptionFactor").getAsString();
 				String targetProtName = template.get("targetProtein").getAsString();
-				String effectTypeStr = template.get("effectType").getAsString();
+				String controlTypeStr = template.get("controlType").getAsString();
 				
-				addRegulationOfExpression(transcriptionFactorName, targetProtName, effectTypeStr);
+				addRegulationOfExpression(transcriptionFactorName, targetProtName, controlTypeStr);
 			}
 			else if(matchesTemplateType(typeStr, TemplateType.LOCATION_CHANGE)) {
 				JsonArray macromoleculeNamesJSON = template.get("macromoleculeList").getAsJsonArray();
@@ -160,14 +160,14 @@ public class FactoidToBiopax {
 		model.addBiochemicalReaction(catalyzerName, inputMoleculeNames, outputMoleculeNames);
 	}
 	
-	private void addActivationInhibition(String regulatorProteinName, String targetProteinName, String effectTypeStr) {
-		ControlType effectType = getControlType(effectTypeStr);
-		model.addActivationInhibition(regulatorProteinName, targetProteinName, effectType);
+	private void addActivationInhibition(String regulatorProteinName, String targetProteinName, String controlTypeStr) {
+		ControlType controlType = getControlType(controlTypeStr);
+		model.addActivationInhibition(regulatorProteinName, targetProteinName, controlType);
 	}
 	
-	private void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, String effectTypeStr) {
-		ControlType effectType = getControlType(effectTypeStr);
-		model.addRegulationOfExpression(transcriptionFactorName, targetProtName, effectType);
+	private void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, String controlTypeStr) {
+		ControlType controlType = getControlType(controlTypeStr);
+		model.addRegulationOfExpression(transcriptionFactorName, targetProtName, controlType);
 	}
 	
 	private static Map<String, ControlType> createControlTypeMap() {
@@ -224,7 +224,7 @@ public class FactoidToBiopax {
 		JsonObject template1 = new JsonObject();
 		template1.addProperty("type", TemplateType.ACTIVITION_INHIBITION.getName());
 		template1.addProperty("regulatorProtein", "regulatorProtein");
-		template1.addProperty("effectType", "effectType");
+		template1.addProperty("controlType", "controlType");
 		template1.addProperty("targetProtein", "targetProtein");
 		templates.add(template1);
 		
@@ -249,7 +249,7 @@ public class FactoidToBiopax {
 		template5.addProperty("type", TemplateType.EXPRESSION_REGULATION.getName());
 		template5.addProperty("transcriptionFactor", "transcriptionFactor");
 		template5.addProperty("targetProtein", "targetProtein");
-		template5.addProperty("effectType", "activation");
+		template5.addProperty("controlType", "activation");
 		templates.add(template5);
 		
 		JsonObject template6 = new JsonObject();
