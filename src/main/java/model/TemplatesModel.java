@@ -82,7 +82,7 @@ public class TemplatesModel {
 		model.addNewControl(Control.class, controller, transport, controlType);
 	}
 
-	public void addProteinModification(String modifiedProteinName, String controllerProteinName, String modificationType, ControlType controlType) {
+	public void addProteinModification(String targetProteinName, String controllerProteinName, String modificationType, ControlType controlType) {
 		
 		Set<String> leftModificationTypes = new HashSet<String>();
 		Set<String> rightModificationTypes = new HashSet<String>();
@@ -91,9 +91,9 @@ public class TemplatesModel {
 		
 		addActiveInactiveModifications(controlType, leftModificationTypes, rightModificationTypes);
 		
-		ProteinReference protRef = model.getOrCreateEntityReference(ProteinReference.class, modifiedProteinName);
-		Protein left = model.getOrCreatePhysicalEntity(Protein.class, modifiedProteinName, null, protRef, leftModificationTypes);
-		Protein right = model.getOrCreatePhysicalEntity(Protein.class, modifiedProteinName, null, protRef, rightModificationTypes);
+		ProteinReference protRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName);
+		Protein left = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, protRef, leftModificationTypes);
+		Protein right = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, protRef, rightModificationTypes);
 		
 		ProteinReference controllerRef = model.getOrCreateEntityReference(ProteinReference.class, controllerProteinName);
 		Protein controller = model.getOrCreatePhysicalEntity(Protein.class, controllerProteinName, null, controllerRef);
@@ -132,7 +132,7 @@ public class TemplatesModel {
 		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
 	}
 
-	public void addActivationInhibition(String regulatorProteinName, String targetProteinName, ControlType controlType) {
+	public void addActivationInhibition(String contollerProteinName, String targetProteinName, ControlType controlType) {
 		
 		Set<String> leftModificationTypes = new HashSet<String>();
 		Set<String> rightModificationTypes = new HashSet<String>();
@@ -140,14 +140,14 @@ public class TemplatesModel {
 		addActiveInactiveModifications(controlType, leftModificationTypes, rightModificationTypes);
 		
 		ProteinReference targetProtRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName);
-		ProteinReference regulatorProtRef = model.getOrCreateEntityReference(ProteinReference.class, regulatorProteinName);
+		ProteinReference regulatorProtRef = model.getOrCreateEntityReference(ProteinReference.class, contollerProteinName);
 		
-		Protein regulatorProtein = model.getOrCreatePhysicalEntity(Protein.class, regulatorProteinName, null, regulatorProtRef);
+		Protein contollerProtein = model.getOrCreatePhysicalEntity(Protein.class, contollerProteinName, null, regulatorProtRef);
 		Protein leftProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, leftModificationTypes);
 		Protein rightProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, rightModificationTypes);
 		
 		Conversion conversion = model.addNewConversion(Conversion.class, leftProtein, rightProtein);
-		model.addNewControl(Control.class, regulatorProtein, conversion, controlType);
+		model.addNewControl(Control.class, contollerProtein, conversion, controlType);
 	}
 	
 	public void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, ControlType controlType) {

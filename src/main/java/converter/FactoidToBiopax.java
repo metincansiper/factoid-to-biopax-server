@@ -52,11 +52,11 @@ public class FactoidToBiopax {
 			System.out.println(typeStr);
 			
 			if (matchesTemplateType(typeStr, TemplateType.ACTIVITION_INHIBITION)) {
-				String regulatorProteinName = template.get("regulatorProtein").getAsString();
+				String contollerProteinName = template.get("contollerProtein").getAsString();
 				String controlTypeStr = (String) template.get("controlType").getAsString();
 				String targetProteinName = (String) template.get("targetProtein").getAsString();
 				
-				addActivationInhibition(regulatorProteinName, targetProteinName, controlTypeStr);
+				addActivationInhibition(contollerProteinName, targetProteinName, controlTypeStr);
 			}
 			else if (matchesTemplateType(typeStr, TemplateType.BIOCHEMICAL_REACTION)) {
 				String catalyzerName = template.get("catalyzerName").getAsString();
@@ -106,12 +106,12 @@ public class FactoidToBiopax {
 				addPhysicalInteraction(moleculeNames);
 			}
 			else if(matchesTemplateType(typeStr, TemplateType.PROTEIN_MODIFICATION)) {
-				String modifiedProteinName = template.get("modifiedProtein").getAsString();
+				String targetProteinName = template.get("targetProtein").getAsString();
 				String controllerProteinName = template.get("controllerProtein").getAsString();
 				String modificationType = template.get("modification").getAsString();
 				String controlTypeStr = template.get("controlType").getAsString();
 				
-				addProteinModification(modifiedProteinName, controllerProteinName, modificationType, controlTypeStr);
+				addProteinModification(targetProteinName, controllerProteinName, modificationType, controlTypeStr);
 			}
 		}
 	}
@@ -139,9 +139,9 @@ public class FactoidToBiopax {
 		model.addLocationChange(macromoleculeNames, controllerProteinName, oldLocation, newLocation, controlType);
 	}
 	
-	private void addProteinModification(String modifiedProteinName, String controllerProteinName, String modificationType, String controlTypeStr) {
+	private void addProteinModification(String targetProteinName, String controllerProteinName, String modificationType, String controlTypeStr) {
 		ControlType controlType = getControlType(controlTypeStr);
-		model.addProteinModification(modifiedProteinName, controllerProteinName, modificationType, controlType);
+		model.addProteinModification(targetProteinName, controllerProteinName, modificationType, controlType);
 	}
 	
 	private void addComplexAssociation(List<String> moleculeNames) {
@@ -160,9 +160,9 @@ public class FactoidToBiopax {
 		model.addBiochemicalReaction(catalyzerName, inputMoleculeNames, outputMoleculeNames);
 	}
 	
-	private void addActivationInhibition(String regulatorProteinName, String targetProteinName, String controlTypeStr) {
+	private void addActivationInhibition(String contollerProteinName, String targetProteinName, String controlTypeStr) {
 		ControlType controlType = getControlType(controlTypeStr);
-		model.addActivationInhibition(regulatorProteinName, targetProteinName, controlType);
+		model.addActivationInhibition(contollerProteinName, targetProteinName, controlType);
 	}
 	
 	private void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, String controlTypeStr) {
@@ -223,8 +223,8 @@ public class FactoidToBiopax {
 		
 		JsonObject template1 = new JsonObject();
 		template1.addProperty("type", TemplateType.ACTIVITION_INHIBITION.getName());
-		template1.addProperty("regulatorProtein", "regulatorProtein");
-		template1.addProperty("controlType", "controlType");
+		template1.addProperty("contollerProtein", "contollerProtein");
+		template1.addProperty("controlType", "activation");
 		template1.addProperty("targetProtein", "targetProtein");
 		templates.add(template1);
 		
@@ -268,7 +268,7 @@ public class FactoidToBiopax {
 		
 		JsonObject template8 = new JsonObject();
 		template8.addProperty("type", TemplateType.PROTEIN_MODIFICATION.getName());
-		template8.addProperty("modifiedProtein", "modifiedProtein");
+		template8.addProperty("targetProtein", "targetProtein");
 		template8.addProperty("controllerProtein", "controllerProtein");
 		template8.addProperty("controlType", "activation");
 		template8.addProperty("modification", "phosphorylated");
