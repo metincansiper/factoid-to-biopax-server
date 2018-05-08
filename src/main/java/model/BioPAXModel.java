@@ -204,7 +204,7 @@ public class BioPAXModel {
 		
 		Optional<T> match = entities.stream().filter(t -> {
 			CellularLocationVocabulary clv = t.getCellularLocation();
-			return clv != null && clv.equals(cellularLocation) 
+			return nullSafeEquals(clv, cellularLocation) 
 					&& isAbstractionOf(getModificationFeatureOfEntity(t), modificationTypes);
 		} ).findFirst();
 		
@@ -213,6 +213,17 @@ public class BioPAXModel {
 		}
 		
 		return null;
+	}
+	
+	// compare 2 object while staying away from null pointer exception
+	private static boolean nullSafeEquals(Object obj1, Object obj2) {
+		// if one is null but other is not return false
+		if ( ( obj1 == null ) != ( obj2 == null ) ) {
+			return false;
+		}
+		
+		// now it is known that obj2 is null given that obj1 is null
+		return obj1 == null || obj1.equals(obj2);
 	}
 	
 	private static Set<ModificationFeature> getModificationFeatureOfEntity(PhysicalEntity entity){
