@@ -271,17 +271,22 @@ public class BioPAXModel {
 		return true;
 	}
 	
+	// check if a collection is either empty or null
+	private static <T extends Object> boolean isEmptyOrNull(Collection<T> collection) {
+		return collection == null || collection.isEmpty();
+	}
+	
 	// Check if modificationTypes set is an abstraction of modifications set
 	private static boolean isAbstractionOf(Set<ModificationFeature> modifications, Set<String> modificationTypes) {
 		
-		// return false if only one side is null 
-		if ( (modifications == null) == !(modificationTypes == null)  ) {
+		// return false if only one side is empty or null 
+		if ( isEmptyOrNull(modifications) == !isEmptyOrNull(modificationTypes)  ) {
 			return false;
 		}
 		
-		// return true if both sides are null
-		// note that we made sure that either both or none is null
-		if (modifications == null) {
+		// return true if both sides are empty or null
+		// note that we made sure that either both or none is empty or null
+		if (isEmptyOrNull(modifications)) {
 			return true;
 		}
 		
