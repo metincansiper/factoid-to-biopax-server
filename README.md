@@ -16,9 +16,16 @@ The project uses Tomcat7 Maven Plugin to automate deployment process. You should
 
 After creating an authorized user you can run ``mvn tomcat7:deploy ``, ``mvn tomcat7:undeploy `` and ``mvn tomcat7:redeploy `` to manage deployment process.
 
+## Deploying to Docker Container
+You can deploy the server to a docker container by following the steps below. "<PORT>" must be replaced by the port number where the server is expected to be run. 
+
+```
+docker build -f Dockerfile -t factoid-to-biopax .
+docker run -it --rm --name factoid-to-biopax --publish <PORT>:8080 factoid-to-biopax 
+```
 ## Consuming the Service
 
-After completing installation and deployment steps the server will be up and running at "http://localhost:8080/FriesToBiopaxServer". You can send a post request to "http://localhost:8080/FactoidToBiopaxServer/ConvertToOwl" to consume the service. 
+After completing installation and deployment steps the server will be up and running at "http://localhost:8080/FriesToBiopaxServer" (You should update port number in case you use another one). You can send a post request to "http://localhost:8080/FactoidToBiopaxServer/ConvertToOwl" to consume the service. 
 
 The service takes a String in JSON array format (see Input section below), converts it to BioPax format and returns a String to represent it.
 
