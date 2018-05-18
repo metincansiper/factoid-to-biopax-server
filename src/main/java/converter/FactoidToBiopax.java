@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.biopax.paxtools.model.level2.protein;
 import org.biopax.paxtools.model.level3.ControlType;
 import org.biopax.paxtools.model.level3.Protein;
 import org.biopax.paxtools.model.level3.SmallMolecule;
