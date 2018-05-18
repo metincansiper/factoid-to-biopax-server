@@ -132,26 +132,6 @@ public class TemplatesModel {
 		
 		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
 	}
-
-	public <T extends PhysicalEntity> void addActivationInhibition(String controllerName, String targetProteinName, ControlType controlType, Class<T> controllerClass) {
-		
-		Set<String> leftModificationTypes = new HashSet<String>();
-		Set<String> rightModificationTypes = new HashSet<String>();
-		
-		addActiveInactiveModifications(controlType, leftModificationTypes, rightModificationTypes);
-		
-		ProteinReference targetProtRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName);
-		
-		Class controllerRefClass = controllerClass.equals(Protein.class) ? ProteinReference.class : SmallMoleculeReference.class;
-		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName);
-		
-		T controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
-		Protein leftProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, leftModificationTypes);
-		Protein rightProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, rightModificationTypes);
-		
-		Conversion conversion = model.addNewConversion(Conversion.class, leftProtein, rightProtein);
-		model.addNewControl(Control.class, controller, conversion, controlType);
-	}
 	
 	public void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, ControlType controlType) {
 		
@@ -167,6 +147,14 @@ public class TemplatesModel {
 		model.addNewControl(TemplateReactionRegulation.class, tf, reaction, controlType);
 	}
 	
+	public void addChemicalAffectsState(String chemicalName, String targetProteinName, ControlType controlType) {
+		addStateChange(chemicalName, targetProteinName, controlType, SmallMolecule.class, SmallMoleculeReference.class);
+	}
+	
+	public void addProteinControlsState(String controllerName, String targetProteinName, ControlType controlType) {
+		addStateChange(controllerName, targetProteinName, controlType, SmallMolecule.class, SmallMoleculeReference.class);
+	}
+	
 	// accessors
 	
 	public String convertToOwl() {
@@ -174,6 +162,25 @@ public class TemplatesModel {
 	}
 	
 	// Section: private helper methods
+	
+	private <T1 extends PhysicalEntity, T2 extends EntityReference> void addStateChange(String controllerName, String targetProteinName, ControlType controlType, Class<T1> controllerClass, Class<T2> controllerRefClass) {
+		
+		Set<String> leftModificationTypes = new HashSet<String>();
+		Set<String> rightModificationTypes = new HashSet<String>();
+		
+		addActiveInactiveModifications(controlType, leftModificationTypes, rightModificationTypes);
+		
+		ProteinReference targetProtRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName);
+		
+		T2 controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName);
+		
+		T1 controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
+		Protein leftProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, leftModificationTypes);
+		Protein rightProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, rightModificationTypes);
+		
+		Conversion conversion = model.addNewConversion(Conversion.class, leftProtein, rightProtein);
+		model.addNewControl(Control.class, controller, conversion, controlType);
+	}
 	
 	private void addComplexAssembly(List<String> moleculeNames, ComplexAssemblyType assemblyType) {
 		
