@@ -10,7 +10,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.biopax.paxtools.model.level2.protein;
 import org.biopax.paxtools.model.level3.ControlType;
+import org.biopax.paxtools.model.level3.Protein;
+import org.biopax.paxtools.model.level3.SmallMolecule;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -52,11 +55,12 @@ public class FactoidToBiopax {
 			System.out.println(typeStr);
 			
 			if (matchesTemplateType(typeStr, TemplateType.ACTIVITION_INHIBITION)) {
-				String controllerProteinName = template.get("controllerProtein").getAsString();
+				String controllerName = template.get("controller").getAsString();
 				String controlTypeStr = (String) template.get("controlType").getAsString();
 				String targetProteinName = (String) template.get("targetProtein").getAsString();
+				String controllerClassStr = (String) template.get("controllerClass").getAsString();
 				
-				addActivationInhibition(controllerProteinName, targetProteinName, controlTypeStr);
+				addActivationInhibition(controllerName, targetProteinName, controlTypeStr, controllerClassStr);
 			}
 			else if (matchesTemplateType(typeStr, TemplateType.BIOCHEMICAL_REACTION)) {
 				String catalyzerName = template.get("catalyzerName").getAsString();
@@ -99,11 +103,11 @@ public class FactoidToBiopax {
 				
 				addLocationChange(macromoleculeNames, controllerProteinName, oldLocation, newLocation, controlTypeStr);
 			}
-			else if(matchesTemplateType(typeStr, TemplateType.PHYSICAL_INTERACTION)) {
+			else if(matchesTemplateType(typeStr, TemplateType.MOLECULAR_INTERACTION)) {
 				JsonArray moleculeNamesJSON = template.get("moleculeList").getAsJsonArray();
 				List<String> moleculeNames = gson.fromJson(moleculeNamesJSON, List.class);
 				
-				addPhysicalInteraction(moleculeNames);
+				addMolecularInteraction(moleculeNames);
 			}
 			else if(matchesTemplateType(typeStr, TemplateType.PROTEIN_MODIFICATION)) {
 				String targetProteinName = template.get("targetProtein").getAsString();
@@ -132,6 +136,10 @@ public class FactoidToBiopax {
 		return CONTROL_TYPE_MAP.get(controlTypeStr.toUpperCase());
 	}
 	
+	private Class getEntityClass(String entityClassStr) {
+		return ENTITY_CLASS_MAP.get(entityClassStr.toUpperCase());
+	}
+	
 	private void addLocationChange(List<String> macromoleculeNames, String controllerProteinName, String oldLocation, 
 			String newLocation, String controlTypeStr) {
 		
@@ -152,17 +160,19 @@ public class FactoidToBiopax {
 		model.addComplexDissociation(macromoleculeNames);
 	}
 	
-	private void addPhysicalInteraction(List<String> moleculeNames) {
-		model.addPhysicalInteraction(moleculeNames);
+	private void addMolecularInteraction(List<String> moleculeNames) {
+		model.addMolecularInteraction(moleculeNames);
 	}
 	
 	private void addBiochemicalReaction(String catalyzerName, List<String> inputMoleculeNames, List<String> outputMoleculeNames) {
 		model.addBiochemicalReaction(catalyzerName, inputMoleculeNames, outputMoleculeNames);
 	}
 	
-	private void addActivationInhibition(String controllerProteinName, String targetProteinName, String controlTypeStr) {
+	private void addActivationInhibition(String controllerName, String targetProteinName, String controlTypeStr, String controllerClassStr) {
 		ControlType controlType = getControlType(controlTypeStr);
-		model.addActivationInhibition(controllerProteinName, targetProteinName, controlType);
+		Class controllerClass = getEntityClass(controllerClassStr);
+		
+		model.addActivationInhibition(controllerName, targetProteinName, controlType, controllerClass);
 	}
 	
 	private void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, String controlTypeStr) {
@@ -178,13 +188,21 @@ public class FactoidToBiopax {
 		return map;
 	}
 	
+	private static Map<String, Class> createEntityClassMap() {
+		Map<String, Class> map = new HashMap<String, Class>();
+		map.put("PROTEIN", Protein.class);
+		map.put("SMALL MOLECULE", SmallMolecule.class);
+		
+		return map;
+	}
+	
 	private static enum TemplateType {
 		PROTEIN_MODIFICATION("Protein Modification"),
 		COMPLEX_ASSOCIATION("Complex Association"),
 		COMPLEX_DISSOCIATION("Complex Dissociation"),
 		LOCATION_CHANGE("Location Change"),
 		BIOCHEMICAL_REACTION("Biochemical Reaction"),
-		PHYSICAL_INTERACTION("Physical Interaction"),
+		MOLECULAR_INTERACTION("Molecular Interaction"),
 		ACTIVITION_INHIBITION("Activation Inhibition"),
 		EXPRESSION_REGULATION("Expression Regulation");
 			
@@ -204,6 +222,7 @@ public class FactoidToBiopax {
 	}
 	
 	private static final Map<String, ControlType> CONTROL_TYPE_MAP = createControlTypeMap();
+	private static final Map<String, Class> ENTITY_CLASS_MAP = createEntityClassMap();
 	
 	public static void main(String[] args) {
 		JsonArray templates = new JsonArray();
@@ -223,9 +242,10 @@ public class FactoidToBiopax {
 		
 		JsonObject template1 = new JsonObject();
 		template1.addProperty("type", TemplateType.ACTIVITION_INHIBITION.getName());
-		template1.addProperty("controllerProtein", "controllerProtein");
+		template1.addProperty("controller", "ai_controller");
 		template1.addProperty("controlType", "activation");
 		template1.addProperty("targetProtein", "targetProtein");
+		template1.addProperty("controllerClass", "small molecule");
 		templates.add(template1);
 		
 		JsonObject template2 = new JsonObject();
@@ -262,7 +282,7 @@ public class FactoidToBiopax {
 		templates.add(template6);
 		
 		JsonObject template7 = new JsonObject();
-		template7.addProperty("type", TemplateType.PHYSICAL_INTERACTION.getName());
+		template7.addProperty("type", TemplateType.MOLECULAR_INTERACTION.getName());
 		template7.add("moleculeList", moleculeList);
 		templates.add(template7);
 		

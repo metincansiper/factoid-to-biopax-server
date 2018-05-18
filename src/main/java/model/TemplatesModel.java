@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.biopax.paxtools.model.BioPAXElement;
 import org.biopax.paxtools.model.level3.BiochemicalReaction;
 import org.biopax.paxtools.model.level3.Catalysis;
 import org.biopax.paxtools.model.level3.CellularLocationVocabulary;
@@ -12,6 +13,7 @@ import org.biopax.paxtools.model.level3.ComplexAssembly;
 import org.biopax.paxtools.model.level3.Control;
 import org.biopax.paxtools.model.level3.ControlType;
 import org.biopax.paxtools.model.level3.Conversion;
+import org.biopax.paxtools.model.level3.EntityReference;
 import org.biopax.paxtools.model.level3.MolecularInteraction;
 import org.biopax.paxtools.model.level3.PhysicalEntity;
 import org.biopax.paxtools.model.level3.Protein;
@@ -110,7 +112,7 @@ public class TemplatesModel {
 		addComplexAssembly(moleculeNames, ComplexAssemblyType.DISSOCIATION);
 	}
 	
-	public void addPhysicalInteraction(List<String> moleculeNames) {
+	public void addMolecularInteraction(List<String> moleculeNames) {
 		MolecularInteraction molecularInteraction = model.addNew(MolecularInteraction.class);
 		
 		for(String moleculeName : moleculeNames) {
@@ -132,7 +134,7 @@ public class TemplatesModel {
 		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
 	}
 
-	public void addActivationInhibition(String controllerProteinName, String targetProteinName, ControlType controlType) {
+	public <T extends PhysicalEntity> void addActivationInhibition(String controllerName, String targetProteinName, ControlType controlType, Class<T> controllerClass) {
 		
 		Set<String> leftModificationTypes = new HashSet<String>();
 		Set<String> rightModificationTypes = new HashSet<String>();
@@ -140,14 +142,16 @@ public class TemplatesModel {
 		addActiveInactiveModifications(controlType, leftModificationTypes, rightModificationTypes);
 		
 		ProteinReference targetProtRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName);
-		ProteinReference regulatorProtRef = model.getOrCreateEntityReference(ProteinReference.class, controllerProteinName);
 		
-		Protein controllerProtein = model.getOrCreatePhysicalEntity(Protein.class, controllerProteinName, null, regulatorProtRef);
+		Class controllerRefClass = controllerClass.equals(Protein.class) ? ProteinReference.class : SmallMoleculeReference.class;
+		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName);
+		
+		T controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
 		Protein leftProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, leftModificationTypes);
 		Protein rightProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, rightModificationTypes);
 		
 		Conversion conversion = model.addNewConversion(Conversion.class, leftProtein, rightProtein);
-		model.addNewControl(Control.class, controllerProtein, conversion, controlType);
+		model.addNewControl(Control.class, controller, conversion, controlType);
 	}
 	
 	public void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, ControlType controlType) {
