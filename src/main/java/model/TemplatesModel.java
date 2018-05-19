@@ -6,9 +6,6 @@ import java.util.Set;
 
 import org.biopax.paxtools.model.level3.BiochemicalReaction;
 import org.biopax.paxtools.model.level3.Catalysis;
-import org.biopax.paxtools.model.level3.CellularLocationVocabulary;
-import org.biopax.paxtools.model.level3.Complex;
-import org.biopax.paxtools.model.level3.ComplexAssembly;
 import org.biopax.paxtools.model.level3.Control;
 import org.biopax.paxtools.model.level3.ControlType;
 import org.biopax.paxtools.model.level3.Conversion;
@@ -21,7 +18,6 @@ import org.biopax.paxtools.model.level3.SmallMolecule;
 import org.biopax.paxtools.model.level3.SmallMoleculeReference;
 import org.biopax.paxtools.model.level3.TemplateReaction;
 import org.biopax.paxtools.model.level3.TemplateReactionRegulation;
-import org.biopax.paxtools.model.level3.Transport;
 
 /*
  * A model class that keeps an underlying BioPAX model and enables updating it by adding templates.
@@ -37,51 +33,6 @@ public class TemplatesModel {
 	// Section: public methods
 	
 	// modifiers
-	
-	public void addLocationChange(List<String> macromoleculeNames, String controllerProteinName, String oldLocation, 
-			String newLocation, ControlType controlType) {
-		
-		Transport transport = model.addNewConversion(Transport.class);
-		
-		Complex leftComplex = null;
-		Complex rightComplex = null;
-		
-		boolean multipleMolecules = false;
-	
-		if (macromoleculeNames.size() > 0) {		
-			multipleMolecules = true;
-			
-			leftComplex = model.getOrCreatePhysicalEntity(Complex.class);
-			rightComplex = model.getOrCreatePhysicalEntity(Complex.class);
-			
-			transport.addLeft(leftComplex);
-			transport.addRight(rightComplex);
-		}
-		
-		CellularLocationVocabulary oldClv = model.getOrCreateCellularLocationVocabulary(oldLocation);
-		CellularLocationVocabulary newClv = model.getOrCreateCellularLocationVocabulary(newLocation);
-		
-		for(String macromoleculeName : macromoleculeNames) {
-			
-			ProteinReference mmRef = model.getOrCreateEntityReference(ProteinReference.class, macromoleculeName);	
-			Protein left = model.getOrCreatePhysicalEntity(Protein.class, macromoleculeName, oldClv, mmRef);
-			Protein right = model.getOrCreatePhysicalEntity(Protein.class, macromoleculeName, newClv, mmRef);
-			
-			if (multipleMolecules) {
-				leftComplex.addComponent(left);
-				rightComplex.addComponent(right);
-			}
-			else {
-				transport.addLeft(left);
-				transport.addRight(right);
-			}
-		}
-		
-		ProteinReference controllerRef = model.getOrCreateEntityReference(ProteinReference.class, controllerProteinName);
-		Protein controller = model.getOrCreatePhysicalEntity(Protein.class, controllerProteinName, null, controllerRef);
-		
-		model.addNewControl(Control.class, controller, transport, controlType);
-	}
 
 	public void addProteinModification(String targetProteinName, String controllerProteinName, String modificationType, ControlType controlType) {
 		
@@ -103,14 +54,6 @@ public class TemplatesModel {
 		model.addNewControl(Control.class, controller, conversion, controlType);
 	}
 	
-	public void addComplexAssociation(List<String> moleculeNames) {
-		addComplexAssembly(moleculeNames, ComplexAssemblyType.ASSOCIATION);
-	}
-	
-	public void addComplexDissociation(List<String> moleculeNames) {
-		addComplexAssembly(moleculeNames, ComplexAssemblyType.DISSOCIATION);
-	}
-	
 	public void addMolecularInteraction(List<String> moleculeNames) {
 		MolecularInteraction molecularInteraction = model.addNew(MolecularInteraction.class);
 		
@@ -119,18 +62,6 @@ public class TemplatesModel {
 			Protein molecule = model.getOrCreatePhysicalEntity(Protein.class, moleculeName, null, protRef);
 			molecularInteraction.addParticipant(molecule);
 		}
-	}
-	
-	public void addBiochemicalReaction(String catalyzerName, List<String> inputMoleculeNames, List<String> outputMoleculeNames) {
-		BiochemicalReaction reaction = model.addNewConversion(BiochemicalReaction.class);
-		
-		addNewSmallMoleculesToConversion(reaction, inputMoleculeNames, SideType.LEFT);
-		addNewSmallMoleculesToConversion(reaction, outputMoleculeNames, SideType.RIGHT);
-		
-		ProteinReference catalyzerRef = model.getOrCreateEntityReference(ProteinReference.class, catalyzerName);
-		Protein catalyzer = model.getOrCreatePhysicalEntity(Protein.class, catalyzerName, null, catalyzerRef);
-		
-		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
 	}
 	
 	public void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, ControlType controlType) {
@@ -155,6 +86,14 @@ public class TemplatesModel {
 		addStateChange(controllerName, targetProteinName, controlType, SmallMolecule.class, SmallMoleculeReference.class);
 	}
 	
+	public void addProteinControlsConsumption(String controllerProteinName, String chemicalName) {
+		addProteinControlsConsumptionOrProduction(controllerProteinName, chemicalName, SideType.LEFT);
+	}
+	
+	public void addProteinControlsProduction(String controllerProteinName, String chemicalName) {
+		addProteinControlsConsumptionOrProduction(controllerProteinName, chemicalName, SideType.RIGHT);
+	}
+	
 	// accessors
 	
 	public String convertToOwl() {
@@ -162,6 +101,22 @@ public class TemplatesModel {
 	}
 	
 	// Section: private helper methods
+	
+	private void addProteinControlsConsumptionOrProduction(String controllerProteinName, String chemicalName, SideType chemicalSide) {
+		
+		SideType otherSide = getOppositeSide(chemicalSide);
+		String otherChemName = null;
+		
+		BiochemicalReaction reaction = model.addNewConversion(BiochemicalReaction.class);
+		
+		addNewSmallMoleculeToConversion(reaction, chemicalName, chemicalSide);
+		addNewSmallMoleculeToConversion(reaction, otherChemName, otherSide);
+		
+		ProteinReference catalyzerRef = model.getOrCreateEntityReference(ProteinReference.class, controllerProteinName);
+		Protein catalyzer = model.getOrCreatePhysicalEntity(Protein.class, controllerProteinName, null, catalyzerRef);
+		
+		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
+	}
 	
 	private <T1 extends PhysicalEntity, T2 extends EntityReference> void addStateChange(String controllerName, String targetProteinName, ControlType controlType, Class<T1> controllerClass, Class<T2> controllerRefClass) {
 		
@@ -180,34 +135,6 @@ public class TemplatesModel {
 		
 		Conversion conversion = model.addNewConversion(Conversion.class, leftProtein, rightProtein);
 		model.addNewControl(Control.class, controller, conversion, controlType);
-	}
-	
-	private void addComplexAssembly(List<String> moleculeNames, ComplexAssemblyType assemblyType) {
-		
-		ComplexAssembly complexAssembly = model.addNewConversion(ComplexAssembly.class);
-		Complex complex = model.getOrCreatePhysicalEntity(Complex.class);
-		
-		SideType moleculeSide = SideType.LEFT;
-		SideType complexSide = SideType.RIGHT;
-		
-		// Association by default
-		if (assemblyType == ComplexAssemblyType.DISSOCIATION) {
-			moleculeSide = SideType.RIGHT;
-			complexSide = SideType.LEFT;
-		}
-		
-		addSideToConversion(complexAssembly, complex, complexSide);
-		
-		for (String moleculeName : moleculeNames) {
-			ProteinReference moleculeRef = model.getOrCreateEntityReference(ProteinReference.class, moleculeName);
-			
-			Protein molecule = model.getOrCreatePhysicalEntity(Protein.class, moleculeName, null, moleculeRef);
-			Protein moleculeOfComplex = model.getOrCreatePhysicalEntity(Protein.class, moleculeName, null, moleculeRef);
-			
-			addSideToConversion(complexAssembly, molecule, moleculeSide);
-			
-			complex.addComponent(moleculeOfComplex);
-		}
 	}
 	
 	// Add a new small molecule to the given side of conversion
@@ -232,6 +159,10 @@ public class TemplatesModel {
 		else if (side == SideType.RIGHT) {
 			conversion.addRight(entity);
 		}
+	}
+	
+	private static SideType getOppositeSide(SideType side) {
+		return side == SideType.LEFT ? SideType.RIGHT : SideType.LEFT;
 	}
 	
 	// Update modification types set by adding ACTIVE and INACTIVE modifications to the sides according to control type
@@ -263,3 +194,99 @@ public class TemplatesModel {
 		DISSOCIATION
 	}
 }
+
+//	Non functional commented out methods
+//  These methods were written before for some templates not supported by factoid yet
+//  if factoid will support these templates in the feature they would be revised and used
+//	public void addLocationChange(List<String> macromoleculeNames, String controllerProteinName, String oldLocation, 
+//			String newLocation, ControlType controlType) {
+//		
+//		Transport transport = model.addNewConversion(Transport.class);
+//		
+//		Complex leftComplex = null;
+//		Complex rightComplex = null;
+//		
+//		boolean multipleMolecules = false;
+//	
+//		if (macromoleculeNames.size() > 0) {		
+//			multipleMolecules = true;
+//			
+//			leftComplex = model.getOrCreatePhysicalEntity(Complex.class);
+//			rightComplex = model.getOrCreatePhysicalEntity(Complex.class);
+//			
+//			transport.addLeft(leftComplex);
+//			transport.addRight(rightComplex);
+//		}
+//		
+//		CellularLocationVocabulary oldClv = model.getOrCreateCellularLocationVocabulary(oldLocation);
+//		CellularLocationVocabulary newClv = model.getOrCreateCellularLocationVocabulary(newLocation);
+//		
+//		for(String macromoleculeName : macromoleculeNames) {
+//			
+//			ProteinReference mmRef = model.getOrCreateEntityReference(ProteinReference.class, macromoleculeName);	
+//			Protein left = model.getOrCreatePhysicalEntity(Protein.class, macromoleculeName, oldClv, mmRef);
+//			Protein right = model.getOrCreatePhysicalEntity(Protein.class, macromoleculeName, newClv, mmRef);
+//			
+//			if (multipleMolecules) {
+//				leftComplex.addComponent(left);
+//				rightComplex.addComponent(right);
+//			}
+//			else {
+//				transport.addLeft(left);
+//				transport.addRight(right);
+//			}
+//		}
+//		
+//		ProteinReference controllerRef = model.getOrCreateEntityReference(ProteinReference.class, controllerProteinName);
+//		Protein controller = model.getOrCreatePhysicalEntity(Protein.class, controllerProteinName, null, controllerRef);
+//		
+//		model.addNewControl(Control.class, controller, transport, controlType);
+//	}
+//	
+//	public void addComplexAssociation(List<String> moleculeNames) {
+//		addComplexAssembly(moleculeNames, ComplexAssemblyType.ASSOCIATION);
+//	}
+//	
+//	public void addComplexDissociation(List<String> moleculeNames) {
+//		addComplexAssembly(moleculeNames, ComplexAssemblyType.DISSOCIATION);
+//	}
+//	
+//	public void addBiochemicalReaction(String catalyzerName, List<String> inputMoleculeNames, List<String> outputMoleculeNames) {
+//		BiochemicalReaction reaction = model.addNewConversion(BiochemicalReaction.class);
+//		
+//		addNewSmallMoleculesToConversion(reaction, inputMoleculeNames, SideType.LEFT);
+//		addNewSmallMoleculesToConversion(reaction, outputMoleculeNames, SideType.RIGHT);
+//		
+//		ProteinReference catalyzerRef = model.getOrCreateEntityReference(ProteinReference.class, catalyzerName);
+//		Protein catalyzer = model.getOrCreatePhysicalEntity(Protein.class, catalyzerName, null, catalyzerRef);
+//		
+//		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
+//	}
+//	
+//	private void addComplexAssembly(List<String> moleculeNames, ComplexAssemblyType assemblyType) {
+//		
+//		ComplexAssembly complexAssembly = model.addNewConversion(ComplexAssembly.class);
+//		Complex complex = model.getOrCreatePhysicalEntity(Complex.class);
+//		
+//		SideType moleculeSide = SideType.LEFT;
+//		SideType complexSide = SideType.RIGHT;
+//		
+//		// Association by default
+//		if (assemblyType == ComplexAssemblyType.DISSOCIATION) {
+//			moleculeSide = SideType.RIGHT;
+//			complexSide = SideType.LEFT;
+//		}
+//		
+//		addSideToConversion(complexAssembly, complex, complexSide);
+//		
+//		for (String moleculeName : moleculeNames) {
+//			ProteinReference moleculeRef = model.getOrCreateEntityReference(ProteinReference.class, moleculeName);
+//			
+//			Protein molecule = model.getOrCreatePhysicalEntity(Protein.class, moleculeName, null, moleculeRef);
+//			Protein moleculeOfComplex = model.getOrCreatePhysicalEntity(Protein.class, moleculeName, null, moleculeRef);
+//			
+//			addSideToConversion(complexAssembly, molecule, moleculeSide);
+//			
+//			complex.addComponent(moleculeOfComplex);
+//		}
+//	}

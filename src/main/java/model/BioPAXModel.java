@@ -130,7 +130,13 @@ public class BioPAXModel {
 	// Get entity reference that has given name and class, create a new one is not available yet.
 	public <T extends EntityReference> T getOrCreateEntityReference(Class<T> c, String name) {
 		
-		T entityRef = (T) entityReferenceMap.get(c, name);
+		T entityRef = null;
+		
+		// if a name is specified try to get an existing entity reference with the
+		// same name and entity class first
+		if (name != null) {
+			entityRef = (T) entityReferenceMap.get(c, name);
+		}
 		
 		if (entityRef == null) {
 			entityRef = addNewEntityReference(c, name);
