@@ -52,7 +52,7 @@ public class FactoidToBiopax {
 			System.out.println(typeStr);
 			
 			if (matchesTemplateType(typeStr, TemplateType.PROTEIN_CONTROLS_STATE)) {
-				String controllerName = template.get("controller").getAsString();
+				String controllerName = template.get("controllerProtein").getAsString();
 				String controlTypeStr = (String) template.get("controlType").getAsString();
 				String targetProteinName = (String) template.get("targetProtein").getAsString();
 				
@@ -131,9 +131,9 @@ public class FactoidToBiopax {
 		model.addChemicalAffectsState(chemicalName, targetProteinName, controlType);
 	}
 	
-	private void addProteinControlsState(String controllerName, String targetProteinName, String controlTypeStr) {
+	private void addProteinControlsState(String controllerProteinName, String targetProteinName, String controlTypeStr) {
 		ControlType controlType = getControlType(controlTypeStr);
-		model.addProteinControlsState(controllerName, targetProteinName, controlType);
+		model.addProteinControlsState(controllerProteinName, targetProteinName, controlType);
 	}
 	
 	private void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, String controlTypeStr) {
@@ -201,7 +201,7 @@ public class FactoidToBiopax {
 		
 		JsonObject template1 = new JsonObject();
 		template1.addProperty("type", TemplateType.PROTEIN_CONTROLS_STATE.getName());
-		template1.addProperty("controller", "pcs_controller");
+		template1.addProperty("controllerProtein", "pcs_controllerProtein");
 		template1.addProperty("controlType", "activation");
 		template1.addProperty("targetProtein", "pcs_targetProtein");
 		templates.add(template1);

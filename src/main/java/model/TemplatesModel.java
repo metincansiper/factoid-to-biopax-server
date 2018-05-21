@@ -82,8 +82,8 @@ public class TemplatesModel {
 		addStateChange(chemicalName, targetProteinName, controlType, SmallMolecule.class, SmallMoleculeReference.class);
 	}
 	
-	public void addProteinControlsState(String controllerName, String targetProteinName, ControlType controlType) {
-		addStateChange(controllerName, targetProteinName, controlType, SmallMolecule.class, SmallMoleculeReference.class);
+	public void addProteinControlsState(String controllerProteinName, String targetProteinName, ControlType controlType) {
+		addStateChange(controllerProteinName, targetProteinName, controlType, SmallMolecule.class, SmallMoleculeReference.class);
 	}
 	
 	public void addProteinControlsConsumption(String controllerProteinName, String chemicalName) {
