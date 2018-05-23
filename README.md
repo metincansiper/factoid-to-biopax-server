@@ -28,7 +28,7 @@ To create the war file with another name than "FactoidToBiopaxServer"(war name a
 
 ## Consuming the Service
 
-After completing installation and deployment steps the server will be up and running at "http://localhost:8080/FriesToBiopaxServer" (You should update port number in case you use another one). You can send a post request to "http://localhost:8080/FactoidToBiopaxServer/ConvertToOwl" to consume the service. 
+After completing installation and deployment steps the server will be up and running at "http://localhost:8080/FriesToBiopaxServer" (You should update port number and path in case you use another ones). You can send a post request to "http://localhost:8080/FactoidToBiopaxServer/ConvertToOwl" to consume the service. 
 
 The service takes a String in JSON array format (see Input section below), converts it to BioPax format and returns a String to represent it.
 
