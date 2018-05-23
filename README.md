@@ -23,6 +23,9 @@ You can deploy the server to a docker container by following the steps below. "<
 docker build -f Dockerfile -t factoid-to-biopax .
 docker run -it --rm --name factoid-to-biopax --publish <PORT>:8080 factoid-to-biopax 
 ```
+
+To create the war file with another name than "FactoidToBiopaxServer"(war name affects where the service is deployed) add ``--build-arg TARGET_WAR_NAME=<WAR_NAME>`` to the build command.
+
 ## Consuming the Service
 
 After completing installation and deployment steps the server will be up and running at "http://localhost:8080/FriesToBiopaxServer" (You should update port number in case you use another one). You can send a post request to "http://localhost:8080/FactoidToBiopaxServer/ConvertToOwl" to consume the service. 
