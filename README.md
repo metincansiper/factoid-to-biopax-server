@@ -1,6 +1,6 @@
 # factoid-to-biopax-server
 
-A java servlet based web-server to convert [factoid](https://github.com/PathwayCommons/factoid/) form data to BioPAX. It uses [Paxtools](https://github.com/BioPAX/Paxtools) to generate a biopax model.
+A java servlet based web-server to convert [factoid](https://github.com/PathwayCommons/factoid/) document to BioPAX. It uses [Paxtools](https://github.com/BioPAX/Paxtools) to generate a biopax model.
 
 ## Installation
 
