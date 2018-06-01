@@ -103,6 +103,11 @@ public class BioPAXModel {
 	}
 	
 	public UnificationXref getOrCreateXref(XrefModel xrefModel) {
+		
+		if (xrefModel == null) {
+			return null;
+		}
+		
 		String xrefId = xrefModel.getId();
 		UnificationXref xref = xrefMap.get(xrefId);
 		
