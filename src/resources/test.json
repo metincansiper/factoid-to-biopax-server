@@ -1,0 +1,130 @@
+[
+	{
+		"type": "Protein Controls State",
+		"controllerProtein": {
+			"name": "pcs_controllerProtein",
+			"xref": {
+				"id": "xref1.1",
+				"namespace": "uniprot"
+			}
+		},
+		"controlType": "activation",
+		"targetProtein": {
+			"name": "pcs_targetProtein",
+			"xref": {
+				"id": "xref1.2",
+				"namespace": "uniprot"
+			}
+		}
+	},
+	{
+		"type": "Chemical Affects State",
+		"chemical": {
+			"name": "cas_chemical",
+			"xref": {
+				"id": "xref2.1",
+				"namespace": "pubchem"
+			}
+		},
+		"controlType": "activation",
+		"targetProtein": {
+			"name": "cas_targetProtein",
+			"xref": {
+				"id": "xref2.2",
+				"namespace": "uniprot"
+			}
+		}
+	},
+	{
+		"type": "Expression Regulation",
+		"transcriptionFactor": {
+			"name": "transcriptionFactor",
+			"xref": {
+				"id": "xref3.1",
+				"namespace": "uniprot"
+			}
+		},
+		"controlType": "activation",
+		"targetProtein": {
+			"name": "targetProtein",
+			"xref": {
+				"id": "xref3.2",
+				"namespace": "uniprot"
+			}
+		}
+	},
+	{
+		"type": "Molecular Interaction",
+		"moleculeList": [
+			{
+				"name": "molecule1",
+				"xref": {
+					"id": "xref4.1",
+					"namespace": "uniprot"
+				}
+			},
+			{
+				"name": "molecule2",
+				"xref": {
+					"id": "xref4.2",
+					"namespace": "uniprot"
+				}
+			}
+		]
+	},
+	{
+		"type": "Protein Modification",
+		"controllerProtein": {
+			"name": "pcs_controllerProtein",
+			"xref": {
+				"id": "xref5.1",
+				"namespace": "uniprot"
+			}
+		},
+		"controlType": "activation",
+		"modification": "phosphorylated",
+		"targetProtein": {
+			"name": "pcs_targetProtein",
+			"xref": {
+				"id": "xref5.2",
+				"namespace": "uniprot"
+			}
+		}
+	},
+	{
+		"type": "Protein Controls Consumption",
+		"chemical": {
+			"name": "chemical",
+			"xref": {
+				"id": "xref6.1",
+				"namespace": "pubchem"
+			}
+		},
+		"controlType": "activation",
+		"controllerProtein": {
+			"name": "controllerProtein",
+			"xref": {
+				"id": "xref6.2",
+				"namespace": "uniprot"
+			}
+		}
+	},
+	{
+		"type": "Protein Controls Production",
+		"chemical": {
+			"name": "chemical",
+			"xref": {
+				"id": "xref7.1",
+				"namespace": "PubChem"
+			}
+		},
+		"controlType": "activation",
+		"controllerProtein": {
+			"name": "controllerProtein",
+			"xref": {
+				"id": "xref7.2",
+				"namespace": "UniProt"
+			}
+		}
+	}
+]

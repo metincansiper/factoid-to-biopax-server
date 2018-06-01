@@ -32,6 +32,7 @@ import org.biopax.paxtools.model.level3.EntityReference;
 import org.biopax.paxtools.model.level3.ModificationFeature;
 import org.biopax.paxtools.model.level3.PhysicalEntity;
 import org.biopax.paxtools.model.level3.Process;
+import org.biopax.paxtools.model.level3.UnificationXref;
 import org.biopax.paxtools.model.level3.SequenceModificationVocabulary;
 import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
 
@@ -41,6 +42,8 @@ public class BioPAXModel {
 	private Model model;
 	// Map of term to cellular location
 	private Map<String, CellularLocationVocabulary> cellularLocationMap;
+	// Map of xref id to xref itself
+	private Map<String, UnificationXref> xrefMap;
 	// Multiple key map of entity reference class and name to entity reference itself
 	private MultiKeyMap<Object, EntityReference> entityReferenceMap;
 	
@@ -51,6 +54,7 @@ public class BioPAXModel {
 		model = factory.createModel();
 		
 		cellularLocationMap = new HashMap<String, CellularLocationVocabulary>();
+		xrefMap = new HashMap<String, UnificationXref>();
 		entityReferenceMap = new MultiKeyMap<Object, EntityReference>();
 	}
 	
@@ -98,7 +102,21 @@ public class BioPAXModel {
 		return getOrCreatePhysicalEntity(c, null);
 	}
 	
-	// Get cellular location mathcing the given term, create one if not available
+	public UnificationXref getOrCreateXref(XrefModel xrefModel) {
+		String xrefId = xrefModel.getId();
+		UnificationXref xref = xrefMap.get(xrefId);
+		
+		if (xref == null) {
+			xref = addNew(UnificationXref.class);
+			xref.setId(xrefId);
+			xref.setDb(xrefModel.getNamespace());
+			xrefMap.put(xrefId, xref);
+		}
+		
+		return xref;
+	}
+	
+	// Get cellular location matching the given term, create one if not available
 	public CellularLocationVocabulary getOrCreateCellularLocationVocabulary(String term) {
 		
 		CellularLocationVocabulary clv = cellularLocationMap.get(term);
@@ -128,19 +146,20 @@ public class BioPAXModel {
 	}
 	
 	// Get entity reference that has given name and class, create a new one is not available yet.
-	public <T extends EntityReference> T getOrCreateEntityReference(Class<T> c, String name) {
+	public <T extends EntityReference> T getOrCreateEntityReference(Class<T> c, String name, XrefModel xrefModel) {
 		
 		T entityRef = null;
+		UnificationXref xref = getOrCreateXref(xrefModel);
 		
 		// if a name is specified try to get an existing entity reference with the
 		// same name and entity class first
 		if (name != null) {
-			entityRef = (T) entityReferenceMap.get(c, name);
+			entityRef = (T) entityReferenceMap.get(c, name, xref);
 		}
 		
 		if (entityRef == null) {
-			entityRef = addNewEntityReference(c, name);
-			entityReferenceMap.put(c, name, entityRef);
+			entityRef = addNewEntityReference(c, name, xref);
+			entityReferenceMap.put(c, name, xref, entityRef);
 		}
 		
 		return entityRef;
@@ -382,12 +401,16 @@ public class BioPAXModel {
 	}
 	
 	// Create a new entity reference by given properties
-	private <T extends EntityReference> T addNewEntityReference(Class<T> c, String name) {
+	private <T extends EntityReference> T addNewEntityReference(Class<T> c, String name, UnificationXref xref) {
 		
 		T entityRef = addNew(c);
 		
 		if(name != null) {
 			entityRef.setDisplayName(name);
+		}
+		
+		if(xref != null) {
+			entityRef.addXref(xref);
 		}
 		
 		return entityRef;

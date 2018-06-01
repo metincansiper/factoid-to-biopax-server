@@ -34,7 +34,7 @@ public class TemplatesModel {
 	
 	// modifiers
 
-	public void addProteinModification(String targetProteinName, String controllerProteinName, String modificationType, ControlType controlType) {
+	public void addProteinModification(EntityModel targetProteinModel, EntityModel controllerProteinModel, String modificationType, ControlType controlType) {
 		
 		Set<String> leftModificationTypes = new HashSet<String>();
 		Set<String> rightModificationTypes = new HashSet<String>();
@@ -43,31 +43,46 @@ public class TemplatesModel {
 		
 		addActiveInactiveModifications(controlType, leftModificationTypes, rightModificationTypes);
 		
-		ProteinReference protRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName);
+		String targetProteinName = targetProteinModel.getName();
+		XrefModel targetProteinXref = targetProteinModel.getXref();
+		
+		String controllerProteinName = controllerProteinModel.getName();
+		XrefModel controllerProteinXref = controllerProteinModel.getXref();
+		
+		ProteinReference protRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName, targetProteinXref);
 		Protein left = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, protRef, leftModificationTypes);
 		Protein right = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, protRef, rightModificationTypes);
 		
-		ProteinReference controllerRef = model.getOrCreateEntityReference(ProteinReference.class, controllerProteinName);
+		ProteinReference controllerRef = model.getOrCreateEntityReference(ProteinReference.class, controllerProteinName, controllerProteinXref);
 		Protein controller = model.getOrCreatePhysicalEntity(Protein.class, controllerProteinName, null, controllerRef);
 		
 		Conversion conversion = model.addNewConversion(Conversion.class, left, right);
 		model.addNewControl(Control.class, controller, conversion, controlType);
 	}
 	
-	public void addMolecularInteraction(List<String> moleculeNames) {
+	public void addMolecularInteraction(List<EntityModel> moleculeModels) {
 		MolecularInteraction molecularInteraction = model.addNew(MolecularInteraction.class);
 		
-		for(String moleculeName : moleculeNames) {
-			ProteinReference protRef = model.getOrCreateEntityReference(ProteinReference.class, moleculeName);
+		for(EntityModel moleculeModel : moleculeModels) {
+			String moleculeName = moleculeModel.getName();
+			XrefModel moleculeXref = moleculeModel.getXref();
+			
+			ProteinReference protRef = model.getOrCreateEntityReference(ProteinReference.class, moleculeName, moleculeXref);
 			Protein molecule = model.getOrCreatePhysicalEntity(Protein.class, moleculeName, null, protRef);
 			molecularInteraction.addParticipant(molecule);
 		}
 	}
 	
-	public void addRegulationOfExpression(String transcriptionFactorName, String targetProtName, ControlType controlType) {
+	public void addRegulationOfExpression(EntityModel transcriptionFactorModel, EntityModel targetProtModel, ControlType controlType) {
 		
-		ProteinReference targetRef = model.getOrCreateEntityReference(ProteinReference.class, targetProtName);
-		ProteinReference tfRef = model.getOrCreateEntityReference(ProteinReference.class, transcriptionFactorName);
+		String transcriptionFactorName = transcriptionFactorModel.getName();
+		XrefModel transcriptionFactorXref = transcriptionFactorModel.getXref();
+		
+		String targetProtName = targetProtModel.getName();
+		XrefModel targetProtXref = targetProtModel.getXref();
+		
+		ProteinReference targetRef = model.getOrCreateEntityReference(ProteinReference.class, targetProtName, targetProtXref);
+		ProteinReference tfRef = model.getOrCreateEntityReference(ProteinReference.class, transcriptionFactorName, transcriptionFactorXref);
 		
 		Protein tf = model.getOrCreatePhysicalEntity(Protein.class, transcriptionFactorName, null, tfRef);
 		Protein product = model.getOrCreatePhysicalEntity(Protein.class, targetProtName, null, targetRef);
@@ -78,20 +93,20 @@ public class TemplatesModel {
 		model.addNewControl(TemplateReactionRegulation.class, tf, reaction, controlType);
 	}
 	
-	public void addChemicalAffectsState(String chemicalName, String targetProteinName, ControlType controlType) {
-		addStateChange(chemicalName, targetProteinName, controlType, SmallMolecule.class, SmallMoleculeReference.class);
+	public void addChemicalAffectsState(EntityModel chemicalModel, EntityModel targetProteinModel, ControlType controlType) {
+		addStateChange(chemicalModel, targetProteinModel, controlType, SmallMolecule.class, SmallMoleculeReference.class);
 	}
 	
-	public void addProteinControlsState(String controllerProteinName, String targetProteinName, ControlType controlType) {
-		addStateChange(controllerProteinName, targetProteinName, controlType, SmallMolecule.class, SmallMoleculeReference.class);
+	public void addProteinControlsState(EntityModel controllerProteinModel, EntityModel targetProteinModel, ControlType controlType) {
+		addStateChange(controllerProteinModel, targetProteinModel, controlType, SmallMolecule.class, SmallMoleculeReference.class);
 	}
 	
-	public void addProteinControlsConsumption(String controllerProteinName, String chemicalName) {
-		addProteinControlsConsumptionOrProduction(controllerProteinName, chemicalName, SideType.LEFT);
+	public void addProteinControlsConsumption(EntityModel controllerProteinModel, EntityModel chemicalModel) {
+		addProteinControlsConsumptionOrProduction(controllerProteinModel, chemicalModel, SideType.LEFT);
 	}
 	
-	public void addProteinControlsProduction(String controllerProteinName, String chemicalName) {
-		addProteinControlsConsumptionOrProduction(controllerProteinName, chemicalName, SideType.RIGHT);
+	public void addProteinControlsProduction(EntityModel controllerProteinModel, EntityModel chemicalModel) {
+		addProteinControlsConsumptionOrProduction(controllerProteinModel, chemicalModel, SideType.RIGHT);
 	}
 	
 	// accessors
@@ -102,32 +117,40 @@ public class TemplatesModel {
 	
 	// Section: private helper methods
 	
-	private void addProteinControlsConsumptionOrProduction(String controllerProteinName, String chemicalName, SideType chemicalSide) {
+	private void addProteinControlsConsumptionOrProduction(EntityModel controllerProteinModel, EntityModel chemicalModel, SideType chemicalSide) {
+		String controllerProteinName = controllerProteinModel.getName();
+		XrefModel controllerProteinXref = controllerProteinModel.getXref();
 		
-		SideType otherSide = getOppositeSide(chemicalSide);
-		String otherChemName = null;
+//		SideType otherSide = getOppositeSide(chemicalSide);
+//		String otherChemName = null;
 		
 		BiochemicalReaction reaction = model.addNewConversion(BiochemicalReaction.class);
 		
-		addNewSmallMoleculeToConversion(reaction, chemicalName, chemicalSide);
-		addNewSmallMoleculeToConversion(reaction, otherChemName, otherSide);
+		addNewSmallMoleculeToConversion(reaction, chemicalModel, chemicalSide);
+//		addNewSmallMoleculeToConversion(reaction, otherChemName, otherSide);
 		
-		ProteinReference catalyzerRef = model.getOrCreateEntityReference(ProteinReference.class, controllerProteinName);
+		ProteinReference catalyzerRef = model.getOrCreateEntityReference(ProteinReference.class, controllerProteinName, controllerProteinXref);
 		Protein catalyzer = model.getOrCreatePhysicalEntity(Protein.class, controllerProteinName, null, catalyzerRef);
 		
 		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
 	}
 	
-	private <T1 extends PhysicalEntity, T2 extends EntityReference> void addStateChange(String controllerName, String targetProteinName, ControlType controlType, Class<T1> controllerClass, Class<T2> controllerRefClass) {
+	private <T1 extends PhysicalEntity, T2 extends EntityReference> void addStateChange(EntityModel controllerModel, EntityModel targetProteinModel, ControlType controlType, Class<T1> controllerClass, Class<T2> controllerRefClass) {
 		
 		Set<String> leftModificationTypes = new HashSet<String>();
 		Set<String> rightModificationTypes = new HashSet<String>();
 		
 		addActiveInactiveModifications(controlType, leftModificationTypes, rightModificationTypes);
 		
-		ProteinReference targetProtRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName);
+		String controllerName = controllerModel.getName();
+		XrefModel controllerXref = controllerModel.getXref();
 		
-		T2 controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName);
+		String targetProteinName = targetProteinModel.getName();
+		XrefModel targetProteinXref = targetProteinModel.getXref();
+		
+		ProteinReference targetProtRef = model.getOrCreateEntityReference(ProteinReference.class, targetProteinName, targetProteinXref);
+		
+		T2 controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
 		
 		T1 controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
 		Protein leftProtein = model.getOrCreatePhysicalEntity(Protein.class, targetProteinName, null, targetProtRef, leftModificationTypes);
@@ -138,17 +161,13 @@ public class TemplatesModel {
 	}
 	
 	// Add a new small molecule to the given side of conversion
-	private void addNewSmallMoleculeToConversion(Conversion conversion, String moleculeName, SideType sideType) {
-		SmallMoleculeReference moleculeRef = model.getOrCreateEntityReference(SmallMoleculeReference.class, moleculeName);
+	private void addNewSmallMoleculeToConversion(Conversion conversion, EntityModel moleculeModel, SideType sideType) {
+		String moleculeName = moleculeModel.getName();
+		XrefModel moleculeXref = moleculeModel.getXref();
+		
+		SmallMoleculeReference moleculeRef = model.getOrCreateEntityReference(SmallMoleculeReference.class, moleculeName, moleculeXref);
 		SmallMolecule molecule = model.getOrCreatePhysicalEntity(SmallMolecule.class, moleculeName, null, moleculeRef);
 		addSideToConversion(conversion, molecule, sideType);
-	}
-	
-	// Add new small molecules to given side of conversion
-	private void addNewSmallMoleculesToConversion(Conversion conversion, List<String> moleculeNames, SideType sideType) {
-		for (String moleculeName : moleculeNames) {
-			addNewSmallMoleculeToConversion(conversion, moleculeName, sideType);
-		}
 	}
 	
 	// Add a physical entity to given side of conversation.
@@ -161,9 +180,9 @@ public class TemplatesModel {
 		}
 	}
 	
-	private static SideType getOppositeSide(SideType side) {
-		return side == SideType.LEFT ? SideType.RIGHT : SideType.LEFT;
-	}
+//	private static SideType getOppositeSide(SideType side) {
+//		return side == SideType.LEFT ? SideType.RIGHT : SideType.LEFT;
+//	}
 	
 	// Update modification types set by adding ACTIVE and INACTIVE modifications to the sides according to control type
 	private static void addActiveInactiveModifications(ControlType controlType, Set<String> leftModificationTypes, Set<String> rightModificationTypes){
@@ -188,10 +207,6 @@ public class TemplatesModel {
 	private static enum SideType {
 		LEFT,
 		RIGHT
-	}
-	private static enum ComplexAssemblyType {
-		ASSOCIATION,
-		DISSOCIATION
 	}
 }
 
@@ -289,4 +304,14 @@ public class TemplatesModel {
 //			
 //			complex.addComponent(moleculeOfComplex);
 //		}
+//	}
+//	Add new small molecules to given side of conversion
+//	private void addNewSmallMoleculesToConversion(Conversion conversion, List<EntityModel> moleculeModels, SideType sideType) {
+//		for (EntityModel moleculeModel : moleculeModels) {
+//			addNewSmallMoleculeToConversion(conversion, moleculeModel, sideType);
+//		}
+//	}
+//	private static enum ComplexAssemblyType {
+//		ASSOCIATION,
+//		DISSOCIATION
 //	}

@@ -65,6 +65,8 @@ public class BioPAXModelTest {
 		Model innerModel = getInnerPaxtoolsModel(model);
 		
 		String protName = "TP53";
+		XrefModel protXref = new XrefModel("xrefid1", "uniprot");
+		
 		String cellularLocationName = "cytoplasm";
 		String cellularLocationName2 = "cytoplasm2";
 		
@@ -74,7 +76,7 @@ public class BioPAXModelTest {
 		Set<String> modificationTypes2 = new HashSet<String>();
 		modificationTypes2.add("inactive");
 		
-		ProteinReference protRef = model.getOrCreateEntityReference(ProteinReference.class, protName);
+		ProteinReference protRef = model.getOrCreateEntityReference(ProteinReference.class, protName, protXref);
 		CellularLocationVocabulary cellularLocation = model.getOrCreateCellularLocationVocabulary(cellularLocationName);
 		CellularLocationVocabulary cellularLocation2 = model.getOrCreateCellularLocationVocabulary(cellularLocationName2);
 		
@@ -113,17 +115,20 @@ public class BioPAXModelTest {
 		String commonName = "Protein1";
 		String uniqueName = "Protein2";
 		
-		ProteinReference protRef1 = model.getOrCreateEntityReference(ProteinReference.class, commonName);
+		// TODO: add tests for same name but different xref as well
+		XrefModel commonXref = new XrefModel("common-xref", "uniprot");
+		
+		ProteinReference protRef1 = model.getOrCreateEntityReference(ProteinReference.class, commonName, commonXref);
 		assertTrue("Protein reference is added to the model", innerModel.contains(protRef1));
 		assertEquals("Protein reference name is set", commonName, protRef1.getDisplayName());
 		
-		ProteinReference protRef2 = model.getOrCreateEntityReference(ProteinReference.class, commonName);
+		ProteinReference protRef2 = model.getOrCreateEntityReference(ProteinReference.class, commonName, commonXref);
 		assertEquals("No duplication in adding second protein modification with same name", protRef1, protRef2);
 		
-		SmallMoleculeReference smRef = model.getOrCreateEntityReference(SmallMoleculeReference.class, commonName);
+		SmallMoleculeReference smRef = model.getOrCreateEntityReference(SmallMoleculeReference.class, commonName, commonXref);
 		assertNotEquals("A new small molecule reference is added that has an existing protein reference name", protRef2, smRef);
 		
-		ProteinReference protRef3 = model.getOrCreateEntityReference(ProteinReference.class, uniqueName);
+		ProteinReference protRef3 = model.getOrCreateEntityReference(ProteinReference.class, uniqueName, commonXref);
 		assertNotEquals("A new protein is added with a new name", protRef1, protRef3);
 	}
 	
