@@ -1,7 +1,5 @@
 package model;
 
-import com.google.gson.JsonObject;
-
 public class XrefModel {
 	
 	private String id;
@@ -26,16 +24,5 @@ public class XrefModel {
 	
 	public String getNamespace() {
 		return namespace;
-	}
-	
-	public static XrefModel createFromJson(JsonObject jsonObj) {
-		if (jsonObj == null) {
-			return null;
-		}
-		
-		String id = jsonObj.get("id").getAsString();
-		String namespace = jsonObj.get("namespace").getAsString();
-		
-		return new XrefModel(id, namespace);
 	}
 }

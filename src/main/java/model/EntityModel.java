@@ -1,7 +1,5 @@
 package model;
 
-import com.google.gson.JsonObject;
-
 public class EntityModel {
 	
 	private String name;
@@ -26,22 +24,5 @@ public class EntityModel {
 	
 	public XrefModel getXref() {
 		return xref;
-	}
-	
-	public static EntityModel createFromJson(JsonObject jsonObj) {
-		if (jsonObj == null) {
-			return null;
-		}
-		
-		String name = jsonObj.get("name").getAsString();
-		
-		XrefModel xref = null;
-		
-		if (jsonObj.has("xref")) {
-			JsonObject xrefObj = jsonObj.get("xref").getAsJsonObject();
-			xref = XrefModel.createFromJson(xrefObj);
-		}
-		
-		return new EntityModel(name, xref);
 	}
 }
