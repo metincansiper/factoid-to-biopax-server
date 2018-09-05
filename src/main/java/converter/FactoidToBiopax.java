@@ -1,7 +1,5 @@
 package converter;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.Reader;
 /*
  * A converter class that gets a JSON object that includes sequence of BioPAX templates and enables
@@ -20,7 +18,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 
 import model.*;
 
@@ -53,7 +50,7 @@ public class FactoidToBiopax {
 		while (it.hasNext()) {
 			JsonObject template = (JsonObject) it.next();
 			String typeStr = template.get("type").getAsString();
-			System.out.println(typeStr);
+//			System.out.println(typeStr);
 			
 			if (matchesTemplateType(typeStr, TemplateType.PROTEIN_CONTROLS_STATE)) {
 				JsonObject controllerJson = template.get("controllerProtein").getAsJsonObject();
@@ -179,7 +176,7 @@ public class FactoidToBiopax {
 		return map;
 	}
 	
-	private static enum TemplateType {
+	private enum TemplateType {
 		PROTEIN_MODIFICATION("Protein Modification"),
 		MOLECULAR_INTERACTION("Molecular Interaction"),
 		PROTEIN_CONTROLS_STATE("Protein Controls State"),
@@ -204,15 +201,5 @@ public class FactoidToBiopax {
 	}
 	
 	private static final Map<String, ControlType> CONTROL_TYPE_MAP = createControlTypeMap();
-	
-	public static void main(String[] args) throws FileNotFoundException {
-		
-		Gson gson = new Gson();
-		JsonReader reader = new JsonReader(new FileReader("src/resources/test.json"));
-		JsonArray templates = gson.fromJson(reader, JsonArray.class);
-		FactoidToBiopax converter = new FactoidToBiopax();
-		converter.addToModel(templates);
-		
-		System.out.println(converter.convertToOwl());
-	}
+
 }
