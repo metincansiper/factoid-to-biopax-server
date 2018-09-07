@@ -1,4 +1,4 @@
-package converter;
+package factoid.converter;
 
 import java.io.Reader;
 /*
@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
-import model.*;
+import factoid.model.*;
 
 public class FactoidToBiopax {
 	
@@ -101,7 +101,7 @@ public class FactoidToBiopax {
 		}
 	}
 	
-	public String convertToOwl() {
+	public String convertToBiopax() {
 		return model.convertToOwl();
 	}
 	

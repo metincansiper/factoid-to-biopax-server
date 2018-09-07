@@ -1,10 +1,5 @@
-# copy the source and build it as a maven project
-FROM maven:3.5-jdk-8-alpine as build
-WORKDIR /app
-COPY . $PWD
-RUN mvn clean install
-
-# deploy the war file created in build stage to tomcat
-FROM tomcat:7.0.86-jre8-alpine
-ARG TARGET_WAR_NAME=FactoidBiopaxSrv
-COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/${TARGET_WAR_NAME}.war
+FROM openjdk:8-jdk-alpine
+VOLUME /tmp
+ARG JAR_FILE
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]

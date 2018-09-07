@@ -1,4 +1,4 @@
-package converter;
+package factoid.converter;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -22,7 +22,7 @@ public class FactoidToBiopaxTest {
     JsonArray templates = gson.fromJson(reader, JsonArray.class);
     FactoidToBiopax converter = new FactoidToBiopax();
     converter.addToModel(templates);
-    String res = converter.convertToOwl();
+    String res = converter.convertToBiopax();
     //quick (sanity) checks
     assertTrue(res!=null && res.length()>100);
     Model m = (new SimpleIOHandler()).convertFromOWL(new ByteArrayInputStream(res.getBytes("UTF-8")));

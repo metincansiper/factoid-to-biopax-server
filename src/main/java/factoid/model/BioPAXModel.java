@@ -3,7 +3,7 @@
  * This model is designed to avoid duplications of BioPAX elements in certain conditions.
  */
 
-package model;
+package factoid.model;
 
 import java.util.Collection;
 import java.util.HashMap;

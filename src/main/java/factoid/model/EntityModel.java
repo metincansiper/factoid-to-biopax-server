@@ -1,4 +1,4 @@
-package model;
+package factoid.model;
 
 public class EntityModel {
 	
