@@ -31,6 +31,23 @@ You can deploy the server to a docker container by following the steps below
 docker run -it --rm --name factoid-converters -p <PORT>:8080 pathwaycommons/factoid-converters 
 ```
 
+Optionally, a member of 'pathwaycommons' group can now push (upload) the latest Docker image there:
+
+```
+docker login
+docker push pathwaycommons/factoid-converters
+
+```  
+
+So, other users could skip building from sources and simply run the app:
+```
+docker pull
+docker run -p <PORT>:8080 -t pathwaycommons/factoid-converters
+```
+
+(you can `Ctrl-c` and quit the console; the container is still there running; check with `docker ps`)
+
+
 ## Example queries
 
 Using cUrl tool:
