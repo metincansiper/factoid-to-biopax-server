@@ -1,2 +1,4 @@
 sudo: false
 script: ./gradlew build
+notifications:
+    slack: pathwaycommons:EDRQfFuGFr8Xn93M5xNMPVRB
