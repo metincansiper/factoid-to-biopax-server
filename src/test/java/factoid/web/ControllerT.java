@@ -34,9 +34,7 @@ public class ControllerT {
     HttpHeaders headers = new HttpHeaders();
     headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
     HttpEntity<String> request = new HttpEntity<>(data, headers);
-
     String res = template.postForObject("/v1/json-to-biopax", request, String.class);
-
     assertNotNull(res);
     assertThat(res, containsString("biopax-level3.owl#"));
   }
@@ -47,9 +45,7 @@ public class ControllerT {
     HttpHeaders headers = new HttpHeaders();
     headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
     HttpEntity<String> request = new HttpEntity<>(data, headers);
-
     String res = template.postForObject("/v1/json-to-sbgn", request, String.class);
-
     assertNotNull(res);
     assertThat(res, containsString("http://sbgn.org/libsbgn/"));
   }
@@ -60,9 +56,7 @@ public class ControllerT {
     HttpHeaders headers = new HttpHeaders();
     headers.set("Content-Type", "application/vnd.biopax.rdf+xml");
     HttpEntity<String> request = new HttpEntity<>(data, headers);
-
     String res = template.postForObject("/v1/biopax-to-sbgn", request, String.class);
-
     assertNotNull(res);
     assertThat(res, containsString("http://sbgn.org/libsbgn/"));
   }

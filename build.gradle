@@ -1,62 +1,45 @@
-plugins {
-    id 'com.palantir.docker' version '0.20.1'
-    id 'java'
-    id 'idea'
-    id 'org.springframework.boot' version '2.0.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.6.RELEASE'
+buildscript {
+    ext {
+        springBootVersion = '2.1.0.RELEASE'
+    }
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.20.1"
+    }
 }
 
-jar {
-    baseName = 'factoid-converters'
-    version =  '0.1.0'
-}
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.palantir.docker'
 
 repositories {
     mavenCentral()
-
     maven {
         url "https://oss.sonatype.org/content/groups/public/"
     }
-
     maven {
         url "http://www.biopax.org/m2repo/releases/"
     }
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    // tag::actuator[]
-    compile("org.springframework.boot:spring-boot-starter-actuator")
-    // end::actuator[]
-    // tag::tests[]
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-    // end::tests[]
-
-    compile("org.biopax.paxtools:sbgn-converter:5.1.0-SNAPSHOT")
-    compile("com.google.code.gson:gson:2.8.2")
-    compile("org.apache.commons:commons-collections4:4.1")
-
-    compileOnly("org.springframework.boot:spring-boot-devtools")
-
-    //can use the following instead 'compileOnly' since gradle 4.6:
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-
-    //Swagger and UI
-    compile "io.springfox:springfox-swagger2:2.7.0"
-    compile "io.springfox:springfox-swagger-ui:2.7.0"
-
-    //enable JSR-303
-//    compile "io.springfox:springfox-bean-validators:2.7.0"
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.biopax.paxtools:sbgn-converter:5.1.0'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'org.apache.commons:commons-collections4:4.1'
+    implementation 'io.springfox:springfox-swagger2:2.7.0'
+    implementation 'io.springfox:springfox-swagger-ui:2.7.0'
 }
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
-}
-
-group = 'pathwaycommons'
 
 docker {
     dependsOn build
@@ -64,3 +47,7 @@ docker {
     files bootJar.archivePath
     buildArgs(['JAR_FILE': "${bootJar.archiveName}"])
 }
+
+sourceCompatibility = 1.8
+group = 'pathwaycommons'
+version =  '0.1.0'

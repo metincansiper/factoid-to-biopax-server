@@ -15,7 +15,7 @@ A java web server to convert [factoid](https://github.com/PathwayCommons/factoid
 ## Run
 
 ```
-java -jar build/libs/factoid-converters.jar --server.port=8080
+java -jar build/libs/factoid-converters-0.1.0.jar --server.port=8080
 ```
 
 RESTful API (Swagger docs):
