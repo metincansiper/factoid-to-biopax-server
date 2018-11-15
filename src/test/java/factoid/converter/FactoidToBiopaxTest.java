@@ -18,11 +18,12 @@ public class FactoidToBiopaxTest {
   public void testToOwl() throws IOException {
     Gson gson = new Gson();
     JsonReader reader = new JsonReader(new FileReader(getClass()
-      .getResource("/test.json").getFile()));
+      .getResource("/test2.json").getFile()));
     JsonArray templates = gson.fromJson(reader, JsonArray.class);
     FactoidToBiopax converter = new FactoidToBiopax();
     converter.addToModel(templates);
     String res = converter.convertToBiopax();
+    System.out.println(res);
     //quick (sanity) checks
     assertTrue(res!=null && res.length()>100);
     Model m = (new SimpleIOHandler()).convertFromOWL(new ByteArrayInputStream(res.getBytes("UTF-8")));

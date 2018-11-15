@@ -80,7 +80,7 @@ public class BioPAXModelTest {
 		CellularLocationVocabulary cellularLocation = model.getOrCreateCellularLocationVocabulary(cellularLocationName);
 		CellularLocationVocabulary cellularLocation2 = model.getOrCreateCellularLocationVocabulary(cellularLocationName2);
 		
-		Protein prot1 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef, modificationTypes);
+		Protein prot1 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef, modificationTypes, null);
 		
 		assertTrue("Protein is added to the model", innerModel.contains(prot1));
 		assertEquals("Protein name is set", prot1.getDisplayName(), protName);
@@ -89,17 +89,17 @@ public class BioPAXModelTest {
 		assertEquals("Protein modification types are set", modificationTypes.size(), prot1.getFeature().size());
 		assertEquals("Protein reference has a new modification", 1, protRef.getEntityFeature().size());
 		
-		Protein prot2 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef, modificationTypes);
+		Protein prot2 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef, modificationTypes, null);
 		assertEquals("No duplication in adding the second Protein with same features", prot1, prot2);
 		
 		Protein prot3 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef);
 		assertNotEquals("A new protein is added with no modification", prot1, prot3);
 		
-		Protein prot4 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef, modificationTypes2);
+		Protein prot4 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef, modificationTypes2, null);
 		assertNotEquals("A new protein is added with with different modifications", prot1, prot4);
 		assertEquals("Protein reference has a new modification", 2, protRef.getEntityFeature().size());
 		
-		Protein prot5 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation2, protRef, modificationTypes);
+		Protein prot5 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation2, protRef, modificationTypes, null);
 		assertNotEquals("A new protein is added with with different cellular location", prot1, prot5);
 		assertEquals("Protein reference already had this modification", 2, protRef.getEntityFeature().size());
 	}

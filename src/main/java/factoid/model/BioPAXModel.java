@@ -20,6 +20,7 @@ import org.biopax.paxtools.model.BioPAXElement;
 import org.biopax.paxtools.model.BioPAXFactory;
 import org.biopax.paxtools.model.BioPAXLevel;
 import org.biopax.paxtools.model.Model;
+import org.biopax.paxtools.model.level2.relationshipXref;
 import org.biopax.paxtools.model.level3.CellularLocationVocabulary;
 import org.biopax.paxtools.model.level3.Control;
 import org.biopax.paxtools.model.level3.ControlType;
@@ -32,6 +33,7 @@ import org.biopax.paxtools.model.level3.EntityReference;
 import org.biopax.paxtools.model.level3.ModificationFeature;
 import org.biopax.paxtools.model.level3.PhysicalEntity;
 import org.biopax.paxtools.model.level3.Process;
+import org.biopax.paxtools.model.level3.RelationshipXref;
 import org.biopax.paxtools.model.level3.UnificationXref;
 import org.biopax.paxtools.model.level3.SequenceModificationVocabulary;
 import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
@@ -43,7 +45,7 @@ public class BioPAXModel {
 	// Map of term to cellular location
 	private Map<String, CellularLocationVocabulary> cellularLocationMap;
 	// Map of xref id to xref itself
-	private Map<String, UnificationXref> xrefMap;
+	private Map<String, RelationshipXref> xrefMap;
 	// Multiple key map of entity reference class and name to entity reference itself
 	private MultiKeyMap<Object, EntityReference> entityReferenceMap;
 	
@@ -54,7 +56,7 @@ public class BioPAXModel {
 		model = factory.createModel();
 		
 		cellularLocationMap = new HashMap<String, CellularLocationVocabulary>();
-		xrefMap = new HashMap<String, UnificationXref>();
+		xrefMap = new HashMap<String, RelationshipXref>();
 		entityReferenceMap = new MultiKeyMap<Object, EntityReference>();
 	}
 	
@@ -72,7 +74,7 @@ public class BioPAXModel {
 	
 	// Just get a physical entity, create it if not available yet.
 	// Do not create duplicate entities if entity references, cellular locations and modifications set matches.
-	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, CellularLocationVocabulary cellularLocation, EntityReference entityRef, Set<String> modificationTypes) {
+	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, CellularLocationVocabulary cellularLocation, EntityReference entityRef, Set<String> modificationTypes, Set<String> modificationNotTypes) {
 		
 		T entity = null;
 		
@@ -80,18 +82,18 @@ public class BioPAXModel {
 			assertSimplePhysicalEntityOrSubclass(c);
 			
 			Set<T> entities = (Set<T>) entityRef.getEntityReferenceOf();
-			entity = findMatchingEntity(entities, cellularLocation, modificationTypes);
+			entity = findMatchingEntity(entities, cellularLocation, modificationTypes, modificationNotTypes);
 		}
 		
 		if (entity == null) {
-			entity = addNewPhysicalEntity(c, name, cellularLocation, entityRef, modificationTypes);
+			entity = addNewPhysicalEntity(c, name, cellularLocation, entityRef, modificationTypes, modificationNotTypes);
 		}
 		
 		return entity;
 	}
 	
 	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, CellularLocationVocabulary cellularLocation, EntityReference entityRef) {
-		return getOrCreatePhysicalEntity(c, name, cellularLocation, entityRef, null);
+		return getOrCreatePhysicalEntity(c, name, cellularLocation, entityRef, null, null);
 	}
 	
 	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name) {
@@ -102,17 +104,17 @@ public class BioPAXModel {
 		return getOrCreatePhysicalEntity(c, null);
 	}
 	
-	public UnificationXref getOrCreateXref(XrefModel xrefModel) {
+	public RelationshipXref getOrCreateXref(XrefModel xrefModel) {
 		
 		if (xrefModel == null) {
 			return null;
 		}
 		
 		String xrefId = xrefModel.getId();
-		UnificationXref xref = xrefMap.get(xrefId);
+		RelationshipXref xref = xrefMap.get(xrefId);
 		
 		if (xref == null) {
-			xref = addNew(UnificationXref.class);
+			xref = addNew(RelationshipXref.class);
 			xref.setId(xrefId);
 			xref.setDb(xrefModel.getNamespace());
 			xrefMap.put(xrefId, xref);
@@ -154,7 +156,7 @@ public class BioPAXModel {
 	public <T extends EntityReference> T getOrCreateEntityReference(Class<T> c, String name, XrefModel xrefModel) {
 		
 		T entityRef = null;
-		UnificationXref xref = getOrCreateXref(xrefModel);
+		RelationshipXref xref = getOrCreateXref(xrefModel);
 		
 		// if a name is specified try to get an existing entity reference with the
 		// same name and entity class first
@@ -230,12 +232,13 @@ public class BioPAXModel {
 	}
 	
 	// Find the physical entity that has the expected cellular location and modification types
-	private static <T extends PhysicalEntity> T findMatchingEntity(Set<T> entities, CellularLocationVocabulary cellularLocation, Set<String> modificationTypes){		
+	private static <T extends PhysicalEntity> T findMatchingEntity(Set<T> entities, CellularLocationVocabulary cellularLocation, Set<String> modificationTypes, Set<String> modificationNotTypes){		
 		
 		Optional<T> match = entities.stream().filter(t -> {
 			CellularLocationVocabulary clv = t.getCellularLocation();
 			return nullSafeEquals(clv, cellularLocation) 
-					&& isAbstractionOf(getModificationFeatureOfEntity(t), modificationTypes);
+					&& isAbstractionOf(getModificationFeatureOfEntity(t, false), modificationTypes)
+					&& isAbstractionOf(getModificationFeatureOfEntity(t, true), modificationNotTypes);
 		} ).findFirst();
 		
 		if (match.isPresent()) {
@@ -256,9 +259,9 @@ public class BioPAXModel {
 		return obj1 == null || obj1.equals(obj2);
 	}
 	
-	private static Set<ModificationFeature> getModificationFeatureOfEntity(PhysicalEntity entity){
+	private static Set<ModificationFeature> getModificationFeatureOfEntity(PhysicalEntity entity, boolean useNotFeature){
 		
-		Set<EntityFeature> entityFeatures = entity.getFeature();
+		Set<EntityFeature> entityFeatures = useNotFeature ? entity.getNotFeature() : entity.getFeature();
 		
 		// Assert that any entity feature is a ModificationFeature since other kind of entity features are 
 		// not supposed to be created
@@ -339,7 +342,7 @@ public class BioPAXModel {
 	
 	// Create a new physical entity with given properties
 	private <T extends PhysicalEntity> T addNewPhysicalEntity(Class<T> c, String name, CellularLocationVocabulary cellularLocation, 
-			EntityReference entityRef, Set<String> modificationTypes) {
+			EntityReference entityRef, Set<String> modificationTypes, Set<String> modificationNotTypes) {
 		
 		T entity = addNew(c);
 		
@@ -361,6 +364,13 @@ public class BioPAXModel {
 			for(String modificationType : modificationTypes) {
 				ModificationFeature modificationFeature = getOrCreateModificationFeature(modificationType, entityRef);
 				entity.addFeature(modificationFeature);
+			}
+		}
+		
+		if (modificationNotTypes != null) {
+			for(String modificationNotType : modificationNotTypes) {
+				ModificationFeature modificationFeature = getOrCreateModificationFeature(modificationNotType, entityRef);
+				entity.addNotFeature(modificationFeature);
 			}
 		}
 		
@@ -406,7 +416,7 @@ public class BioPAXModel {
 	}
 	
 	// Create a new entity reference by given properties
-	private <T extends EntityReference> T addNewEntityReference(Class<T> c, String name, UnificationXref xref) {
+	private <T extends EntityReference> T addNewEntityReference(Class<T> c, String name, RelationshipXref xref) {
 		
 		T entityRef = addNew(c);
 		
