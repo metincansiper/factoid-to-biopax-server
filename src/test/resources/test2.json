@@ -1,5 +1,27 @@
 [
   {
+    "type": "Other Interaction",
+    "controlType": "activation",
+    "participants": [
+      {
+        "type": "protein",
+        "name": "BMP2",
+        "xref": {
+          "id": "P12643",
+          "db": "uniprot"
+        }
+      },
+      {
+        "type": "chemical",
+        "name": "Estradiol",
+        "xref": {
+          "id": 9811784,
+          "db": "pubchem"
+        }
+      }
+    ]
+  },
+  {
     "type": "Expression Regulation",
     "controller": {
       "type": "protein",
@@ -21,44 +43,7 @@
   },
   {
     "type": "Other Interaction",
-    "participants": [
-      {
-        "type": "protein",
-        "name": "BMP2",
-        "xref": {
-          "id": "P12643",
-          "db": "uniprot"
-        }
-      },
-      {
-        "type": "chemical",
-        "name": "Estradiol",
-        "xref": {
-          "id": 9811784,
-          "db": "pubchem"
-        }
-      }
-    ],
     "controlType": "activation",
-    "controller": {
-      "type": "protein",
-      "name": "BMP2",
-      "xref": {
-        "id": "P12643",
-        "db": "uniprot"
-      }
-    },
-    "target": {
-      "type": "chemical",
-      "name": "Estradiol",
-      "xref": {
-        "id": 9811784,
-        "db": "pubchem"
-      }
-    }
-  },
-  {
-    "type": "Other Interaction",
     "participants": [
       {
         "type": "chemical",
@@ -76,27 +61,11 @@
           "db": "uniprot"
         }
       }
-    ],
-    "controlType": "activation",
-    "controller": {
-      "type": "chemical",
-      "name": "Estradiol",
-      "xref": {
-        "id": 9811784,
-        "db": "pubchem"
-      }
-    },
-    "target": {
-      "type": "protein",
-      "name": "LEP",
-      "xref": {
-        "id": "P41159",
-        "db": "uniprot"
-      }
-    }
+    ]
   },
   {
     "type": "Other Interaction",
+    "controlType": "inhibition",
     "participants": [
       {
         "type": "protein",
@@ -107,78 +76,46 @@
         }
       },
       {
-        "type": "protein",
-        "name": "FSHB",
-        "xref": {
-          "id": "P01225",
-          "db": "uniprot"
-        }
-      }
-    ],
-    "controlType": "inhibition",
-    "controller": {
-      "type": "protein",
-      "name": "BMP2",
-      "xref": {
-        "id": "P12643",
-        "db": "uniprot"
-      }
-    },
-    "target": {
-      "type": "protein",
-      "name": "FSHB",
-      "xref": {
-        "id": "P01225",
-        "db": "uniprot"
-      }
-    }
-  },
-  {
-    "type": "Other Interaction",
-    "participants": [
-      {
-        "type": "protein",
-        "name": "FSHB",
-        "xref": {
-          "id": "P01225",
-          "db": "uniprot"
-        }
-      },
-      {
         "type": "chemical",
-        "name": "progesterone",
+        "name": "Progesterone",
         "xref": {
           "id": 5994,
           "db": "pubchem"
         }
       }
-    ],
-    "controlType": "activation",
-    "controller": {
-      "type": "protein",
-      "name": "FSHB",
-      "xref": {
-        "id": "P01225",
-        "db": "uniprot"
-      }
-    },
-    "target": {
-      "type": "chemical",
-      "name": "progesterone",
-      "xref": {
-        "id": 5994,
-        "db": "pubchem"
-      }
-    }
+    ]
   },
   {
-    "type": "Molecular Interaction",
+    "type": "Other Interaction",
+    "controlType": "activation",
+    "participants": [
+      {
+        "type": "chemical",
+        "name": "Progesterone",
+        "xref": {
+          "id": 5994,
+          "db": "pubchem"
+        }
+      },
+      {
+        "type": "protein",
+        "name": "LEP",
+        "xref": {
+          "id": "P41159",
+          "db": "uniprot"
+        }
+      }
+    ]
+  },
+  {
+    "type": "Other Interaction",
+    "controlType": "inhibition",
     "participants": [
       {
         "type": "protein",
-        "name": "FSHB",
+        "name": "BMP2",
         "xref": {
-          "id": "P01225",
+          "id": "P12643",
           "db": "uniprot"
         }
       },
@@ -194,6 +131,29 @@
   },
   {
     "type": "Other Interaction",
+    "controlType": "inhibition",
+    "participants": [
+      {
+        "type": "protein",
+        "name": "BMP2",
+        "xref": {
+          "id": "P12643",
+          "db": "uniprot"
+        }
+      },
+      {
+        "type": "protein",
+        "name": "FSHB",
+        "xref": {
+          "id": "P01225",
+          "db": "uniprot"
+        }
+      }
+    ]
+  },
+  {
+    "type": "Other Interaction",
+    "controlType": "activation",
     "participants": [
       {
         "type": "protein",
@@ -205,125 +165,55 @@
       },
       {
         "type": "chemical",
-        "name": "progesterone",
+        "name": "Progesterone",
         "xref": {
           "id": 5994,
           "db": "pubchem"
         }
       }
-    ],
-    "controlType": "activation",
-    "controller": {
-      "type": "protein",
-      "name": "IGF1",
-      "xref": {
-        "id": "P05019",
-        "db": "uniprot"
-      }
-    },
-    "target": {
-      "type": "chemical",
-      "name": "progesterone",
-      "xref": {
-        "id": 5994,
-        "db": "pubchem"
-      }
-    }
+    ]
   },
   {
     "type": "Other Interaction",
-    "participants": [
-      {
-        "type": "chemical",
-        "name": "progesterone",
-        "xref": {
-          "id": 5994,
-          "db": "pubchem"
-        }
-      },
-      {
-        "type": "protein",
-        "name": "LEP",
-        "xref": {
-          "id": "P41159",
-          "db": "uniprot"
-        }
-      }
-    ],
     "controlType": "activation",
-    "controller": {
-      "type": "chemical",
-      "name": "progesterone",
-      "xref": {
-        "id": 5994,
-        "db": "pubchem"
-      }
-    },
-    "target": {
-      "type": "protein",
-      "name": "LEP",
-      "xref": {
-        "id": "P41159",
-        "db": "uniprot"
-      }
-    }
-  },
-  {
-    "type": "Protein Controls State",
-    "controller": {
-      "type": "protein",
-      "name": "BMP2",
-      "xref": {
-        "id": "P12643",
-        "db": "uniprot"
-      }
-    },
-    "target": {
-      "type": "protein",
-      "name": "IGF1",
-      "xref": {
-        "id": "P05019",
-        "db": "uniprot"
-      }
-    },
-    "controlType": "inhibition"
-  },
-  {
-    "type": "Other Interaction",
     "participants": [
       {
         "type": "protein",
-        "name": "BMP2",
+        "name": "FSHB",
         "xref": {
-          "id": "P12643",
+          "id": "P01225",
           "db": "uniprot"
         }
       },
       {
         "type": "chemical",
-        "name": "progesterone",
+        "name": "Progesterone",
         "xref": {
           "id": 5994,
           "db": "pubchem"
         }
       }
-    ],
-    "controlType": "inhibition",
-    "controller": {
-      "type": "protein",
-      "name": "BMP2",
-      "xref": {
-        "id": "P12643",
-        "db": "uniprot"
+    ]
+  },
+  {
+    "type": "Molecular Interaction",
+    "participants": [
+      {
+        "type": "protein",
+        "name": "IGF1",
+        "xref": {
+          "id": "P05019",
+          "db": "uniprot"
+        }
+      },
+      {
+        "type": "protein",
+        "name": "FSHB",
+        "xref": {
+          "id": "P01225",
+          "db": "uniprot"
+        }
       }
-    },
-    "target": {
-      "type": "chemical",
-      "name": "progesterone",
-      "xref": {
-        "id": 5994,
-        "db": "pubchem"
-      }
-    }
+    ]
   }
 ]
