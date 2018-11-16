@@ -23,7 +23,6 @@ public class FactoidToBiopaxTest {
     FactoidToBiopax converter = new FactoidToBiopax();
     converter.addToModel(templates);
     String res = converter.convertToBiopax();
-    System.out.println(res);
     //quick (sanity) checks
     assertTrue(res!=null && res.length()>100);
     Model m = (new SimpleIOHandler()).convertFromOWL(new ByteArrayInputStream(res.getBytes("UTF-8")));

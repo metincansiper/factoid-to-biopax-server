@@ -151,10 +151,19 @@ public class TemplatesModel {
 		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
 	}
 	
-	public void addConversion(EntityModel leftEntity, EntityModel rightEntity, ControlType controlType) {
+	public void addConversion(EntityModel srcModel, EntityModel tgtModel, ControlType controlType) {
 		Conversion conversion = model.addNewConversion(Conversion.class);
-		addNewEntityToConversion(conversion, leftEntity, SideType.LEFT);
-		addNewEntityToConversion(conversion, rightEntity, SideType.RIGHT);
+		SideType srcSide = SideType.LEFT;
+		SideType tgtSide = SideType.RIGHT;
+		
+		// if controlType is inhibition switch the sides
+		if (controlType == ControlType.INHIBITION) {
+			srcSide = SideType.RIGHT;
+			tgtSide = SideType.LEFT;
+		}
+		
+		addNewEntityToConversion(conversion, srcModel, srcSide);
+		addNewEntityToConversion(conversion, tgtModel, tgtSide);
 	}
 	
 	// accessors

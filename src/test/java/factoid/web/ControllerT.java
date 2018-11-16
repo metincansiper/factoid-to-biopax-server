@@ -30,7 +30,7 @@ public class ControllerT {
 
   @Test
   public void testJsonToBiopax() throws IOException {
-    String data = new String(Files.readAllBytes(Paths.get(getClass().getResource("/test.json").getFile())));
+    String data = new String(Files.readAllBytes(Paths.get(getClass().getResource("/test2.json").getFile())));
     HttpHeaders headers = new HttpHeaders();
     headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
     HttpEntity<String> request = new HttpEntity<>(data, headers);
@@ -41,7 +41,7 @@ public class ControllerT {
 
   @Test
   public void testJsonToSbgn() throws IOException {
-    String data = new String(Files.readAllBytes(Paths.get(getClass().getResource("/test.json").getFile())));
+    String data = new String(Files.readAllBytes(Paths.get(getClass().getResource("/test2.json").getFile())));
     HttpHeaders headers = new HttpHeaders();
     headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
     HttpEntity<String> request = new HttpEntity<>(data, headers);
