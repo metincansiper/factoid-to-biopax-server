@@ -114,7 +114,7 @@ public class BioPAXModel {
 		if (xref == null) {
 			xref = addNew(RelationshipXref.class);
 			xref.setId(xrefId);
-			xref.setDb(xrefModel.getNamespace());
+			xref.setDb(xrefModel.getDb());
 			xrefMap.put(xrefId, xref);
 		}
 		

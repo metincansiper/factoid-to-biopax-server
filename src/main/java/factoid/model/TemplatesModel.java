@@ -82,8 +82,8 @@ public class TemplatesModel {
 		EntityReference targetRef = model.getOrCreateEntityReference(targetRefClass, targetName, targetXref);
 		PhysicalEntity target = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef);
 		
-		Class<? extends PhysicalEntity> controllerClass = targetModel.getEntityClass();
-		Class<? extends EntityReference> controllerRefClass = targetModel.getEntityRefClass();
+		Class<? extends PhysicalEntity> controllerClass = controllerModel.getEntityClass();
+		Class<? extends EntityReference> controllerRefClass = controllerModel.getEntityRefClass();
 		
 		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
 		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);

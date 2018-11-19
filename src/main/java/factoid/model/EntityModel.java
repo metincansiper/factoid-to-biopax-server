@@ -44,10 +44,10 @@ public class EntityModel {
 	}
 	
 	public Class<? extends PhysicalEntity> getEntityClass() {
-		if ("protein".equals(type)) {
+		if ("protein".equalsIgnoreCase(type)) {
 			return Protein.class;
 		}
-		else if("chemical".equals(type)) {
+		else if("chemical".equalsIgnoreCase(type)) {
 			return SmallMolecule.class;
 		}
 		else {
@@ -56,10 +56,10 @@ public class EntityModel {
 	}
 	
 	public Class<? extends EntityReference> getEntityRefClass() {
-		if ("protein".equals(type)) {
+		if ("protein".equalsIgnoreCase(type)) {
 			return ProteinReference.class;
 		}
-		else if("chemical".equals(type)) {
+		else if("chemical".equalsIgnoreCase(type)) {
 			return SmallMoleculeReference.class;
 		}
 		else {

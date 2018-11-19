@@ -3,26 +3,26 @@ package factoid.model;
 public class XrefModel {
 	
 	private String id;
-	private String namespace;
+	private String db;
 	
-	public XrefModel(String id, String namespace) {
+	public XrefModel(String id, String db) {
 		this.id = id;
-		this.namespace = namespace;
+		this.db = db;
 	}
 	
 	public void setId(String id) {
 		this.id = id;
 	}
 	
-	public void setNamespace(String namespace) {
-		this.namespace = namespace;
+	public void setDb(String db) {
+		this.db = db;
 	}
 	
 	public String getId() {
 		return id;
 	}
 	
-	public String getNamespace() {
-		return namespace;
+	public String getDb() {
+		return db;
 	}
 }
