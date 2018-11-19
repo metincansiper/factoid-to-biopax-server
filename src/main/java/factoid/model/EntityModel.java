@@ -56,10 +56,10 @@ public class EntityModel {
 	}
 	
 	public Class<? extends EntityReference> getEntityRefClass() {
-		if (type.equals("protein")) {
+		if ("protein".equals(type)) {
 			return ProteinReference.class;
 		}
-		else if(type.equals("chemical")) {
+		else if("chemical".equals(type)) {
 			return SmallMoleculeReference.class;
 		}
 		else {
