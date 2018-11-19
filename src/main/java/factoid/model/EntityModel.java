@@ -44,10 +44,10 @@ public class EntityModel {
 	}
 	
 	public Class<? extends PhysicalEntity> getEntityClass() {
-		if (type.equals("protein")) {
+		if ("protein".equals(type)) {
 			return Protein.class;
 		}
-		else if(type.equals("chemical")) {
+		else if("chemical".equals(type)) {
 			return SmallMolecule.class;
 		}
 		else {
