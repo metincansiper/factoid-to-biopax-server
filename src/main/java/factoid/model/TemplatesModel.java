@@ -68,14 +68,30 @@ public class TemplatesModel {
 		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
 		
 		Conversion conversion = model.addNewConversion(Conversion.class, left, right);
+		model.addNewControl(Catalysis.class, controller, conversion, ControlType.ACTIVATION);
+	}
+	
+	public void addModulation(EntityModel controllerModel, EntityModel targetModel, ControlType controlType) {
+		String targetName = targetModel.getName();
+		XrefModel targetXref = targetModel.getXref();
 		
-		if (controllerClass == Protein.class) {	
-			model.addNewControl(Catalysis.class, controller, conversion, ControlType.ACTIVATION);
-		}
-		else if (controllerClass == SmallMolecule.class) {
-			Catalysis catalysis = model.addNewControl(Catalysis.class, null, conversion, ControlType.ACTIVATION);
-			model.addNewControl(Modulation.class, controller, catalysis, ControlType.ACTIVATION);
-		}
+		String controllerName = controllerModel.getName();
+		XrefModel controllerXref = controllerModel.getXref();
+		
+		Class<? extends PhysicalEntity> targetClass = targetModel.getEntityClass();
+		Class<? extends EntityReference> targetRefClass = targetModel.getEntityRefClass();
+		
+		EntityReference targetRef = model.getOrCreateEntityReference(targetRefClass, targetName, targetXref);
+		PhysicalEntity target = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef);
+		
+		Class<? extends PhysicalEntity> controllerClass = targetModel.getEntityClass();
+		Class<? extends EntityReference> controllerRefClass = targetModel.getEntityRefClass();
+		
+		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
+		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
+		
+		Catalysis catalysis = model.addNewControl(Catalysis.class, target, null, ControlType.ACTIVATION);
+		model.addNewControl(Modulation.class, controller, catalysis, controlType);
 	}
 	
 	public void addMolecularInteraction(List<EntityModel> participantModels) {

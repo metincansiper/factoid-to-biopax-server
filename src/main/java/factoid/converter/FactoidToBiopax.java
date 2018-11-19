@@ -132,7 +132,7 @@ public class FactoidToBiopax {
 				model.addControlsConsumptionOrProduction(srcModel, tgtModel, controlType);
 			}
 			else if(controllerClass == SmallMolecule.class && targetClass == Protein.class) {
-				model.addControlsState(srcModel, tgtModel, null, controlType);
+				model.addModulation(srcModel, tgtModel, controlType);
 			}
 			else if(controllerClass == SmallMolecule.class && targetClass == SmallMolecule.class) {
 				model.addConversion(srcModel, tgtModel, controlType);
