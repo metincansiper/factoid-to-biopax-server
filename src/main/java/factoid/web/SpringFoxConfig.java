@@ -23,7 +23,7 @@ public class SpringFoxConfig {
 //            .apis(RequestHandlerSelectors.any()) //this then shows built-in Spring actuators, e.g., health, devel.
             .apis(RequestHandlerSelectors.basePackage("factoid.web"))
 //            .paths(PathSelectors.any())
-            .paths(PathSelectors.ant("/v1/**"))
+            .paths(PathSelectors.ant("/v2/**"))
             .build()
             .useDefaultResponseMessages(false)
             .apiInfo(getApiInfo());

@@ -19,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 
 
 @RestController
-@RequestMapping(value = "/v1", method = {RequestMethod.POST})
+@RequestMapping(value = "/v2", method = {RequestMethod.POST})
 public class Controller {
 
   @ApiOperation(value = "json-to-biopax", notes = "Converts a Factoid model to BioPAX.")
