@@ -57,7 +57,12 @@ public class BioPAXModel {
 		xrefMap = new HashMap<String, RelationshipXref>();
 		entityReferenceMap = new MultiKeyMap<Object, EntityReference>();
 	}
-	
+
+	//for tests
+	protected Model getPaxtoolsModel() {
+		return model;
+	}
+
 	// Section: public methods
 	
 	// add a new element to model with given id

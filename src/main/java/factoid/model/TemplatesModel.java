@@ -22,7 +22,14 @@ import org.biopax.paxtools.model.level3.TemplateReactionRegulation;
  */
 public class TemplatesModel {
 	
-	BioPAXModel model;
+	private BioPAXModel model;
+
+	private static final String ACTIVE = "active";
+
+	private enum SideType {
+		LEFT,
+		RIGHT
+	}
 	
 	public TemplatesModel() {
 		model = new BioPAXModel();
@@ -237,13 +244,5 @@ public class TemplatesModel {
 			rightNotTypes.add(ACTIVE);
 		}
 	}
-	
-	// Section: static variables
-	
-	private static final String ACTIVE = "active";
-	
-	private static enum SideType {
-		LEFT,
-		RIGHT
-	}
+
 }

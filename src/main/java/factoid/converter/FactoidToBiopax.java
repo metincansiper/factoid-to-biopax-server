@@ -1,6 +1,7 @@
 package factoid.converter;
 
 import java.io.Reader;
+
 /*
  * A converter class that gets a JSON object that includes sequence of BioPAX templates and enables
  * conversion to BioPAX by adding these templates to underlying Templates Model instance.
@@ -25,6 +26,8 @@ import com.google.gson.reflect.TypeToken;
 import factoid.model.*;
 
 public class FactoidToBiopax {
+
+  private static final Map<String, ControlType> CONTROL_TYPE_MAP = createControlTypeMap();
 	
 	private TemplatesModel model;
 	private JsonParser jsonParser;
@@ -45,7 +48,12 @@ public class FactoidToBiopax {
 		JsonArray templates = jsonParser.parse(contentReader).getAsJsonArray();
 		addToModel(templates);
 	}
-	
+
+  /**
+   * Processes the input JSON templates,
+   * creates BioPAX objects and adds to the BioPAX model.
+   * @param templates
+   */
 	public void addToModel(JsonArray templates) {
 		
 		Iterator<JsonElement> it = templates.iterator();
@@ -53,7 +61,6 @@ public class FactoidToBiopax {
 		while (it.hasNext()) {
 			JsonObject template = (JsonObject) it.next();
 			String typeStr = template.get("type").getAsString();
-//			System.out.println(typeStr);
 			
 			if (matchesTemplateType(typeStr, TemplateType.PROTEIN_CONTROLS_STATE)) {
 				JsonObject controllerJson = template.get("controller").getAsJsonObject();
@@ -139,8 +146,7 @@ public class FactoidToBiopax {
 			}
 		}
 	}
-	
-	
+
 	private void addMolecularInteraction(JsonArray participantsJSON) {
 		List<EntityModel> participantModels = gson.fromJson(participantsJSON, new TypeToken<List<EntityModel>>(){}.getType());
 		model.addMolecularInteraction(participantModels);
@@ -190,6 +196,5 @@ public class FactoidToBiopax {
 			return getName();
 		}
 	}
-	
-	private static final Map<String, ControlType> CONTROL_TYPE_MAP = createControlTypeMap();
+
 }

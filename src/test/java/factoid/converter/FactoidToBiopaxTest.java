@@ -53,8 +53,8 @@ public class FactoidToBiopaxTest {
 
   @Test
   //Progesterone chemical-affects LEP (case 4D) is about activation of LEP protein (catalyst) by Progesterone.
-  public void test4D_ChemicalAffects() throws IOException {
-    String template = "[{\n" +
+  public void testChemicalAffects() throws IOException {
+    String templates = "[{\n" +
       "    \"type\": \"Other Interaction\",\n" +
       "    \"controlType\": \"activation\",\n" +
       "    \"participants\": [\n" +
@@ -78,7 +78,8 @@ public class FactoidToBiopaxTest {
       "  }]";
 
     FactoidToBiopax converter = new FactoidToBiopax();
-    converter.addToModel(new Gson().fromJson(template, JsonArray.class));
+    converter.addToModel(templates); //processing
+
     Model m = converterResultToModel(converter.convertToBiopax());
     assertThat(m.getObjects().size(), equalTo(8));
 
@@ -86,7 +87,6 @@ public class FactoidToBiopaxTest {
     assertThat(xrefs, notNullValue());
     assertThat(xrefs.size(), equalTo(2));
     xrefs.stream().forEach(x -> {
-      assertThat(x.getDb(), notNullValue());
       assertThat(x.getDb(), isOneOf("pubchem","uniprot"));
       assertThat(x.getId(), isOneOf("P41159","5994"));
     });
@@ -119,8 +119,11 @@ public class FactoidToBiopaxTest {
 
   //local utils
 
-  private Model converterResultToModel(String result) throws UnsupportedEncodingException {
-    return (new SimpleIOHandler()).convertFromOWL(new ByteArrayInputStream(result.getBytes("UTF-8")));
+  private Model converterResultToModel(String result)
+    throws UnsupportedEncodingException
+  {
+    return (new SimpleIOHandler()).convertFromOWL(new ByteArrayInputStream(
+      result.getBytes("UTF-8")));
   }
 
 }

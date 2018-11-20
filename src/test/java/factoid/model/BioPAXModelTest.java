@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,48 +20,13 @@ import org.junit.Test;
 
 public class BioPAXModelTest {
 	
-	// Assess private model field and make it accessible
-	private static Field getModelField() {
-		return getModelField(true);
-	}
-	
-	private static Field getModelField(boolean accessible) {
-		Field modelField = null;
-		
-		try {
-			modelField = BioPAXModel.class.getDeclaredField("model");
-			modelField.setAccessible(accessible);
-		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		}
-		
-		return modelField;
-	}
-	
-	// Accessor for private model proterty of given BioPAXModel instance
-	private Model getInnerPaxtoolsModel(BioPAXModel biopaxModel) {
-		Model innerModel = null;
-		
-		try {
-			innerModel = (Model) modelField.get(biopaxModel);
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		
-		return innerModel;
-	}
-	
 	@Test
 	public void addPhysicalEntityTest() throws NoSuchFieldException, SecurityException {
 		
 		BioPAXModel model = new BioPAXModel();
 		
 		// Underlying PAXTools model
-		Model innerModel = getInnerPaxtoolsModel(model);
+		Model innerModel = model.getPaxtoolsModel();
 		
 		String protName = "TP53";
 		XrefModel protXref = new XrefModel("xrefid1", "uniprot");
@@ -110,7 +74,7 @@ public class BioPAXModelTest {
 		BioPAXModel model = new BioPAXModel();
 		
 		// Underlying PAXTools model
-		Model innerModel = getInnerPaxtoolsModel(model);
+		Model innerModel = model.getPaxtoolsModel();
 		
 		String commonName = "Protein1";
 		String uniqueName = "Protein2";
@@ -138,7 +102,7 @@ public class BioPAXModelTest {
 		BioPAXModel model = new BioPAXModel();
 		
 		// Underlying PAXTools model
-		Model innerModel = getInnerPaxtoolsModel(model);
+		Model innerModel = model.getPaxtoolsModel();
 		
 		String commonLocationName = "location1";
 		String uniqueLocationName = "location2";
@@ -160,7 +124,7 @@ public class BioPAXModelTest {
 		BioPAXModel model = new BioPAXModel();
 		
 		// Underlying PAXTools model
-		Model innerModel = getInnerPaxtoolsModel(model);
+		Model innerModel = model.getPaxtoolsModel();
 		
 		ConversionDirectionType dir = ConversionDirectionType.LEFT_TO_RIGHT;
 		Protein left = model.addNew(Protein.class);
@@ -179,7 +143,7 @@ public class BioPAXModelTest {
 		BioPAXModel model = new BioPAXModel();
 		
 		// Underlying PAXTools model
-		Model innerModel = getInnerPaxtoolsModel(model);
+		Model innerModel = model.getPaxtoolsModel();
 		
 		Conversion controlled = model.addNewConversion(Conversion.class);
 		Protein controller = model.getOrCreatePhysicalEntity(Protein.class);
@@ -192,6 +156,5 @@ public class BioPAXModelTest {
 		assertTrue("Controlled is set", control.getControlled().contains(controlled));
 		assertEquals("Control type is set", controlType, control.getControlType());
 	}
-	
-	private static Field modelField = getModelField();
+
 }

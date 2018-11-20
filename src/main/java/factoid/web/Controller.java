@@ -22,9 +22,6 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping(value = "/v1", method = {RequestMethod.POST})
 public class Controller {
 
-  public Controller() {
-  }
-
   @ApiOperation(value = "json-to-biopax", notes = "Converts a Factoid model to BioPAX.")
   @RequestMapping(path = "/json-to-biopax",
     consumes = MediaType.APPLICATION_JSON_VALUE,
