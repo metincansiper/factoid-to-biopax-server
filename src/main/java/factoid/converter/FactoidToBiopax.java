@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.biopax.paxtools.model.level3.ControlType;
+import org.biopax.paxtools.model.level3.PhysicalEntity;
+import org.biopax.paxtools.model.level3.Protein;
+import org.biopax.paxtools.model.level3.SmallMolecule;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -53,50 +56,43 @@ public class FactoidToBiopax {
 //			System.out.println(typeStr);
 			
 			if (matchesTemplateType(typeStr, TemplateType.PROTEIN_CONTROLS_STATE)) {
-				JsonObject controllerJson = template.get("controllerProtein").getAsJsonObject();
-				String controlTypeStr = template.get("controlType").getAsString();
-				JsonObject targetProteinJson = template.get("targetProtein").getAsJsonObject();
+				JsonObject controllerJson = template.get("controller").getAsJsonObject();
 				
-				addProteinControlsState(controllerJson, targetProteinJson, controlTypeStr);
-			}
-			else if (matchesTemplateType(typeStr, TemplateType.CHEMICAL_AFFECTS_STATE)) {
-				JsonObject chemicalJson = template.get("chemical").getAsJsonObject();
-				String controlTypeStr = template.get("controlType").getAsString();
-				JsonObject targetProteinJson = template.get("targetProtein").getAsJsonObject();
+				String controlTypeStr = null;
+				if (template.has("controlType")) {
+					controlTypeStr = template.get("controlType").getAsString();
+				}
 				
-				addChemicalAffectsState(chemicalJson, targetProteinJson, controlTypeStr);
+				String modification = null;
+				if (template.has("modification")) {
+					modification = template.get("modification").getAsString();
+				}
+				
+				JsonObject targetJson = template.get("target").getAsJsonObject();
+				
+				addProteinControlsState(controllerJson, targetJson, modification, controlTypeStr);
 			}
 			else if (matchesTemplateType(typeStr, TemplateType.EXPRESSION_REGULATION)) {
-				JsonObject transcriptionFactorJson = template.get("transcriptionFactor").getAsJsonObject();
-				JsonObject targetProtJson = template.get("targetProtein").getAsJsonObject();
+				JsonObject controllerJson = template.get("controller").getAsJsonObject();
+				JsonObject targetJson = template.get("target").getAsJsonObject();
 				String controlTypeStr = template.get("controlType").getAsString();
 				
-				addRegulationOfExpression(transcriptionFactorJson, targetProtJson, controlTypeStr);
+				addExpressionRegulation(controllerJson, targetJson, controlTypeStr);
 			}
 			else if(matchesTemplateType(typeStr, TemplateType.MOLECULAR_INTERACTION)) {
-				JsonArray moleculeNamesJSON = template.get("moleculeList").getAsJsonArray();
+				JsonArray participantsJSON = template.get("participants").getAsJsonArray();
 				
-				addMolecularInteraction(moleculeNamesJSON);
+				addMolecularInteraction(participantsJSON);
 			}
-			else if(matchesTemplateType(typeStr, TemplateType.PROTEIN_MODIFICATION)) {
-				JsonObject targetProteinJson = template.get("targetProtein").getAsJsonObject();
-				JsonObject controllerProteinJson = template.get("controllerProtein").getAsJsonObject();
-				String modificationType = template.get("modification").getAsString();
-				String controlTypeStr = template.get("controlType").getAsString();
+			else if(matchesTemplateType(typeStr, TemplateType.OTHER_INTERACTION)) {
+				JsonArray participantsJSON = template.get("participants").getAsJsonArray();
+				String controlTypeStr = null;
 				
-				addProteinModification(targetProteinJson, controllerProteinJson, modificationType, controlTypeStr);
-			}
-			else if(matchesTemplateType(typeStr, TemplateType.PROTEIN_CONTROLS_CONSUMPTION)) {
-				JsonObject controllerProteinJson = template.get("controllerProtein").getAsJsonObject();
-				JsonObject chemicalJson = template.get("chemical").getAsJsonObject();
+				if (template.has("controlType")) {
+					controlTypeStr = template.get("controlType").getAsString();
+				}
 				
-				addProteinControlsConsumption(controllerProteinJson, chemicalJson);
-			}
-			else if(matchesTemplateType(typeStr, TemplateType.PROTEIN_CONTROLS_PRODUCTION)) {
-				JsonObject controllerProteinJson = template.get("controllerProtein").getAsJsonObject();
-				JsonObject chemicalJson = template.get("chemical").getAsJsonObject();
-				
-				addProteinControlsProduction(controllerProteinJson, chemicalJson);
+				addOtherInteraction(participantsJSON, controlTypeStr);
 			}
 		}
 	}
@@ -117,55 +113,53 @@ public class FactoidToBiopax {
 		return CONTROL_TYPE_MAP.get(controlTypeStr.toUpperCase());
 	}
 	
-	private void addProteinModification(JsonObject targetProteinJson, JsonObject controllerProteinJson, String modificationType, String controlTypeStr) {
+	private void addOtherInteraction(JsonArray participantsJSON, String controlTypeStr) {
+		List<EntityModel> participantModels = gson.fromJson(participantsJSON, new TypeToken<List<EntityModel>>(){}.getType());
+		if (controlTypeStr == null) {
+			model.addInteraction(participantModels);
+		}
+		else {
+			EntityModel srcModel = participantModels.get(0);
+			EntityModel tgtModel = participantModels.get(1);
+			Class<? extends PhysicalEntity> controllerClass = srcModel.getEntityClass();
+			Class<? extends PhysicalEntity> targetClass = tgtModel.getEntityClass();
+			ControlType controlType = getControlType(controlTypeStr);
+			
+			if (controllerClass == Protein.class && targetClass == Protein.class) {
+				model.addControlSequence(srcModel, tgtModel, controlType);
+			}
+			else if(controllerClass == Protein.class && targetClass == SmallMolecule.class) {
+				model.addControlsConsumptionOrProduction(srcModel, tgtModel, controlType);
+			}
+			else if(controllerClass == SmallMolecule.class && targetClass == Protein.class) {
+				model.addModulation(srcModel, tgtModel, controlType);
+			}
+			else if(controllerClass == SmallMolecule.class && targetClass == SmallMolecule.class) {
+				model.addConversion(srcModel, tgtModel, controlType);
+			}
+		}
+	}
+	
+	
+	private void addMolecularInteraction(JsonArray participantsJSON) {
+		List<EntityModel> participantModels = gson.fromJson(participantsJSON, new TypeToken<List<EntityModel>>(){}.getType());
+		model.addMolecularInteraction(participantModels);
+	}
+	
+	private void addProteinControlsState(JsonObject controllerProteinJson, JsonObject targetProteinJson, String modification, String controlTypeStr) {
 		ControlType controlType = getControlType(controlTypeStr);
+		EntityModel controllerProteinModel = gson.fromJson(controllerProteinJson, EntityModel.class);
 		EntityModel targetProteinModel = gson.fromJson(targetProteinJson, EntityModel.class);
-		EntityModel controllerProteinModel = gson.fromJson(controllerProteinJson, EntityModel.class);
 		
-		model.addProteinModification(targetProteinModel, controllerProteinModel, modificationType, controlType);
+		model.addControlsState(controllerProteinModel, targetProteinModel, modification, controlType);
 	}
 	
-	private void addMolecularInteraction(JsonArray moleculeNamesJSON) {
-		List<EntityModel> moleculeModels = gson.fromJson(moleculeNamesJSON, new TypeToken<List<EntityModel>>(){}.getType());
-		model.addMolecularInteraction(moleculeModels);
-	}
-	
-	private void addChemicalAffectsState(JsonObject chemicalJson, JsonObject targetProteinJson, String controlTypeStr) {
+	private void addExpressionRegulation(JsonObject controllerJson, JsonObject targetJson, String controlTypeStr) {
 		ControlType controlType = getControlType(controlTypeStr);
-		EntityModel chemicalModel = gson.fromJson(chemicalJson, EntityModel.class);
-		EntityModel targetProteinModel = gson.fromJson(targetProteinJson, EntityModel.class);
+		EntityModel controllerModel = gson.fromJson(controllerJson, EntityModel.class);
+		EntityModel targetModel = gson.fromJson(targetJson, EntityModel.class);
 		
-		model.addChemicalAffectsState(chemicalModel, targetProteinModel, controlType);
-	}
-	
-	private void addProteinControlsState(JsonObject controllerProteinJson, JsonObject targetProteinJson, String controlTypeStr) {
-		ControlType controlType = getControlType(controlTypeStr);
-		EntityModel controllerProteinModel = gson.fromJson(controllerProteinJson, EntityModel.class);
-		EntityModel targetProteinModel = gson.fromJson(targetProteinJson, EntityModel.class);
-		
-		model.addProteinControlsState(controllerProteinModel, targetProteinModel, controlType);
-	}
-	
-	private void addRegulationOfExpression(JsonObject transcriptionFactorJson, JsonObject targetProtJson, String controlTypeStr) {
-		ControlType controlType = getControlType(controlTypeStr);
-		EntityModel transcriptionFactorModel = gson.fromJson(transcriptionFactorJson, EntityModel.class);
-		EntityModel targetProtModel = gson.fromJson(targetProtJson, EntityModel.class);
-		
-		model.addRegulationOfExpression(transcriptionFactorModel, targetProtModel, controlType);
-	}
-	
-	private void addProteinControlsConsumption(JsonObject controllerProteinJson, JsonObject chemicalJson) {
-		EntityModel controllerProteinModel = gson.fromJson(controllerProteinJson, EntityModel.class);
-		EntityModel chemicalModel = gson.fromJson(chemicalJson, EntityModel.class);
-		
-		model.addProteinControlsConsumption(controllerProteinModel, chemicalModel);
-	}
-	
-	private void addProteinControlsProduction(JsonObject controllerProteinJson, JsonObject chemicalJson) {
-		EntityModel controllerProteinModel = gson.fromJson(controllerProteinJson, EntityModel.class);
-		EntityModel chemicalModel = gson.fromJson(chemicalJson, EntityModel.class);
-		
-		model.addProteinControlsProduction(controllerProteinModel, chemicalModel);
+		model.addExpressionRegulation(controllerModel, targetModel, controlType);
 	}
 	
 	private static Map<String, ControlType> createControlTypeMap() {
@@ -177,13 +171,10 @@ public class FactoidToBiopax {
 	}
 	
 	private enum TemplateType {
-		PROTEIN_MODIFICATION("Protein Modification"),
+		EXPRESSION_REGULATION("Expression Regulation"),
 		MOLECULAR_INTERACTION("Molecular Interaction"),
 		PROTEIN_CONTROLS_STATE("Protein Controls State"),
-		CHEMICAL_AFFECTS_STATE("Chemical Affects State"),
-		EXPRESSION_REGULATION("Expression Regulation"),
-		PROTEIN_CONTROLS_CONSUMPTION("Protein Controls Consumption"),
-		PROTEIN_CONTROLS_PRODUCTION("Protein Controls Production");
+		OTHER_INTERACTION("Other Interaction");
 			
 		private String name;
 		
@@ -201,5 +192,4 @@ public class FactoidToBiopax {
 	}
 	
 	private static final Map<String, ControlType> CONTROL_TYPE_MAP = createControlTypeMap();
-
 }
