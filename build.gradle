@@ -57,3 +57,7 @@ docker {
 sourceCompatibility = 1.8
 group = 'pathwaycommons'
 version =  '0.1.0'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.8.1'
+}

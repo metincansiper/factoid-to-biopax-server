@@ -22,7 +22,7 @@ RESTful API (Swagger docs):
 
 Once the app is built and running, 
 the auto-generated documentation is available at 
-`http://localhost:8080/factoid-converters/swagger-ui.html`
+`http://localhost:8080/factoid-converters/`
 
 ## Docker
 You can deploy the server to a docker container by following the steps below  
@@ -55,13 +55,13 @@ Using cUrl tool:
 
 ```commandline
 cd src/test/resources
-curl -X POST -H 'Content-Type: application/json' -d @test.json "http://localhost:8080/factoid-converters/v1/json-to-biopax"
+curl -X POST -H 'Content-Type: application/json' -d @test.json "http://localhost:8080/factoid-converters/v2/json-to-biopax"
 ```
 
 Using a Node.js client:
 
 ```js
-let url = 'http://localhost:8080/factoid-converters/v1/json-to-biopax';
+let url = 'http://localhost:8080/factoid-converters/v2/json-to-biopax';
 let content = fs.readFileSync('input/templates.json', 'utf8');
 Promise.try( () => fetch( url, {
         method: 'POST',

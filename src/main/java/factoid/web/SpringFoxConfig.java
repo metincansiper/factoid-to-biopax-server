@@ -34,7 +34,7 @@ public class SpringFoxConfig {
             "Factoid data converters",
             "A RESTful web service, built with Spring Boot and Paxtools java libraries, that converts " +
               "Factoid documents to BioPAX, SBGN formats.",
-            "1", //api
+            "2", //api
             "free",
             new Contact("Pathway Commons",
                 "http://www.pathwaycommons.org",
