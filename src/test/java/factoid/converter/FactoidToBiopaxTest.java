@@ -6,6 +6,7 @@ import com.google.gson.stream.JsonReader;
 import org.biopax.paxtools.io.SimpleIOHandler;
 import org.biopax.paxtools.model.*;
 import org.biopax.paxtools.model.level3.*;
+import org.biopax.paxtools.model.level3.Process;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -16,11 +17,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+//TODO: test each distinct json template (cases 1 - 4E from the interaction types doc.)
 public class FactoidToBiopaxTest {
+
   @Test
   public void testToOwl() throws IOException {
     Gson gson = new Gson();
@@ -30,11 +32,13 @@ public class FactoidToBiopaxTest {
     FactoidToBiopax converter = new FactoidToBiopax();
     converter.addToModel(templates);
     String res = converter.convertToBiopax();
-    //quick (sanity) checks
-    assertTrue(res!=null && res.length()>100);
+
+    assertThat(res,notNullValue());
+    assertThat(res, endsWith("</rdf:RDF>"));
+
     Model m = converterResultToModel(res);
-    assertNotNull(m);
-    assertTrue(m.getObjects().size()>10);
+    assertThat(m, notNullValue());
+    assertThat(m.getObjects().size(), greaterThan(20));
 
     Set<SmallMoleculeReference> smols = m.getObjects(SmallMoleculeReference.class);
     assertThat(smols.size(), is(2));
@@ -47,8 +51,8 @@ public class FactoidToBiopaxTest {
     assertThat(controllers.stream().filter(SmallMolecule.class::isInstance).count(), is(2L));
   }
 
-  //TODO: add a test method for each unique json template case
   @Test
+  //Progesterone chemical-affects LEP (case 4D) is about activation of LEP protein (catalyst) by Progesterone.
   public void test4D_ChemicalAffects() throws IOException {
     String template = "[{\n" +
       "    \"type\": \"Other Interaction\",\n" +
@@ -76,9 +80,44 @@ public class FactoidToBiopaxTest {
     FactoidToBiopax converter = new FactoidToBiopax();
     converter.addToModel(new Gson().fromJson(template, JsonArray.class));
     Model m = converterResultToModel(converter.convertToBiopax());
+    assertThat(m.getObjects().size(), equalTo(8));
 
-    assertEquals(8, m.getObjects().size());
+    Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
+    assertThat(xrefs, notNullValue());
+    assertThat(xrefs.size(), equalTo(2));
+    xrefs.stream().forEach(x -> {
+      assertThat(x.getDb(), notNullValue());
+      assertThat(x.getDb(), isOneOf("pubchem","uniprot"));
+      assertThat(x.getId(), isOneOf("P41159","5994"));
+    });
+
+    Set<Modulation> mos = m.getObjects(Modulation.class);
+    assertThat(mos, not(empty()));
+    Modulation mod = mos.iterator().next();
+    assertThat(mod.getControlType(), is(ControlType.ACTIVATION));
+    assertThat(mod.getDisplayName(), nullValue()); //would be nice to generate "Progesterone activates production of LEP"
+    assertThat(mod.getController().size(), equalTo(1));
+    Controller con = mod.getController().iterator().next();
+    assertThat(con, instanceOf(SmallMolecule.class));
+    assertThat(con.getXref(), empty());
+    assertThat(((SmallMolecule)con).getEntityReference(), notNullValue());
+    assertThat(((SmallMolecule)con).getEntityReference().getXref(), not(empty()));
+    assertThat(mod.getControlled().size(), equalTo(1));
+    Process proc = mod.getControlled().iterator().next();
+    assertThat(proc, instanceOf(Catalysis.class));
+    Catalysis cat = (Catalysis) proc;
+    assertThat(cat.getController().size(), equalTo(1));
+    con = cat.getController().iterator().next();
+    assertThat(con, instanceOf(Protein.class));
+    assertThat(con.getXref(), empty());
+    assertThat(((Protein)con).getEntityReference(), notNullValue());
+    assertThat(((Protein)con).getEntityReference().getXref(), not(empty()));
+    assertThat(cat.getControlType(), is(ControlType.ACTIVATION));
+    //controlled reaction is unknown
+    assertThat(cat.getControlled(), empty());
   }
+
+  //local utils
 
   private Model converterResultToModel(String result) throws UnsupportedEncodingException {
     return (new SimpleIOHandler()).convertFromOWL(new ByteArrayInputStream(result.getBytes("UTF-8")));

@@ -7,14 +7,14 @@ A java web server to convert [factoid](https://github.com/PathwayCommons/factoid
 
 ## Build
 
-```
+```commandline
 ./gradlew clean
 ./gradlew build
 ```
 
 ## Run
 
-```
+```commandline
 java -jar build/libs/factoid-converters-0.1.0.jar --server.port=8080
 ```
 
@@ -28,40 +28,39 @@ the auto-generated documentation is available at
 You can deploy the server to a docker container by following the steps below  
 (`<PORT>` - actual port number where the server will run). 
 
-```
+```commandline
 ./gradlew build docker
 docker run -it --rm --name factoid-converters -p <PORT>:8080 pathwaycommons/factoid-converters 
 ```
 
 Optionally, a member of 'pathwaycommons' group can now push (upload) the latest Docker image there:
 
-```
+```commandline
 docker login
 docker push pathwaycommons/factoid-converters
 
 ```  
 
 So, other users could skip building from sources and simply run the app:
-```
+```commandline
 docker pull
 docker run -p <PORT>:8080 -t pathwaycommons/factoid-converters
 ```
 
 (you can `Ctrl-c` and quit the console; the container is still there running; check with `docker ps`)
 
-
 ## Example queries
 
 Using cUrl tool:
 
-```
+```commandline
 cd src/test/resources
 curl -X POST -H 'Content-Type: application/json' -d @test.json "http://localhost:8080/factoid-converters/v1/json-to-biopax"
 ```
 
 Using a Node.js client:
 
-```
+```js
 let url = 'http://localhost:8080/factoid-converters/v1/json-to-biopax';
 let content = fs.readFileSync('input/templates.json', 'utf8');
 Promise.try( () => fetch( url, {
