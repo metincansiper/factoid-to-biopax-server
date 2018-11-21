@@ -15,14 +15,14 @@ A java web server to convert [factoid](https://github.com/PathwayCommons/factoid
 ## Run
 
 ```commandline
-java -jar build/libs/factoid-converters-0.1.0.jar --server.port=8080
+java -jar build/libs/factoid-converters-0.2.0.jar --server.port=8080
 ```
 
 RESTful API (Swagger docs):
 
 Once the app is built and running, 
 the auto-generated documentation is available at 
-`http://localhost:8080/`
+`http://localhost:8080/convert/`
 
 ## Docker
 You can deploy the server to a docker container by following the steps below  
@@ -55,13 +55,13 @@ Using cUrl tool:
 
 ```commandline
 cd src/test/resources
-curl -X POST -H 'Content-Type: application/json' -d @test.json "http://localhost:8080/v2/json-to-biopax"
+curl -X POST -H 'Content-Type: application/json' -d @test.json "http://localhost:8080/convert/v2/json-to-biopax"
 ```
 
 Using a Node.js client:
 
 ```js
-let url = 'http://localhost:8080/v2/json-to-biopax';
+let url = 'http://localhost:8080/convert/v2/json-to-biopax';
 let content = fs.readFileSync('input/templates.json', 'utf8');
 Promise.try( () => fetch( url, {
         method: 'POST',
