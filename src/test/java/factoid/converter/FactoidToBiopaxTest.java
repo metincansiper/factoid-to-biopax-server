@@ -41,7 +41,7 @@ public class FactoidToBiopaxTest {
     assertThat(m.getObjects().size(), greaterThan(20));
 
     Set<SmallMoleculeReference> smols = m.getObjects(SmallMoleculeReference.class);
-    assertThat(smols.size(), is(2));
+    assertThat(smols.size(), is(4));
 
     Set<Modulation> mods = m.getObjects(Modulation.class);
     assertThat(mods.size(), is(2));
@@ -58,17 +58,17 @@ public class FactoidToBiopaxTest {
 		  "    \"participants\": [\n" +
 		  "      {\n" +
 		  "        \"type\": \"protein\",\n" +
-		  "        \"name\": \"BMP2\",\n" +
+		  "        \"name\": \"IGF1\",\n" +
 		  "        \"xref\": {\n" +
-		  "          \"id\": P12643,\n" +
+		  "          \"id\": P05019,\n" +
 		  "          \"db\": \"uniprot\"\n" +
 		  "        }\n" +
 		  "      },\n" +
 		  "      {\n" +
 		  "        \"type\": \"protein\",\n" +
-		  "        \"name\": \"LEP\",\n" +
+		  "        \"name\": \"FSHB\",\n" +
 		  "        \"xref\": {\n" +
-		  "          \"id\": \"P41159\",\n" +
+		  "          \"id\": \"P01225\",\n" +
 		  "          \"db\": \"uniprot\"\n" +
 		  "        }\n" +
 		  "      }\n" +
@@ -86,7 +86,7 @@ public class FactoidToBiopaxTest {
 	  assertThat(xrefs.size(), equalTo(2));
 	  xrefs.stream().forEach(x -> {
 		  assertThat(x.getDb(), equalTo("uniprot"));
-		  assertThat(x.getId(), isOneOf("P41159","P12643"));
+		  assertThat(x.getId(), isOneOf("P05019","P01225"));
 	  });
 	  
 	  Set<MolecularInteraction> intns = m.getObjects(MolecularInteraction.class);
@@ -106,23 +106,22 @@ public class FactoidToBiopaxTest {
   public void testExpressionRegulation() throws IOException {
 	  String templates = "[{\n" +
 			  "    \"type\": \"Expression Regulation\",\n" +
-			  "    \"controlType\": \"activation\",\n" +
-			  "    \"modification\": \"phosphorylated\",\n" +
+			  "    \"controlType\": \"inhibition\",\n" +
 			  "    \"controller\": " +
 			  "      {\n" +
 			  "        \"type\": \"protein\",\n" +
-			  "        \"name\": \"BMP2\",\n" +
+			  "        \"name\": \"JUN\",\n" +
 			  "        \"xref\": {\n" +
-			  "          \"id\": P12643,\n" +
+			  "          \"id\": P05412,\n" +
 			  "          \"db\": \"uniprot\"\n" +
 			  "        }\n" +
 			  "      },\n" +
 			  "    \"target\": " +
 			  "      {\n" +
 			  "        \"type\": \"protein\",\n" +
-			  "        \"name\": \"LEP\",\n" +
+			  "        \"name\": \"BMP2\",\n" +
 			  "        \"xref\": {\n" +
-			  "          \"id\": \"P41159\",\n" +
+			  "          \"id\": \"P12643\",\n" +
 			  "          \"db\": \"uniprot\"\n" +
 			  "        }\n" +
 			  "      }\n" +
@@ -139,14 +138,14 @@ public class FactoidToBiopaxTest {
 		  assertThat(xrefs.size(), equalTo(2));
 		  xrefs.stream().forEach(x -> {
 			  assertThat(x.getDb(), equalTo("uniprot"));
-			  assertThat(x.getId(), isOneOf("P41159","P12643"));
+			  assertThat(x.getId(), isOneOf("P05412","P12643"));
 		  });  
 		  
 		  Set<TemplateReactionRegulation> controls = m.getObjects(TemplateReactionRegulation.class);
 		  assertThat(controls, not(empty()));
 		  TemplateReactionRegulation control = controls.iterator().next();
 		  
-		  assertThat(control.getControlType(), equalTo(ControlType.ACTIVATION));
+		  assertThat(control.getControlType(), equalTo(ControlType.INHIBITION));
 		  assertThat(control.getController(), not(empty()));
 		  assertThat(control.getControlled(), not(empty()));
 		  
@@ -176,18 +175,18 @@ public class FactoidToBiopaxTest {
 		  "    \"controller\": " +
 		  "      {\n" +
 		  "        \"type\": \"protein\",\n" +
-		  "        \"name\": \"BMP2\",\n" +
+		  "        \"name\": \"TP53\",\n" +
 		  "        \"xref\": {\n" +
-		  "          \"id\": P12643,\n" +
+		  "          \"id\": P04637,\n" +
 		  "          \"db\": \"uniprot\"\n" +
 		  "        }\n" +
 		  "      },\n" +
 		  "    \"target\": " +
 		  "      {\n" +
 		  "        \"type\": \"protein\",\n" +
-		  "        \"name\": \"LEP\",\n" +
+		  "        \"name\": \"MDM2\",\n" +
 		  "        \"xref\": {\n" +
-		  "          \"id\": \"P41159\",\n" +
+		  "          \"id\": \"Q00987\",\n" +
 		  "          \"db\": \"uniprot\"\n" +
 		  "        }\n" +
 		  "      }\n" +
@@ -204,7 +203,7 @@ public class FactoidToBiopaxTest {
 	  assertThat(xrefs.size(), equalTo(2));
 	  xrefs.stream().forEach(x -> {
 		  assertThat(x.getDb(), equalTo("uniprot"));
-		  assertThat(x.getId(), isOneOf("P41159","P12643"));
+		  assertThat(x.getId(), isOneOf("P04637","Q00987"));
 	  });  
 	  
 	  Set<Catalysis> controls = m.getObjects(Catalysis.class);
@@ -243,17 +242,17 @@ public class FactoidToBiopaxTest {
 		  "    \"participants\": [\n" +
 		  "      {\n" +
 		  "        \"type\": \"chemical\",\n" +
-		  "        \"name\": \"Estradiol\",\n" +
+		  "        \"name\": \"Iodine\",\n" +
 		  "        \"xref\": {\n" +
-		  "          \"id\": 9811784,\n" +
+		  "          \"id\": 807,\n" +
 		  "          \"db\": \"pubchem\"\n" +
 		  "        }\n" +
 		  "      },\n" +
 		  "      {\n" +
 		  "        \"type\": \"chemical\",\n" +
-		  "        \"name\": \"Progesterone\",\n" +
+		  "        \"name\": \"Nikel\",\n" +
 		  "        \"xref\": {\n" +
-		  "          \"id\": 5994,\n" +
+		  "          \"id\": 101944429,\n" +
 		  "          \"db\": \"pubchem\"\n" +
 		  "        }\n" +
 		  "      },\n" +
@@ -271,7 +270,7 @@ public class FactoidToBiopaxTest {
 	  assertThat(xrefs.size(), equalTo(2));
 	  xrefs.stream().forEach(x -> {
 		  assertThat(x.getDb(), equalTo("pubchem"));
-		  assertThat(x.getId(), isOneOf("5994","9811784"));
+		  assertThat(x.getId(), isOneOf("807","101944429"));
 	  });
 	  
 	  Set<Conversion> conversions = m.getObjects(Conversion.class);
@@ -287,8 +286,8 @@ public class FactoidToBiopaxTest {
 	  assertThat(left, instanceOf(SmallMolecule.class));
 	  assertThat(right, instanceOf(SmallMolecule.class));
 	  
-	  assertThat(left.getDisplayName(), equalTo("Estradiol"));
-	  assertThat(right.getDisplayName(), equalTo("Progesterone"));
+	  assertThat(left.getDisplayName(), equalTo("Iodine"));
+	  assertThat(right.getDisplayName(), equalTo("Nikel"));
 	  
 	  assertThat(((SmallMolecule) left).getEntityReference(), notNullValue());
 	  assertThat(((SmallMolecule) right).getEntityReference(), notNullValue());
@@ -301,7 +300,7 @@ public class FactoidToBiopaxTest {
   public void testControlsConsumtionOrProduction() throws IOException {
 	  String templates = "[{\n" +
 		  "    \"type\": \"Other Interaction\",\n" +
-		  "    \"controlType\": \"activation\",\n" +
+		  "    \"controlType\": \"inhibition\",\n" +
 		  "    \"participants\": [\n" +
 		  "      {\n" +
 		  "        \"type\": \"protein\",\n" +
@@ -347,10 +346,10 @@ public class FactoidToBiopaxTest {
 	  PhysicalEntity controller = (PhysicalEntity) control.getController().iterator().next();
 	  BiochemicalReaction controlled = (BiochemicalReaction) control.getControlled().iterator().next();
 	  
-	  assertThat(controlled.getLeft(), empty());
-	  assertThat(controlled.getRight(), not(empty()));
+	  assertThat(controlled.getLeft(), not(empty()));
+	  assertThat(controlled.getRight(), empty());
 	  
-	  PhysicalEntity target = (PhysicalEntity) controlled.getRight().iterator().next();
+	  PhysicalEntity target = (PhysicalEntity) controlled.getLeft().iterator().next();
 	  
 	  assertThat(controller, instanceOf(Protein.class));
 	  assertThat(target, instanceOf(SmallMolecule.class));
@@ -366,7 +365,7 @@ public class FactoidToBiopaxTest {
   public void testControlSequence() throws IOException {
 	  String templates = "[{\n" +
 	      "    \"type\": \"Other Interaction\",\n" +
-	      "    \"controlType\": \"activation\",\n" +
+	      "    \"controlType\": \"inhibition\",\n" +
 	      "    \"participants\": [\n" +
 	      "      {\n" +
 	      "        \"type\": \"protein\",\n" +
@@ -378,9 +377,9 @@ public class FactoidToBiopaxTest {
 	      "      },\n" +
 	      "      {\n" +
 	      "        \"type\": \"protein\",\n" +
-	      "        \"name\": \"LEP\",\n" +
+	      "        \"name\": \"IGF1\",\n" +
 	      "        \"xref\": {\n" +
-	      "          \"id\": \"P41159\",\n" +
+	      "          \"id\": \"P05019\",\n" +
 	      "          \"db\": \"uniprot\"\n" +
 	      "        }\n" +
 	      "      }\n" +
@@ -398,12 +397,12 @@ public class FactoidToBiopaxTest {
     assertThat(xrefs.size(), equalTo(2));
     xrefs.stream().forEach(x -> {
       assertThat(x.getDb(), equalTo("uniprot"));
-      assertThat(x.getId(), isOneOf("P41159","P12643"));
+      assertThat(x.getId(), isOneOf("P05019","P12643"));
     });  
     
     Set<Control> controls = m.getObjects(Control.class);
     controls.stream().forEach(c -> {
-    		assertThat(c.getControlType(), equalTo(ControlType.ACTIVATION));
+    		assertThat(c.getControlType(), equalTo(ControlType.INHIBITION));
     		assertThat(c.getController().size(), equalTo(1));
     		assertThat(c.getController().iterator().next(), instanceOf(Protein.class));
     		
@@ -420,6 +419,7 @@ public class FactoidToBiopaxTest {
     });
   }
   
+  // TODO: update model
   @Test
   public void testGeneralInteraction() throws IOException {
 	  String templates = "[{\n" +
@@ -427,17 +427,17 @@ public class FactoidToBiopaxTest {
 	      "    \"participants\": [\n" +
 	      "      {\n" +
 	      "        \"type\": \"protein\",\n" +
-	      "        \"name\": \"BMP2\",\n" +
+	      "        \"name\": \"Saccharopepsin\",\n" +
 	      "        \"xref\": {\n" +
-	      "          \"id\": P12643,\n" +
+	      "          \"id\": P07267,\n" +
 	      "          \"db\": \"uniprot\"\n" +
 	      "        }\n" +
 	      "      },\n" +
 	      "      {\n" +
 	      "        \"type\": \"protein\",\n" +
-	      "        \"name\": \"LEP\",\n" +
+	      "        \"name\": \"Kalirin\",\n" +
 	      "        \"xref\": {\n" +
-	      "          \"id\": \"P41159\",\n" +
+	      "          \"id\": \"O60229\",\n" +
 	      "          \"db\": \"uniprot\"\n" +
 	      "        }\n" +
 	      "      }\n" +
@@ -455,7 +455,7 @@ public class FactoidToBiopaxTest {
     assertThat(xrefs.size(), equalTo(2));
     xrefs.stream().forEach(x -> {
       assertThat(x.getDb(), equalTo("uniprot"));
-      assertThat(x.getId(), isOneOf("P41159","P12643"));
+      assertThat(x.getId(), isOneOf("P07267","O60229"));
     });  
     
     Set<Interaction> intns = m.getObjects(Interaction.class);

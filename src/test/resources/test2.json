@@ -215,5 +215,69 @@
         }
       }
     ]
+  },
+  {
+    "type": "Protein Controls State",
+    "controller": {
+      "type": "protein",
+      "name": "TP53",
+      "xref": {
+        "id": "P04637",
+        "db": "uniprot"
+      }
+    },
+    "target": {
+      "type": "protein",
+      "name": "MDM2",
+      "xref": {
+        "id": "Q00987",
+        "db": "uniprot"
+      }
+    },
+    "controlType": "activation",
+    "modification": "phosphorylated"
+  },
+  {
+    "type": "Other Interaction",
+    "controlType": "activation",
+    "participants": [
+      {
+        "type": "chemical",
+        "name": "Iodine",
+        "xref": {
+          "id": "807",
+          "db": "pubchem"
+        }
+      },
+      {
+        "type": "chemical",
+        "name": "Nikel",
+        "xref": {
+          "id": "101944429",
+          "db": "pubchem"
+        }
+      }
+    ]
+  },
+  {
+    "type": "Other Interaction",
+    "participants": [
+      {
+        "type": "protein",
+        "name": "Saccharopepsin",
+        "xref": {
+          "id": "P07267",
+          "db": "uniprot"
+        }
+      },
+      {
+        "type": "protein",
+        "name": "Kalirin",
+        "xref": {
+          "id": "O60229",
+          "db": "uniprot"
+        }
+      }
+    ]
   }
 ]
