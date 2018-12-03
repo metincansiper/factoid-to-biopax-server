@@ -41,7 +41,7 @@ public class FactoidToBiopaxTest {
     assertThat(m.getObjects().size(), greaterThan(20));
 
     Set<SmallMoleculeReference> smols = m.getObjects(SmallMoleculeReference.class);
-    assertThat(smols.size(), is(2));
+    assertThat(smols.size(), is(4));
 
     Set<Modulation> mods = m.getObjects(Modulation.class);
     assertThat(mods.size(), is(2));
@@ -49,6 +49,426 @@ public class FactoidToBiopaxTest {
     List<?> controllers = mods.stream().map(Modulation::getController)
       .flatMap(Set::stream).collect(Collectors.toList());
     assertThat(controllers.stream().filter(SmallMolecule.class::isInstance).count(), is(2L));
+  }
+  
+  @Test
+  public void testMolecularInteraction() throws IOException {
+	  String templates = "[{\n" +
+		  "    \"type\": \"Molecular Interaction\",\n" +
+		  "    \"participants\": [\n" +
+		  "      {\n" +
+		  "        \"type\": \"protein\",\n" +
+		  "        \"name\": \"IGF1\",\n" +
+		  "        \"xref\": {\n" +
+		  "          \"id\": P05019,\n" +
+		  "          \"db\": \"uniprot\"\n" +
+		  "        }\n" +
+		  "      },\n" +
+		  "      {\n" +
+		  "        \"type\": \"protein\",\n" +
+		  "        \"name\": \"FSHB\",\n" +
+		  "        \"xref\": {\n" +
+		  "          \"id\": \"P01225\",\n" +
+		  "          \"db\": \"uniprot\"\n" +
+		  "        }\n" +
+		  "      }\n" +
+		  "    ]\n" +
+		  "  }]";
+
+	  FactoidToBiopax converter = new FactoidToBiopax();
+	  converter.addToModel(templates); //processing
+
+	  Model m = converterResultToModel(converter.convertToBiopax());
+	  assertThat(m.getObjects().size(), equalTo(7));
+
+	  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
+	  assertThat(xrefs, notNullValue());
+	  assertThat(xrefs.size(), equalTo(2));
+	  xrefs.stream().forEach(x -> {
+		  assertThat(x.getDb(), equalTo("uniprot"));
+		  assertThat(x.getId(), isOneOf("P05019","P01225"));
+	  });
+	  
+	  Set<MolecularInteraction> intns = m.getObjects(MolecularInteraction.class);
+	  assertThat(intns, not(empty()));
+	  MolecularInteraction intn = intns.iterator().next();
+	  Set<Entity> participants = intn.getParticipant();
+
+	  assertThat(participants.size(), equalTo(2));
+	  participants.stream().forEach(p -> {
+		  assertThat(p, instanceOf(Protein.class));
+		  assertThat(((Protein)p).getEntityReference(), notNullValue());
+		  assertThat(((Protein)p).getEntityReference().getXref(), not(empty()));
+	  });
+  }
+  
+  @Test
+  public void testExpressionRegulation() throws IOException {
+	  String templates = "[{\n" +
+			  "    \"type\": \"Expression Regulation\",\n" +
+			  "    \"controlType\": \"inhibition\",\n" +
+			  "    \"controller\": " +
+			  "      {\n" +
+			  "        \"type\": \"protein\",\n" +
+			  "        \"name\": \"JUN\",\n" +
+			  "        \"xref\": {\n" +
+			  "          \"id\": P05412,\n" +
+			  "          \"db\": \"uniprot\"\n" +
+			  "        }\n" +
+			  "      },\n" +
+			  "    \"target\": " +
+			  "      {\n" +
+			  "        \"type\": \"protein\",\n" +
+			  "        \"name\": \"BMP2\",\n" +
+			  "        \"xref\": {\n" +
+			  "          \"id\": \"P12643\",\n" +
+			  "          \"db\": \"uniprot\"\n" +
+			  "        }\n" +
+			  "      }\n" +
+			  "  }]";
+
+		  FactoidToBiopax converter = new FactoidToBiopax();
+		  converter.addToModel(templates); //processing
+
+		  Model m = converterResultToModel(converter.convertToBiopax());
+		  assertThat(m.getObjects().size(), equalTo(8));
+
+		  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
+		  assertThat(xrefs, notNullValue());
+		  assertThat(xrefs.size(), equalTo(2));
+		  xrefs.stream().forEach(x -> {
+			  assertThat(x.getDb(), equalTo("uniprot"));
+			  assertThat(x.getId(), isOneOf("P05412","P12643"));
+		  });  
+		  
+		  Set<TemplateReactionRegulation> controls = m.getObjects(TemplateReactionRegulation.class);
+		  assertThat(controls, not(empty()));
+		  TemplateReactionRegulation control = controls.iterator().next();
+		  
+		  assertThat(control.getControlType(), equalTo(ControlType.INHIBITION));
+		  assertThat(control.getController(), not(empty()));
+		  assertThat(control.getControlled(), not(empty()));
+		  
+		  TemplateReaction reaction = (TemplateReaction) control.getControlled().iterator().next();
+		  PhysicalEntity controller = (PhysicalEntity) control.getController().iterator().next();
+		  
+		  assertThat(reaction.getParticipant(), not(empty()));
+		  
+		  PhysicalEntity product = (PhysicalEntity) reaction.getParticipant().iterator().next();
+		  
+		  assertThat(product, instanceOf(Protein.class));
+		  assertThat(controller, instanceOf(Protein.class));
+		  
+		  assertThat(((Protein) product).getEntityReference(), notNullValue());
+		  assertThat(((Protein) controller).getEntityReference(), notNullValue());
+		  
+		  assertThat(((Protein) product).getEntityReference().getXref(), not(empty()));
+		  assertThat(((Protein) controller).getEntityReference().getXref(), not(empty()));
+  }
+  
+  @Test
+  public void testProteinControlsState() throws IOException {
+	  String templates = "[{\n" +
+		  "    \"type\": \"Protein Controls State\",\n" +
+		  "    \"controlType\": \"activation\",\n" +
+		  "    \"modification\": \"phosphorylated\",\n" +
+		  "    \"controller\": " +
+		  "      {\n" +
+		  "        \"type\": \"protein\",\n" +
+		  "        \"name\": \"TP53\",\n" +
+		  "        \"xref\": {\n" +
+		  "          \"id\": P04637,\n" +
+		  "          \"db\": \"uniprot\"\n" +
+		  "        }\n" +
+		  "      },\n" +
+		  "    \"target\": " +
+		  "      {\n" +
+		  "        \"type\": \"protein\",\n" +
+		  "        \"name\": \"MDM2\",\n" +
+		  "        \"xref\": {\n" +
+		  "          \"id\": \"Q00987\",\n" +
+		  "          \"db\": \"uniprot\"\n" +
+		  "        }\n" +
+		  "      }\n" +
+		  "  }]";
+
+	  FactoidToBiopax converter = new FactoidToBiopax();
+	  converter.addToModel(templates); //processing
+
+	  Model m = converterResultToModel(converter.convertToBiopax());
+	  assertThat(m.getObjects().size(), equalTo(13));
+
+	  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
+	  assertThat(xrefs, notNullValue());
+	  assertThat(xrefs.size(), equalTo(2));
+	  xrefs.stream().forEach(x -> {
+		  assertThat(x.getDb(), equalTo("uniprot"));
+		  assertThat(x.getId(), isOneOf("P04637","Q00987"));
+	  });  
+	  
+	  Set<Catalysis> controls = m.getObjects(Catalysis.class);
+	  assertThat(controls, not(empty()));
+	  Catalysis control = controls.iterator().next();
+	  
+	  assertThat(control.getControlled(), not(empty()));
+	  assertThat(control.getController(), not(empty()));
+	  assertThat(control.getControlType(), equalTo(ControlType.ACTIVATION));
+	  
+	  Conversion conversion = (Conversion) control.getControlled().iterator().next();
+	  assertThat(conversion.getLeft(), not(empty()));
+	  assertThat(conversion.getRight(), not(empty()));
+	  
+	  PhysicalEntity controller = (PhysicalEntity) control.getController().iterator().next();
+	  PhysicalEntity left = (PhysicalEntity) conversion.getLeft().iterator().next();
+	  PhysicalEntity right = (PhysicalEntity) conversion.getRight().iterator().next();
+	  
+	  assertThat(controller, instanceOf(Protein.class));
+	  assertThat(left, instanceOf(Protein.class));
+	  assertThat(right, instanceOf(Protein.class));
+	  
+	  assertThat(((Protein) left).getEntityReference(), notNullValue());
+	  assertThat(((Protein) controller).getEntityReference(), notNullValue());
+	  assertThat(((Protein) right).getEntityReference(), equalTo(((Protein) left).getEntityReference()));
+	  
+	  assertThat(((Protein) left).getEntityReference().getXref(), not(empty()));
+	  assertThat(((Protein) controller).getEntityReference().getXref(), not(empty()));
+  }
+  
+  @Test
+  public void testConversion() throws IOException {
+	  String templates = "[{\n" +
+		  "    \"type\": \"Other Interaction\",\n" +
+		  "    \"controlType\": \"activation\",\n" +
+		  "    \"participants\": [\n" +
+		  "      {\n" +
+		  "        \"type\": \"chemical\",\n" +
+		  "        \"name\": \"Iodine\",\n" +
+		  "        \"xref\": {\n" +
+		  "          \"id\": 807,\n" +
+		  "          \"db\": \"pubchem\"\n" +
+		  "        }\n" +
+		  "      },\n" +
+		  "      {\n" +
+		  "        \"type\": \"chemical\",\n" +
+		  "        \"name\": \"Nikel\",\n" +
+		  "        \"xref\": {\n" +
+		  "          \"id\": 101944429,\n" +
+		  "          \"db\": \"pubchem\"\n" +
+		  "        }\n" +
+		  "      },\n" +
+		  "    ]\n" +
+		  "  }]";
+	  
+	  FactoidToBiopax converter = new FactoidToBiopax();
+	  converter.addToModel(templates); //processing
+
+	  Model m = converterResultToModel(converter.convertToBiopax());
+	  assertThat(m.getObjects().size(), equalTo(7));
+
+	  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
+	  assertThat(xrefs, notNullValue());
+	  assertThat(xrefs.size(), equalTo(2));
+	  xrefs.stream().forEach(x -> {
+		  assertThat(x.getDb(), equalTo("pubchem"));
+		  assertThat(x.getId(), isOneOf("807","101944429"));
+	  });
+	  
+	  Set<Conversion> conversions = m.getObjects(Conversion.class);
+	  assertThat(conversions, not(empty()));
+	  Conversion conversion = conversions.iterator().next();
+	  
+	  assertThat(conversion.getLeft(), not(empty()));
+	  assertThat(conversion.getRight(), not(empty()));
+	  
+	  PhysicalEntity left = (PhysicalEntity) conversion.getLeft().iterator().next();
+	  PhysicalEntity right = (PhysicalEntity) conversion.getRight().iterator().next();
+	  
+	  assertThat(left, instanceOf(SmallMolecule.class));
+	  assertThat(right, instanceOf(SmallMolecule.class));
+	  
+	  assertThat(left.getDisplayName(), equalTo("Iodine"));
+	  assertThat(right.getDisplayName(), equalTo("Nikel"));
+	  
+	  assertThat(((SmallMolecule) left).getEntityReference(), notNullValue());
+	  assertThat(((SmallMolecule) right).getEntityReference(), notNullValue());
+	  
+	  assertThat(((SmallMolecule) left).getEntityReference().getXref(), not(empty()));
+	  assertThat(((SmallMolecule) right).getEntityReference().getXref(), not(empty()));
+  }
+  
+  @Test
+  public void testControlsConsumtionOrProduction() throws IOException {
+	  String templates = "[{\n" +
+		  "    \"type\": \"Other Interaction\",\n" +
+		  "    \"controlType\": \"inhibition\",\n" +
+		  "    \"participants\": [\n" +
+		  "      {\n" +
+		  "        \"type\": \"protein\",\n" +
+		  "        \"name\": \"BMP2\",\n" +
+		  "        \"xref\": {\n" +
+		  "          \"id\": P12643,\n" +
+		  "          \"db\": \"uniprot\"\n" +
+		  "        }\n" +
+		  "      },\n" +
+		  "      {\n" +
+		  "        \"type\": \"chemical\",\n" +
+		  "        \"name\": \"Progesterone\",\n" +
+		  "        \"xref\": {\n" +
+		  "          \"id\": 5994,\n" +
+		  "          \"db\": \"pubchem\"\n" +
+		  "        }\n" +
+		  "      },\n" +
+		  "    ]\n" +
+		  "  }]";
+
+	  FactoidToBiopax converter = new FactoidToBiopax();
+	  converter.addToModel(templates); //processing
+
+	  Model m = converterResultToModel(converter.convertToBiopax());
+	  assertThat(m.getObjects().size(), equalTo(8));
+
+	  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
+	  assertThat(xrefs, notNullValue());
+	  assertThat(xrefs.size(), equalTo(2));
+	  xrefs.stream().forEach(x -> {
+		  assertThat(x.getDb(), isOneOf("uniprot", "pubchem"));
+		  assertThat(x.getId(), isOneOf("5994","P12643"));
+	  });
+	  
+	  Set<Catalysis> controls = m.getObjects(Catalysis.class);
+	  assertThat(controls, not(empty()));
+	  Catalysis control = controls.iterator().next();
+	  assertThat(control.getControlType(), nullValue());
+	  
+	  assertThat(control.getController(), not(empty()));
+	  assertThat(control.getControlled(), not(empty()));
+	  
+	  PhysicalEntity controller = (PhysicalEntity) control.getController().iterator().next();
+	  BiochemicalReaction controlled = (BiochemicalReaction) control.getControlled().iterator().next();
+	  
+	  assertThat(controlled.getLeft(), not(empty()));
+	  assertThat(controlled.getRight(), empty());
+	  
+	  PhysicalEntity target = (PhysicalEntity) controlled.getLeft().iterator().next();
+	  
+	  assertThat(controller, instanceOf(Protein.class));
+	  assertThat(target, instanceOf(SmallMolecule.class));
+	  
+	  assertThat(((Protein)controller).getEntityReference(), notNullValue());
+	  assertThat(((SmallMolecule)target).getEntityReference(), notNullValue());
+
+	  assertThat(((Protein)controller).getEntityReference().getXref(), not(empty()));
+	  assertThat(((SmallMolecule)target).getEntityReference().getXref(), not(empty()));
+  }
+  
+  @Test
+  public void testControlSequence() throws IOException {
+	  String templates = "[{\n" +
+	      "    \"type\": \"Other Interaction\",\n" +
+	      "    \"controlType\": \"inhibition\",\n" +
+	      "    \"participants\": [\n" +
+	      "      {\n" +
+	      "        \"type\": \"protein\",\n" +
+	      "        \"name\": \"BMP2\",\n" +
+	      "        \"xref\": {\n" +
+	      "          \"id\": P12643,\n" +
+	      "          \"db\": \"uniprot\"\n" +
+	      "        }\n" +
+	      "      },\n" +
+	      "      {\n" +
+	      "        \"type\": \"protein\",\n" +
+	      "        \"name\": \"IGF1\",\n" +
+	      "        \"xref\": {\n" +
+	      "          \"id\": \"P05019\",\n" +
+	      "          \"db\": \"uniprot\"\n" +
+	      "        }\n" +
+	      "      }\n" +
+	      "    ]\n" +
+	      "  }]";
+	
+    FactoidToBiopax converter = new FactoidToBiopax();
+    converter.addToModel(templates); //processing
+
+    Model m = converterResultToModel(converter.convertToBiopax());
+    assertThat(m.getObjects().size(), equalTo(8));
+
+    Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
+    assertThat(xrefs, notNullValue());
+    assertThat(xrefs.size(), equalTo(2));
+    xrefs.stream().forEach(x -> {
+      assertThat(x.getDb(), equalTo("uniprot"));
+      assertThat(x.getId(), isOneOf("P05019","P12643"));
+    });  
+    
+    Set<Control> controls = m.getObjects(Control.class);
+    controls.stream().forEach(c -> {
+    		assertThat(c.getControlType(), equalTo(ControlType.INHIBITION));
+    		assertThat(c.getController().size(), equalTo(1));
+    		assertThat(c.getController().iterator().next(), instanceOf(Protein.class));
+    		
+    		assertThat(c.getControlled().size(), isOneOf(0, 1));
+    		if (c.getControlled().iterator().hasNext()) {
+    			assertThat(c.getControlled().iterator().next(), instanceOf(Control.class));
+    		}
+    });
+    
+    Set<Protein> entities = m.getObjects(Protein.class);
+    entities.stream().forEach(e -> {
+		assertThat(e.getEntityReference(), notNullValue());
+	    assertThat(e.getEntityReference().getXref(), not(empty()));
+    });
+  }
+  
+  // TODO: update model
+  @Test
+  public void testGeneralInteraction() throws IOException {
+	  String templates = "[{\n" +
+	      "    \"type\": \"Other Interaction\",\n" +
+	      "    \"participants\": [\n" +
+	      "      {\n" +
+	      "        \"type\": \"protein\",\n" +
+	      "        \"name\": \"Saccharopepsin\",\n" +
+	      "        \"xref\": {\n" +
+	      "          \"id\": P07267,\n" +
+	      "          \"db\": \"uniprot\"\n" +
+	      "        }\n" +
+	      "      },\n" +
+	      "      {\n" +
+	      "        \"type\": \"protein\",\n" +
+	      "        \"name\": \"Kalirin\",\n" +
+	      "        \"xref\": {\n" +
+	      "          \"id\": \"O60229\",\n" +
+	      "          \"db\": \"uniprot\"\n" +
+	      "        }\n" +
+	      "      }\n" +
+	      "    ]\n" +
+	      "  }]";
+	
+    FactoidToBiopax converter = new FactoidToBiopax();
+    converter.addToModel(templates); //processing
+
+    Model m = converterResultToModel(converter.convertToBiopax());
+    assertThat(m.getObjects().size(), equalTo(7));
+
+    Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
+    assertThat(xrefs, notNullValue());
+    assertThat(xrefs.size(), equalTo(2));
+    xrefs.stream().forEach(x -> {
+      assertThat(x.getDb(), equalTo("uniprot"));
+      assertThat(x.getId(), isOneOf("P07267","O60229"));
+    });  
+    
+    Set<Interaction> intns = m.getObjects(Interaction.class);
+    assertThat(intns, not(empty()));
+    Interaction intn = intns.iterator().next();
+    Set<Entity> participants = intn.getParticipant();
+    
+    assertThat(participants.size(), equalTo(2));
+    participants.stream().forEach(p -> {
+    		assertThat(p, instanceOf(Protein.class));
+    		assertThat(((Protein)p).getEntityReference(), notNullValue());
+    	    assertThat(((Protein)p).getEntityReference().getXref(), not(empty()));
+    });
   }
 
   @Test
