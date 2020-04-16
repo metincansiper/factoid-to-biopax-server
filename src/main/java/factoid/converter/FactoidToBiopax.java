@@ -11,9 +11,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.biopax.paxtools.model.BioPAXElement;
+import org.biopax.paxtools.model.level2.complex;
+import org.biopax.paxtools.model.level3.Complex;
 import org.biopax.paxtools.model.level3.ControlType;
+import org.biopax.paxtools.model.level3.DnaRegion;
 import org.biopax.paxtools.model.level3.PhysicalEntity;
 import org.biopax.paxtools.model.level3.Protein;
+import org.biopax.paxtools.model.level3.Rna;
 import org.biopax.paxtools.model.level3.SmallMolecule;
 
 import com.google.gson.Gson;
@@ -40,11 +45,13 @@ public class FactoidToBiopax {
 	}
 	
 	public void addToModel(String templatesContent) {
+		System.out.println("add to model");
 		JsonArray templates = jsonParser.parse(templatesContent).getAsJsonArray();
 		addToModel(templates);
 	}
 	
 	public void addToModel(Reader contentReader) {
+		System.out.println("add to model2");
 		JsonArray templates = jsonParser.parse(contentReader).getAsJsonArray();
 		addToModel(templates);
 	}
@@ -120,7 +127,15 @@ public class FactoidToBiopax {
 		return CONTROL_TYPE_MAP.get(controlTypeStr.toUpperCase());
 	}
 	
-	private void addOtherInteraction(JsonArray participantsJSON, String controlTypeStr) {
+	private  boolean isMacromolecule(Class<? extends BioPAXElement> c) {
+		return c == Protein.class || c == DnaRegion.class || c == Rna.class;
+	}
+	
+	private boolean isComplexOrMacromolecule(Class<? extends BioPAXElement> c) {
+		return c == Complex.class || isMacromolecule(c);
+	}
+	
+	private void addOtherInteraction(JsonArray participantsJSON, String controlTypeStr) {		
 		List<EntityModel> participantModels = gson.fromJson(participantsJSON, new TypeToken<List<EntityModel>>(){}.getType());
 		if (controlTypeStr == null) {
 			model.addInteraction(participantModels);
@@ -132,13 +147,14 @@ public class FactoidToBiopax {
 			Class<? extends PhysicalEntity> targetClass = tgtModel.getEntityClass();
 			ControlType controlType = getControlType(controlTypeStr);
 			
-			if (controllerClass == Protein.class && targetClass == Protein.class) {
+			if (isComplexOrMacromolecule(controllerClass) && isComplexOrMacromolecule(targetClass)) {
 				model.addControlSequence(srcModel, tgtModel, controlType);
 			}
 			else if(controllerClass == Protein.class && targetClass == SmallMolecule.class) {
 				model.addControlsConsumptionOrProduction(srcModel, tgtModel, controlType);
 			}
-			else if(controllerClass == SmallMolecule.class && targetClass == Protein.class) {
+			else if(controllerClass == SmallMolecule.class && isMacromolecule(targetClass)) {
+				// TODO: convert to modification?				
 				model.addModulation(srcModel, tgtModel, controlType);
 			}
 			else if(controllerClass == SmallMolecule.class && targetClass == SmallMolecule.class) {
@@ -156,6 +172,10 @@ public class FactoidToBiopax {
 		ControlType controlType = getControlType(controlTypeStr);
 		EntityModel controllerProteinModel = gson.fromJson(controllerProteinJson, EntityModel.class);
 		EntityModel targetProteinModel = gson.fromJson(targetProteinJson, EntityModel.class);
+		
+		System.out.println(controlType);
+		System.out.println(controllerProteinModel);
+		System.out.println(targetProteinModel);
 		
 		model.addControlsState(controllerProteinModel, targetProteinModel, modification, controlType);
 	}
@@ -196,5 +216,15 @@ public class FactoidToBiopax {
 			return getName();
 		}
 	}
+	
+	public static void main(String[] args) {
+		String templates = "[{\"type\":\"Other Interaction\",\"controlType\":\"inhibition\",\"participants\":[{\"type\":\"protein\",\"name\":\"BMP2\",\"xref\":{\"id\":\"P12643\",\"db\":\"uniprot\"}},{\"type\":\"complex\",\"name\":\"complex\",\"components\":[{\"type\":\"protein\",\"name\":\"FSHB\",\"xref\":{\"id\":\"P01225\",\"db\":\"uniprot\"}},{\"type\":\"protein\",\"name\":\"IGF1\",\"xref\":{\"id\":\"P05019\",\"db\":\"uniprot\"}}]}]}]";
+		
+		
 
+	  FactoidToBiopax converter = new FactoidToBiopax();
+	  converter.addToModel(templates); //processing
+	  
+	  System.out.println(converter.convertToBiopax());
+	}
 }

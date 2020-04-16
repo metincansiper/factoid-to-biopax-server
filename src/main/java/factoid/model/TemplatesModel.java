@@ -138,6 +138,10 @@ public class TemplatesModel {
 		XrefModel xref1 = entityModel1.getXref();
 		XrefModel xref2 = entityModel2.getXref();
 		
+		List<EntityModel> componentModels1 = entityModel1.getComponentModels();
+		List<EntityModel> componentModels2 = entityModel2.getComponentModels();
+		boolean inComplex = false;
+		
 		Class<? extends PhysicalEntity> entityClass1 = entityModel1.getEntityClass();
 		Class<? extends EntityReference> entityRefClass1 = entityModel1.getEntityRefClass();
 		Class<? extends PhysicalEntity> entityClass2 = entityModel2.getEntityClass();
@@ -146,8 +150,9 @@ public class TemplatesModel {
 		EntityReference entityRef1 = model.getOrCreateEntityReference(entityRefClass1, name1, xref1);
 		EntityReference entityRef2 = model.getOrCreateEntityReference(entityRefClass2, name2, xref2);
 		
-		PhysicalEntity entity1 = model.getOrCreatePhysicalEntity(entityClass1, name1, null, entityRef1);
-		PhysicalEntity entity2 = model.getOrCreatePhysicalEntity(entityClass2, name2, null, entityRef2);
+		
+		PhysicalEntity entity1 = model.getOrCreatePhysicalEntity(entityClass1, name1, null, entityRef1, inComplex, componentModels1);
+		PhysicalEntity entity2 = model.getOrCreatePhysicalEntity(entityClass2, name2, null, entityRef2, inComplex, componentModels2);
 		
 		// Second entity is controller in somewhere where controlled is unknown
 		// First entity controls the interaction above
