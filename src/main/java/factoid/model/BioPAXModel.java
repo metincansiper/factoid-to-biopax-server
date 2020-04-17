@@ -289,13 +289,31 @@ public class BioPAXModel {
 		// Therefore, there is no need to handle modifications etc here, just name and xref is enough.
 		String seperator = "\t";
 		Set<String> modelSummary = componentModels.stream().map(m -> {
+			String xrefId = null;
+			String xrefDb = null;
 			XrefModel xref = m.getXref();
-			return m.getName() + seperator + xref.getId() + seperator + xref.getDb();
+			if ( xref != null ) {
+				xrefId = xref.getId();
+				xrefDb = xref.getDb();
+			}
+			return m.getName() + seperator + xrefId + seperator + xrefDb;
 		}).collect(Collectors.toSet());
 		
 		Set<String> entitiesSummary = components.stream().map(c -> {
-			Xref xref = c.getXref().iterator().next();
-			return c.getName() + seperator + xref.getId() + seperator + xref.getDb();
+			String xrefId = null;
+			String xrefDb = null;
+			
+			if ( isSimplePhysicalEntityOrSubclass(c.getClass()) ) {
+				Iterator<Xref> it = ((SimplePhysicalEntity)c).getEntityReference().getXref().iterator();
+				
+				if ( it.hasNext() ) {
+					Xref xref = it.next();
+					xrefId = xref.getId();
+					xrefDb = xref.getDb();
+				}
+			}
+			
+			return c.getName().iterator().next() + seperator + xrefId + seperator + xrefDb;
 		}).collect(Collectors.toSet());
 		
 		return modelSummary.equals(entitiesSummary);

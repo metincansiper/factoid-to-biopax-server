@@ -202,6 +202,7 @@ public class TemplatesModel {
 	
 	private <T extends Interaction> void addInteractionWithParticipants(Class<T> c, List<EntityModel> participantModels) {
 		T interaction = model.addNew(c);
+		boolean inComplex = false;
 		
 		for(EntityModel participantModel : participantModels) {
 			String participantName = participantModel.getName();
@@ -210,8 +211,11 @@ public class TemplatesModel {
 			Class<? extends PhysicalEntity> participantClass = participantModel.getEntityClass();
 			Class<? extends EntityReference> participantRefClass = participantModel.getEntityRefClass();
 			
+			List<EntityModel> componentModels = participantModel.getComponentModels();
+			
 			EntityReference participantRef = model.getOrCreateEntityReference(participantRefClass, participantName, participantXref);
-			PhysicalEntity participant = model.getOrCreatePhysicalEntity(participantClass, participantName, null, participantRef);
+//			PhysicalEntity participant = model.getOrCreatePhysicalEntity(participantClass, participantName, null, participantRef, componentModels);
+			PhysicalEntity participant = model.getOrCreatePhysicalEntity(participantClass, participantName, null, participantRef, null, null, inComplex, componentModels);
 			interaction.addParticipant(participant);
 		}
 	}

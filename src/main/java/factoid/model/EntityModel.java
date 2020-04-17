@@ -29,13 +29,11 @@ public class EntityModel {
 		this.xref = xref;
 		this.type = type;
 		this.components = components;
-//		System.out.println("first");
 	}
 	
-//	public EntityModel(String name, XrefModel xref, String type) {
-//		this(name, xref, type, null);
-//		System.out.println("second");
-//	}
+	public EntityModel(String name, XrefModel xref, String type) {
+		this(name, xref, type, null);
+	}
 	
 	public void setName(String name) {
 		this.name = name;
@@ -68,8 +66,7 @@ public class EntityModel {
 	public Class<? extends PhysicalEntity> getEntityClass() {
 		if("entity".equalsIgnoreCase(type)) {
 			return PhysicalEntity.class;
-		}
-		// TODO: put to the beginning		
+		}		
 		else if ("complex".equalsIgnoreCase(type)) {
 			return Complex.class;
 		}

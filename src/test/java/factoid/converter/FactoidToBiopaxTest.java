@@ -49,6 +49,9 @@ public class FactoidToBiopaxTest {
     List<?> controllers = mods.stream().map(Modulation::getController)
       .flatMap(Set::stream).collect(Collectors.toList());
     assertThat(controllers.stream().filter(SmallMolecule.class::isInstance).count(), is(2L));
+    
+    Set<Complex> complexes = m.getObjects(Complex.class);
+    assertThat(complexes.size(), is(2));
   }
   
   @Test
@@ -537,86 +540,89 @@ public class FactoidToBiopaxTest {
     assertThat(cat.getControlled(), empty());
   }
   
-//  @Test
-//  public void testComplexes() throws IOException {
-//	  String templates = "[" +
-//	  		  "{\n" +
-//		      "    \"type\": \"Other Interaction\",\n" +
-//		      "    \"participants\": [\n" +
-//		      "      {\n" +
-//		      "        \"type\": \"complex\",\n" +
-//		      "        \"name\": \"complex\",\n" +
-//		      "        \"components\": [\n" +
-//		      "      					{\n" +
-//		      "        						\"type\": \"protein\",\n" +
-//		      "        						\"name\": \"LEP\",\n" +
-//		      "        						\"xref\": {\n" +
-//		      "          						\"id\": \"P41159\",\n" +
-//		      "      							\"db\": \"uniprot\"\n" +
-//		      "        						}\n" +
-//		      "                          \n}" +	
-//		      "      					{\n" +
-//		      "        						\"type\": \"protein\",\n" +
-//		      "        						\"name\": \"Saccharopepsin\",\n" +
-//		      "        						\"xref\": {\n" +
-//		      "          						\"id\": \"P07267\",\n" +
-//		      "      							\"db\": \"uniprot\"\n" +
-//		      "        						}\n" +
-//		      "                          \n}" +			
-//		      "                        ]\n" +
-//		      "      },\n" +
-//		      "      {\n" +
-//		      "        \"type\": \"protein\",\n" +
-//		      "        \"name\": \"LEP\",\n" +
-//		      "        \"xref\": {\n" +
-//		      "          \"id\": \"P41159\",\n" +
-//		      "          \"db\": \"uniprot\"\n" +
-//		      "        }\n" +
-//		      "      }\n" +
-//		      "    ]\n" +
-//		      "  }," +
-//		      "  {\n" +
-//		      "    \"type\": \"Other Interaction\",\n" +
-//		      "    \"participants\": [\n" +
-//		      "      {\n" +
-//		      "        \"type\": \"complex\",\n" +
-//		      "        \"name\": \"complex\",\n" +
-//		      "        \"components\": [\n" +
-//		      "      					{\n" +
-//		      "        						\"type\": \"protein\",\n" +
-//		      "        						\"name\": \"LEP\",\n" +
-//		      "        						\"xref\": {\n" +
-//		      "          						\"id\": \"P41159\",\n" +
-//		      "      							\"db\": \"uniprot\"\n" +
-//		      "        						}\n" +
-//		      "                          \n}" +	
-//		      "      					{\n" +
-//		      "        						\"type\": \"protein\",\n" +
-//		      "        						\"name\": \"Saccharopepsin\",\n" +
-//		      "        						\"xref\": {\n" +
-//		      "          						\"id\": \"P07267\",\n" +
-//		      "      							\"db\": \"uniprot\"\n" +
-//		      "        						}\n" +
-//		      "                          \n}" +			
-//		      "                        ]\n" +
-//		      "      },\n" +
-//		      "      {\n" +
-//		      "        \"type\": \"protein\",\n" +
-//		      "        \"name\": \"EGFR\",\n" +
-//		      "        \"xref\": {\n" +
-//		      "          \"id\": \"1956\",\n" +
-//		      "          \"db\": \"ncbi\"\n" +
-//		      "        }\n" +
-//		      "      }\n" +
-//		      "    ]\n" +
-//		      "  }" +
-//		      "]";
-//	  	FactoidToBiopax converter = new FactoidToBiopax();
-//	    converter.addToModel(templates); //processing
-//	
-//	    Model m = converterResultToModel(converter.convertToBiopax());
-//	    assertThat(m.getObjects().size(), equalTo(8));
-//  }
+  @Test
+  public void testComplexes() throws IOException {
+	  String templates = "[" +
+	  		  "{\n" +
+		      "    \"type\": \"Other Interaction\",\n" +
+		      "    \"participants\": [\n" +
+		      "      {\n" +
+		      "        \"type\": \"complex\",\n" +
+		      "        \"name\": \"complex\",\n" +
+		      "        \"xref\": null,\n" +
+		      "        \"components\": [\n" +
+		      "      					{\n" +
+		      "        						\"type\": \"protein\",\n" +
+		      "        						\"name\": \"LEP\",\n" +
+		      "        						\"xref\": {\n" +
+		      "          						\"id\": \"P41159\",\n" +
+		      "      							\"db\": \"uniprot\"\n" +
+		      "        						}\n" +
+		      "                          \n}," +	
+		      "      					{\n" +
+		      "        						\"type\": \"protein\",\n" +
+		      "        						\"name\": \"Saccharopepsin\",\n" +
+		      "        						\"xref\": {\n" +
+		      "          						\"id\": \"P07267\",\n" +
+		      "      							\"db\": \"uniprot\"\n" +
+		      "        						}\n" +
+		      "                          \n}" +			
+		      "                        ]\n" +
+		      "      },\n" +
+		      "      {\n" +
+		      "        \"type\": \"protein\",\n" +
+		      "        \"name\": \"LEP\",\n" +
+		      "        \"xref\": {\n" +
+		      "          \"id\": \"P41159\",\n" +
+		      "          \"db\": \"uniprot\"\n" +
+		      "        }\n" +
+		      "      }\n" +
+		      "    ]\n" +
+		      "  }," +
+		      "  {\n" +
+		      "    \"type\": \"Other Interaction\",\n" +
+		      "    \"participants\": [\n" +
+		      "      {\n" +
+		      "        \"type\": \"complex\",\n" +
+		      "        \"name\": \"complex\",\n" +
+		      "        \"xref\": null,\n" +
+		      "        \"components\": [\n" +
+		      "      					{\n" +
+		      "        						\"type\": \"protein\",\n" +
+		      "        						\"name\": \"LEP\",\n" +
+		      "        						\"xref\": {\n" +
+		      "          						\"id\": \"P41159\",\n" +
+		      "      							\"db\": \"uniprot\"\n" +
+		      "        						}\n" +
+		      "                          \n}," +	
+		      "      					{\n" +
+		      "        						\"type\": \"protein\",\n" +
+		      "        						\"name\": \"Saccharopepsin\",\n" +
+		      "        						\"xref\": {\n" +
+		      "          						\"id\": \"P07267\",\n" +
+		      "      							\"db\": \"uniprot\"\n" +
+		      "        						}\n" +
+		      "                          \n}" +			
+		      "                        ]\n" +
+		      "      },\n" +
+		      "      {\n" +
+		      "        \"type\": \"protein\",\n" +
+		      "        \"name\": \"EGFR\",\n" +
+		      "        \"xref\": {\n" +
+		      "          \"id\": \"1956\",\n" +
+		      "          \"db\": \"ncbi\"\n" +
+		      "        }\n" +
+		      "      }\n" +
+		      "    ]\n" +
+		      "  }" +
+		      "]";
+	  	FactoidToBiopax converter = new FactoidToBiopax();
+	    converter.addToModel(templates); //processing
+	
+	    Model m = converterResultToModel(converter.convertToBiopax());
+	    assertThat(m.getObjects(Complex.class).size(), equalTo(1));
+	    assertThat(m.getObjects(Protein.class).size(), equalTo(4));
+  }
 
   //local utils
 
