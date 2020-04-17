@@ -44,13 +44,11 @@ public class FactoidToBiopax {
 	}
 	
 	public void addToModel(String templatesContent) {
-		System.out.println("add to model");
 		JsonArray templates = jsonParser.parse(templatesContent).getAsJsonArray();
 		addToModel(templates);
 	}
 	
 	public void addToModel(Reader contentReader) {
-		System.out.println("add to model2");
 		JsonArray templates = jsonParser.parse(contentReader).getAsJsonArray();
 		addToModel(templates);
 	}
@@ -172,10 +170,6 @@ public class FactoidToBiopax {
 		EntityModel controllerProteinModel = gson.fromJson(controllerProteinJson, EntityModel.class);
 		EntityModel targetProteinModel = gson.fromJson(targetProteinJson, EntityModel.class);
 		
-		System.out.println(controlType);
-		System.out.println(controllerProteinModel);
-		System.out.println(targetProteinModel);
-		
 		model.addControlsState(controllerProteinModel, targetProteinModel, modification, controlType);
 	}
 	
@@ -214,16 +208,5 @@ public class FactoidToBiopax {
 		public String toString() {
 			return getName();
 		}
-	}
-	
-	public static void main(String[] args) {
-		String templates = "[{\"type\":\"Other Interaction\",\"controlType\":\"inhibition\",\"participants\":[{\"type\":\"protein\",\"name\":\"BMP2\",\"xref\":{\"id\":\"P12643\",\"db\":\"uniprot\"}},{\"type\":\"complex\",\"name\":\"complex\",\"components\":[{\"type\":\"protein\",\"name\":\"FSHB\",\"xref\":{\"id\":\"P01225\",\"db\":\"uniprot\"}},{\"type\":\"protein\",\"name\":\"IGF1\",\"xref\":{\"id\":\"P05019\",\"db\":\"uniprot\"}}]}]}]";
-		
-		
-
-	  FactoidToBiopax converter = new FactoidToBiopax();
-	  converter.addToModel(templates); //processing
-	  
-	  System.out.println(converter.convertToBiopax());
 	}
 }
