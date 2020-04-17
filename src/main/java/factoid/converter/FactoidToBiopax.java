@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.biopax.paxtools.model.BioPAXElement;
-import org.biopax.paxtools.model.level2.complex;
 import org.biopax.paxtools.model.level3.Complex;
 import org.biopax.paxtools.model.level3.ControlType;
 import org.biopax.paxtools.model.level3.DnaRegion;

@@ -63,14 +63,14 @@ public class TemplatesModel {
 		Class<? extends EntityReference> targetRefClass = targetModel.getEntityRefClass();
 		
 		EntityReference targetRef = model.getOrCreateEntityReference(targetRefClass, targetName, targetXref);
-		PhysicalEntity left = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef, leftMFTypes, leftNotMFTypes);
-		PhysicalEntity right = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef, rightMFTypes, rightNotMFTypes);
+		PhysicalEntity left = model.getOrCreatePhysicalEntity(targetClass, targetName, targetRef, leftMFTypes, leftNotMFTypes);
+		PhysicalEntity right = model.getOrCreatePhysicalEntity(targetClass, targetName, targetRef, rightMFTypes, rightNotMFTypes);
 		
 		Class<? extends PhysicalEntity> controllerClass = targetModel.getEntityClass();
 		Class<? extends EntityReference> controllerRefClass = targetModel.getEntityRefClass();
 		
 		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
-		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
+		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, controllerRef);
 		
 		Conversion conversion = model.addNewConversion(Conversion.class, left, right);
 		model.addNewControl(Catalysis.class, controller, conversion, ControlType.ACTIVATION);
@@ -87,13 +87,13 @@ public class TemplatesModel {
 		Class<? extends EntityReference> targetRefClass = targetModel.getEntityRefClass();
 		
 		EntityReference targetRef = model.getOrCreateEntityReference(targetRefClass, targetName, targetXref);
-		PhysicalEntity target = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef);
+		PhysicalEntity target = model.getOrCreatePhysicalEntity(targetClass, targetName, targetRef);
 		
 		Class<? extends PhysicalEntity> controllerClass = controllerModel.getEntityClass();
 		Class<? extends EntityReference> controllerRefClass = controllerModel.getEntityRefClass();
 		
 		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
-		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
+		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, controllerRef);
 		
 		Catalysis catalysis = model.addNewControl(Catalysis.class, target, null, ControlType.ACTIVATION);
 		model.addNewControl(Modulation.class, controller, catalysis, controlType);
@@ -123,8 +123,8 @@ public class TemplatesModel {
 		EntityReference targetRef = model.getOrCreateEntityReference(targetRefClass, targetName, targetXref);
 		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
 		
-		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
-		PhysicalEntity product = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef);
+		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, controllerRef);
+		PhysicalEntity product = model.getOrCreatePhysicalEntity(targetClass, targetName, targetRef);
 		
 		TemplateReaction reaction = model.addNew(TemplateReaction.class);
 		reaction.addProduct(product);
@@ -151,8 +151,8 @@ public class TemplatesModel {
 		EntityReference entityRef2 = model.getOrCreateEntityReference(entityRefClass2, name2, xref2);
 		
 		
-		PhysicalEntity entity1 = model.getOrCreatePhysicalEntity(entityClass1, name1, null, entityRef1, inComplex, componentModels1);
-		PhysicalEntity entity2 = model.getOrCreatePhysicalEntity(entityClass2, name2, null, entityRef2, inComplex, componentModels2);
+		PhysicalEntity entity1 = model.getOrCreatePhysicalEntity(entityClass1, name1, entityRef1, inComplex, componentModels1);
+		PhysicalEntity entity2 = model.getOrCreatePhysicalEntity(entityClass2, name2, entityRef2, inComplex, componentModels2);
 		
 		// Second entity is controller in somewhere where controlled is unknown
 		// First entity controls the interaction above
@@ -172,7 +172,7 @@ public class TemplatesModel {
 		addNewEntityToConversion(reaction, targetModel, targetSide);
 		
 		EntityReference catalyzerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
-		PhysicalEntity catalyzer = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, catalyzerRef);
+		PhysicalEntity catalyzer = model.getOrCreatePhysicalEntity(controllerClass, controllerName, catalyzerRef);
 		
 		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
 	}
@@ -215,7 +215,7 @@ public class TemplatesModel {
 			
 			EntityReference participantRef = model.getOrCreateEntityReference(participantRefClass, participantName, participantXref);
 //			PhysicalEntity participant = model.getOrCreatePhysicalEntity(participantClass, participantName, null, participantRef, componentModels);
-			PhysicalEntity participant = model.getOrCreatePhysicalEntity(participantClass, participantName, null, participantRef, null, null, inComplex, componentModels);
+			PhysicalEntity participant = model.getOrCreatePhysicalEntity(participantClass, participantName, participantRef, null, null, inComplex, componentModels);
 			interaction.addParticipant(participant);
 		}
 	}
@@ -228,7 +228,7 @@ public class TemplatesModel {
 		Class<? extends PhysicalEntity> entityClass = entityModel.getEntityClass();
 		
 		EntityReference entityRef = model.getOrCreateEntityReference(entityRefClass, entityName, entityXref);
-		PhysicalEntity entity = model.getOrCreatePhysicalEntity(entityClass, entityName, null, entityRef);
+		PhysicalEntity entity = model.getOrCreatePhysicalEntity(entityClass, entityName, entityRef);
 		addSideToConversion(conversion, entity, sideType);
 	}
 	

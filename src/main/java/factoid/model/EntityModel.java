@@ -2,7 +2,6 @@ package factoid.model;
 
 import java.util.List;
 
-import org.biopax.paxtools.model.level2.complex;
 import org.biopax.paxtools.model.level3.Complex;
 import org.biopax.paxtools.model.level3.DnaRegion;
 import org.biopax.paxtools.model.level3.DnaRegionReference;
@@ -15,7 +14,6 @@ import org.biopax.paxtools.model.level3.RnaReference;
 import org.biopax.paxtools.model.level3.SmallMolecule;
 import org.biopax.paxtools.model.level3.SmallMoleculeReference;
 
-import com.sun.xml.bind.v2.schemagen.xmlschema.ComplexRestriction;
 
 public class EntityModel {
 	

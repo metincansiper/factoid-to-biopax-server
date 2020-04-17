@@ -22,7 +22,6 @@ import org.biopax.paxtools.model.BioPAXElement;
 import org.biopax.paxtools.model.BioPAXFactory;
 import org.biopax.paxtools.model.BioPAXLevel;
 import org.biopax.paxtools.model.Model;
-import org.biopax.paxtools.model.level3.CellularLocationVocabulary;
 import org.biopax.paxtools.model.level3.Complex;
 import org.biopax.paxtools.model.level3.Control;
 import org.biopax.paxtools.model.level3.ControlType;
@@ -45,7 +44,7 @@ public class BioPAXModel {
 	// Underlying paxtools model
 	private Model model;
 	// Map of term to cellular location
-	private Map<String, CellularLocationVocabulary> cellularLocationMap;
+//	private Map<String, CellularLocationVocabulary> cellularLocationMap;
 	// Map of xref id to xref itself
 	private Map<String, RelationshipXref> xrefMap;
 	// Multiple key map of entity reference class and name to entity reference itself
@@ -59,7 +58,7 @@ public class BioPAXModel {
 		BioPAXFactory factory = BioPAXLevel.L3.getDefaultFactory();
 		model = factory.createModel();
 		
-		cellularLocationMap = new HashMap<String, CellularLocationVocabulary>();
+//		cellularLocationMap = new HashMap<String, CellularLocationVocabulary>();
 		xrefMap = new HashMap<String, RelationshipXref>();
 		entityReferenceMap = new MultiKeyMap<Object, EntityReference>();
 		noRefPhysicalEntityMap = new MultiKeyMap<Object, Set<PhysicalEntity>>();
@@ -84,46 +83,46 @@ public class BioPAXModel {
 	
 	// Just get a physical entity, create it if not available yet.
 	// Do not create duplicate entities if entity references, cellular locations and modifications set matches.
-	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, CellularLocationVocabulary cellularLocation, EntityReference entityRef, Set<String> modificationTypes, Set<String> modificationNotTypes, boolean inComplex, List<EntityModel> componentModels) {
+	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, EntityReference entityRef, Set<String> modificationTypes, Set<String> modificationNotTypes, boolean inComplex, List<EntityModel> componentModels) {
 		
 		T entity = null;
 		
 		if (c == Complex.class) {
 			assert entityRef == null : "A complex cannot have an EntityReference";
-			entity = (T) findMatchingComplex(name, componentModels, cellularLocation, modificationTypes, modificationNotTypes);
+			entity = (T) findMatchingComplex(name, componentModels, modificationTypes, modificationNotTypes);
 		}
 		else if (isSimplePhysicalEntityOrSubclass(c)) {
 			assert entityRef != null : "Entity reference must be specified to obtain a SimplePhysicalEntity";
 			
 			Set<T> entities = (Set<T>) entityRef.getEntityReferenceOf();
-			entity = findMatchingEntity(entities, cellularLocation, modificationTypes, modificationNotTypes, inComplex);
+			entity = findMatchingEntity(entities, modificationTypes, modificationNotTypes, inComplex);
 		}
 		
 		if (entity == null) {
-			entity = addNewPhysicalEntity(c, name, cellularLocation, entityRef, modificationTypes, modificationNotTypes, componentModels);
+			entity = addNewPhysicalEntity(c, name, entityRef, modificationTypes, modificationNotTypes, componentModels);
 		}
 		
 		return entity;
 	}
 	
-	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, CellularLocationVocabulary cellularLocation, EntityReference entityRef, boolean inComplex, List<EntityModel> componentModels) {
+	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, EntityReference entityRef, boolean inComplex, List<EntityModel> componentModels) {
 		Set<String> modificationTypes = null;
 		Set<String> modificationNotTypes = null;
-		return getOrCreatePhysicalEntity(c, name, cellularLocation, entityRef, modificationTypes, modificationNotTypes, inComplex, componentModels);
+		return getOrCreatePhysicalEntity(c, name, entityRef, modificationTypes, modificationNotTypes, inComplex, componentModels);
 	}
 	
-	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, CellularLocationVocabulary cellularLocation, EntityReference entityRef, Set<String> modificationTypes, Set<String> modificationNotTypes) {
+	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, EntityReference entityRef, Set<String> modificationTypes, Set<String> modificationNotTypes) {
 		boolean inComplex = false;
-		return getOrCreatePhysicalEntity(c, name, cellularLocation, entityRef, modificationTypes, modificationNotTypes, inComplex, null);
+		return getOrCreatePhysicalEntity(c, name, entityRef, modificationTypes, modificationNotTypes, inComplex, null);
 		
 	}
 	
-	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, CellularLocationVocabulary cellularLocation, EntityReference entityRef) {
-		return getOrCreatePhysicalEntity(c, name, cellularLocation, entityRef, null, null);
+	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name, EntityReference entityRef) {
+		return getOrCreatePhysicalEntity(c, name, entityRef, null, null);
 	}
 	
 	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c, String name) {
-		return getOrCreatePhysicalEntity(c, name, null, null);
+		return getOrCreatePhysicalEntity(c, name, null);
 	}
 	
 	public <T extends PhysicalEntity> T getOrCreatePhysicalEntity(Class<T> c) {
@@ -150,18 +149,18 @@ public class BioPAXModel {
 	}
 	
 	// Get cellular location matching the given term, create one if not available
-	public CellularLocationVocabulary getOrCreateCellularLocationVocabulary(String term) {
-		
-		CellularLocationVocabulary clv = cellularLocationMap.get(term);
-		
-		// if a clv does not exists for the term create one here and put it to the map
-		if(clv == null) {
-			clv = addNewControlledVocabulary(CellularLocationVocabulary.class, term);
-			cellularLocationMap.put(term, clv);
-		}
-		
-		return clv;
-	}
+//	public CellularLocationVocabulary getOrCreateCellularLocationVocabulary(String term) {
+//		
+//		CellularLocationVocabulary clv = cellularLocationMap.get(term);
+//		
+//		// if a clv does not exists for the term create one here and put it to the map
+//		if(clv == null) {
+//			clv = addNewControlledVocabulary(CellularLocationVocabulary.class, term);
+//			cellularLocationMap.put(term, clv);
+//		}
+//		
+//		return clv;
+//	}
 	
 	// Get modification feature that has the given modification type. Create one if not available.
 	public ModificationFeature getOrCreateModificationFeature(String modificationType, EntityReference entityRef) {
@@ -262,13 +261,11 @@ public class BioPAXModel {
 	}
 	
 	// Find the physical entity that has the expected cellular location and modification types
-	private static <T extends PhysicalEntity> T findMatchingEntity(Set<T> entities, CellularLocationVocabulary cellularLocation, Set<String> modificationTypes, Set<String> modificationNotTypes, boolean inComplex){		
+	private static <T extends PhysicalEntity> T findMatchingEntity(Set<T> entities, Set<String> modificationTypes, Set<String> modificationNotTypes, boolean inComplex){		
 		
 		Optional<T> match = entities.stream().filter(t -> {
-			CellularLocationVocabulary clv = t.getCellularLocation();
 			boolean tInComplex = !t.getComponentOf().isEmpty();
 			return tInComplex == inComplex
-					&& nullSafeEquals(clv, cellularLocation) 
 					&& isAbstractionOf(getModificationFeatureOfEntity(t, false), modificationTypes)
 					&& isAbstractionOf(getModificationFeatureOfEntity(t, true), modificationNotTypes);
 		} ).findFirst();
@@ -281,9 +278,6 @@ public class BioPAXModel {
 	}
 	
 	private static boolean compareComplexComponents(List<EntityModel> componentModels, Set<PhysicalEntity> components) {
-		//	TODO: not checking cellular locations here which never exists probably would be better to get rid of it
-		// in other parts as well
-		
 		// It is expected the input does not include any interaction whose one side is a component of any complex.
 		// Such interactions must be moved to the complex itself in the input.
 		// Therefore, there is no need to handle modifications etc here, just name and xref is enough.
@@ -319,7 +313,7 @@ public class BioPAXModel {
 		return modelSummary.equals(entitiesSummary);
 	}
 	
-	private  Complex findMatchingComplex(String name, List<EntityModel> componentModels, CellularLocationVocabulary cellularLocation, Set<String> modificationTypes, Set<String> modificationNotTypes) {
+	private  Complex findMatchingComplex(String name, List<EntityModel> componentModels, Set<String> modificationTypes, Set<String> modificationNotTypes) {
 		Set<PhysicalEntity> candidates = noRefPhysicalEntityMap.get(Complex.class, name);
 		
 		if ( candidates == null ) {
@@ -327,10 +321,8 @@ public class BioPAXModel {
 		}
 		
 		Optional<PhysicalEntity> match = candidates.stream().filter(t -> {
-			CellularLocationVocabulary clv = t.getCellularLocation();
 			Set<PhysicalEntity> components = ((Complex) t).getComponent();
-			return nullSafeEquals(clv, cellularLocation) 
-					&& isAbstractionOf(getModificationFeatureOfEntity(t, false), modificationTypes)
+			return isAbstractionOf(getModificationFeatureOfEntity(t, false), modificationTypes)
 					&& isAbstractionOf(getModificationFeatureOfEntity(t, true), modificationNotTypes)
 					&& compareComplexComponents(componentModels, components);
 					
@@ -440,8 +432,8 @@ public class BioPAXModel {
 	}
 	
 	// Create a new physical entity with given properties
-	private <T extends PhysicalEntity> T addNewPhysicalEntity(Class<T> c, String name, CellularLocationVocabulary cellularLocation, 
-			EntityReference entityRef, Set<String> modificationTypes, Set<String> modificationNotTypes, List<EntityModel> componentModels) {
+	private <T extends PhysicalEntity> T addNewPhysicalEntity(Class<T> c, String name, EntityReference entityRef, 
+			Set<String> modificationTypes, Set<String> modificationNotTypes, List<EntityModel> componentModels) {
 		
 		T entity = addNew(c);
 		
@@ -459,10 +451,6 @@ public class BioPAXModel {
 				noRefPhysicalEntityMap.put(c, name, new HashSet<PhysicalEntity>());
 			}
 			noRefPhysicalEntityMap.get(c, name).add(entity);
-		}
-		
-		if (cellularLocation != null) {
-			entity.setCellularLocation(cellularLocation);
 		}
 		
 		if (modificationTypes != null) {
@@ -484,7 +472,7 @@ public class BioPAXModel {
 				String cName = model.getName();
 				boolean inComplex = true;
 				EntityReference cRef = getOrCreateEntityReference(model.getEntityRefClass(), cName, model.getXref());
-				PhysicalEntity component = getOrCreatePhysicalEntity(model.getEntityClass(), cName, cellularLocation, cRef, null, null, inComplex, null);
+				PhysicalEntity component = getOrCreatePhysicalEntity(model.getEntityClass(), cName, cRef, null, null, inComplex, null);
 				((Complex) entity).addComponent(component);
 			}
 		}
