@@ -55,10 +55,6 @@ public class BioPAXModelTest {
 		Protein prot4 = model.getOrCreatePhysicalEntity(Protein.class, protName, protRef, modificationTypes2, null);
 		assertNotEquals("A new protein is added with with different modifications", prot1, prot4);
 		assertEquals("Protein reference has a new modification", 2, protRef.getEntityFeature().size());
-		
-		Protein prot5 = model.getOrCreatePhysicalEntity(Protein.class, protName, protRef, modificationTypes, null);
-		assertNotEquals("A new protein is added with with different cellular location", prot1, prot5);
-		assertEquals("Protein reference already had this modification", 2, protRef.getEntityFeature().size());
 	}
 	
 	@Test
@@ -139,7 +135,9 @@ public class BioPAXModelTest {
 		Model innerModel = model.getPaxtoolsModel();
 		
 		Conversion controlled = model.addNewConversion(Conversion.class);
-		Protein controller = model.getOrCreatePhysicalEntity(Protein.class);
+		String protName = "prot1";
+		ProteinReference controllerref = model.getOrCreateEntityReference(ProteinReference.class, protName, null);
+		Protein controller = model.getOrCreatePhysicalEntity(Protein.class, protName, controllerref);
 		ControlType controlType = ControlType.ACTIVATION;
 		
 		Control control = model.addNewControl(Control.class, controller, controlled, controlType);
