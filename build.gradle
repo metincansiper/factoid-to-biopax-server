@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.1.0.RELEASE'
+        springBootVersion = '2.2.6.RELEASE'
     }
     repositories {
         maven {
@@ -9,15 +9,13 @@ buildscript {
     }
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.20.1"
     }
 }
 
-apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'com.palantir.docker'
 
 repositories {
     mavenCentral()
@@ -25,7 +23,7 @@ repositories {
         url "https://oss.sonatype.org/content/groups/public/"
     }
     maven {
-        url "http://www.biopax.org/m2repo/releases/"
+        url "https://www.biopax.org/m2repo/releases/"
     }
 }
 
@@ -47,17 +45,6 @@ dependencies {
     implementation 'javax.activation:activation:1.1.1'
 }
 
-docker {
-    dependsOn build
-    name "${project.group}/${bootJar.baseName}"
-    files bootJar.archivePath
-    buildArgs(['JAR_FILE': "${bootJar.archiveName}"])
-}
-
 sourceCompatibility = 1.8
 group = 'pathwaycommons'
-version =  '0.2.0'
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.8.1'
-}
+version =  '0.2.1'
