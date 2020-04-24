@@ -29,7 +29,6 @@ You can deploy the server to a docker container by following the steps below
 (`<PORT>` - actual port number where the server will run). 
 
 ```commandline
-./gradlew build
 docker build . -t pathwaycommons/factoid-converters
 docker run -it --rm --name factoid-converters -p <PORT>:8080 pathwaycommons/factoid-converters 
 ```
