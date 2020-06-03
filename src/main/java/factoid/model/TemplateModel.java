@@ -20,7 +20,7 @@ import org.biopax.paxtools.model.level3.TemplateReactionRegulation;
 /*
  * A model class that keeps an underlying BioPAX model and enables updating it by adding templates.
  */
-public class TemplatesModel {
+public class TemplateModel {
 	
 	private BioPAXModel model;
 
@@ -31,7 +31,7 @@ public class TemplatesModel {
 		RIGHT
 	}
 	
-	public TemplatesModel() {
+	public TemplateModel() {
 		model = new BioPAXModel();
 	}
 	
