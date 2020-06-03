@@ -33,12 +33,12 @@ public class FactoidToBiopax {
 
   private static final Map<String, ControlType> CONTROL_TYPE_MAP = createControlTypeMap();
 	
-	private TemplatesModel model;
+	private TemplateModel model;
 	private JsonParser jsonParser;
 	private Gson gson;
 	
 	public FactoidToBiopax() {
-		model = new TemplatesModel();
+		model = new TemplateModel();
 		jsonParser = new JsonParser();
 		gson = new Gson();
 	}
