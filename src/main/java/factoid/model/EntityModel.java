@@ -21,16 +21,26 @@ public class EntityModel {
 	private XrefModel xref;
 	private String type;
 	private List<EntityModel> components;
+	private XrefModel organism;
 	
-	public EntityModel(String name, XrefModel xref, String type, List<EntityModel> components) {
+	public EntityModel(String name, XrefModel xref, String type, XrefModel organism, List<EntityModel> components) {
 		this.name = name;
 		this.xref = xref;
 		this.type = type;
 		this.components = components;
+		this.organism = organism;
 	}
 	
 	public EntityModel(String name, XrefModel xref, String type) {
-		this(name, xref, type, null);
+		this(name, xref, type, null, null);
+	}
+	
+	public EntityModel(String name, XrefModel xref, String type, XrefModel organism) {
+		this(name, xref, type, organism, null);
+	}
+	
+	public EntityModel(String name, XrefModel xref, String type, List<EntityModel> components) {
+		this(name, xref, type, null, components);
 	}
 	
 	public void setName(String name) {
@@ -55,6 +65,10 @@ public class EntityModel {
 	
 	public String getType() {
 		return type;
+	}
+	
+	public XrefModel getOrganism() {
+		return organism;
 	}
 	
 	public List<EntityModel> getComponentModels() {

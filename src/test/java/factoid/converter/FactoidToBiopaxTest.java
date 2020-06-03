@@ -80,6 +80,16 @@ public class FactoidToBiopaxTest {
   }
   
   @Test
+  public void testPublication() throws IOException {
+	  String intnTemplates = "[]";
+	  String publicationTemplate = "{\"id\": \"2549346\", \"db\": \"PubMed\"}";
+	  
+	  FactoidToBiopax converter = getBiopaxConvertor(intnTemplates, publicationTemplate);
+	  Model m = converterResultToModel(converter.convertToBiopax());
+	  m.getObjects().forEach( n -> System.out.println(n.getClass()) );
+  }
+  
+  @Test
   public void testMolecularInteraction() throws IOException {
 	  String templates = "[{\n" +
 		  "    \"type\": \"Molecular Interaction\",\n" +
@@ -106,7 +116,7 @@ public class FactoidToBiopaxTest {
 	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 	  Model m = converterResultToModel(converter.convertToBiopax());
-	  assertThat(m.getObjects().size(), equalTo(7));
+	  assertThat(m.getObjects().size(), equalTo(8));
 
 	  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
 	  assertThat(xrefs, notNullValue());
@@ -157,7 +167,7 @@ public class FactoidToBiopaxTest {
 	  	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 		  Model m = converterResultToModel(converter.convertToBiopax());
-		  assertThat(m.getObjects().size(), equalTo(8));
+		  assertThat(m.getObjects().size(), equalTo(9));
 
 		  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
 		  assertThat(xrefs, notNullValue());
@@ -221,7 +231,7 @@ public class FactoidToBiopaxTest {
 	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 	  Model m = converterResultToModel(converter.convertToBiopax());
-	  assertThat(m.getObjects().size(), equalTo(13));
+	  assertThat(m.getObjects().size(), equalTo(14));
 
 	  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
 	  assertThat(xrefs, notNullValue());
@@ -287,7 +297,7 @@ public class FactoidToBiopaxTest {
 	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 	  Model m = converterResultToModel(converter.convertToBiopax());
-	  assertThat(m.getObjects().size(), equalTo(7));
+	  assertThat(m.getObjects().size(), equalTo(8));
 
 	  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
 	  assertThat(xrefs, notNullValue());
@@ -348,7 +358,7 @@ public class FactoidToBiopaxTest {
 	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 	  Model m = converterResultToModel(converter.convertToBiopax());
-	  assertThat(m.getObjects().size(), equalTo(8));
+	  assertThat(m.getObjects().size(), equalTo(9));
 
 	  Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
 	  assertThat(xrefs, notNullValue());
@@ -412,7 +422,7 @@ public class FactoidToBiopaxTest {
 	FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
     Model m = converterResultToModel(converter.convertToBiopax());
-    assertThat(m.getObjects().size(), equalTo(8));
+    assertThat(m.getObjects().size(), equalTo(9));
 
     Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
     assertThat(xrefs, notNullValue());
@@ -469,7 +479,7 @@ public class FactoidToBiopaxTest {
 	FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
     Model m = converterResultToModel(converter.convertToBiopax());
-    assertThat(m.getObjects().size(), equalTo(7));
+    assertThat(m.getObjects().size(), equalTo(8));
 
     Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
     assertThat(xrefs, notNullValue());
@@ -521,7 +531,7 @@ public class FactoidToBiopaxTest {
     FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
     Model m = converterResultToModel(converter.convertToBiopax());
-    assertThat(m.getObjects().size(), equalTo(8));
+    assertThat(m.getObjects().size(), equalTo(9));
 
     Set<RelationshipXref> xrefs = m.getObjects(RelationshipXref.class);
     assertThat(xrefs, notNullValue());

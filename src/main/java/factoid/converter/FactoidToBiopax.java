@@ -111,14 +111,14 @@ public class FactoidToBiopax {
 		
 		if ( docTemplate.has("publication") ) {
 			JsonObject pubJson = docTemplate.get("publication").getAsJsonObject();
-			addPublication(pubJson);
+			setPublication(pubJson);
 		}
 	}
 	
-	private void addPublication(JsonObject pubJson) {
+	private void setPublication(JsonObject pubJson) {
 		XrefModel pubXrefModel = gson.fromJson(pubJson, XrefModel.class);
 		
-		model.addPublication(pubXrefModel);
+		model.setPublication(pubXrefModel);
 	}
 
 	public String convertToBiopax() {
