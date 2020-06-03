@@ -1,8 +1,14 @@
 package factoid.converter;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+
+import factoid.model.XrefModel;
+
 import org.biopax.paxtools.io.SimpleIOHandler;
 import org.biopax.paxtools.model.*;
 import org.biopax.paxtools.model.level3.*;
@@ -28,9 +34,9 @@ public class FactoidToBiopaxTest {
     Gson gson = new Gson();
     JsonReader reader = new JsonReader(new FileReader(getClass()
       .getResource("/test2.json").getFile()));
-    JsonArray templates = gson.fromJson(reader, JsonArray.class);
+    JsonObject template = gson.fromJson(reader, JsonObject.class);
     FactoidToBiopax converter = new FactoidToBiopax();
-    converter.addToModel(templates);
+    converter.addToModel(template);
     String res = converter.convertToBiopax();
 
     assertThat(res,notNullValue());
@@ -52,6 +58,25 @@ public class FactoidToBiopaxTest {
     
     Set<Complex> complexes = m.getObjects(Complex.class);
     assertThat(complexes.size(), is(2));
+  }
+  
+  public FactoidToBiopax getBiopaxConvertor(String intnsContent, String publicationContent) {
+	  JsonParser jsonParser = new JsonParser();
+	  JsonObject template = new JsonObject();
+	  JsonArray intnTemplates = jsonParser.parse(intnsContent).getAsJsonArray();
+	  
+	  template.add("interactions", intnTemplates);
+	  
+	  if ( publicationContent != null ) {
+		  JsonObject pubTemplate = jsonParser.parse(publicationContent).getAsJsonObject();
+		  template.add("publication", pubTemplate);
+	  }
+	  
+	  
+	  FactoidToBiopax converter = new FactoidToBiopax();
+	  converter.addToModel(template); //processing
+	  
+	  return converter;
   }
   
   @Test
@@ -78,8 +103,7 @@ public class FactoidToBiopaxTest {
 		  "    ]\n" +
 		  "  }]";
 
-	  FactoidToBiopax converter = new FactoidToBiopax();
-	  converter.addToModel(templates); //processing
+	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 	  Model m = converterResultToModel(converter.convertToBiopax());
 	  assertThat(m.getObjects().size(), equalTo(7));
@@ -130,8 +154,7 @@ public class FactoidToBiopaxTest {
 			  "      }\n" +
 			  "  }]";
 
-		  FactoidToBiopax converter = new FactoidToBiopax();
-		  converter.addToModel(templates); //processing
+	  	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 		  Model m = converterResultToModel(converter.convertToBiopax());
 		  assertThat(m.getObjects().size(), equalTo(8));
@@ -195,8 +218,7 @@ public class FactoidToBiopaxTest {
 		  "      }\n" +
 		  "  }]";
 
-	  FactoidToBiopax converter = new FactoidToBiopax();
-	  converter.addToModel(templates); //processing
+	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 	  Model m = converterResultToModel(converter.convertToBiopax());
 	  assertThat(m.getObjects().size(), equalTo(13));
@@ -262,8 +284,7 @@ public class FactoidToBiopaxTest {
 		  "    ]\n" +
 		  "  }]";
 	  
-	  FactoidToBiopax converter = new FactoidToBiopax();
-	  converter.addToModel(templates); //processing
+	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 	  Model m = converterResultToModel(converter.convertToBiopax());
 	  assertThat(m.getObjects().size(), equalTo(7));
@@ -324,8 +345,7 @@ public class FactoidToBiopaxTest {
 		  "    ]\n" +
 		  "  }]";
 
-	  FactoidToBiopax converter = new FactoidToBiopax();
-	  converter.addToModel(templates); //processing
+	  FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
 	  Model m = converterResultToModel(converter.convertToBiopax());
 	  assertThat(m.getObjects().size(), equalTo(8));
@@ -389,8 +409,7 @@ public class FactoidToBiopaxTest {
 	      "    ]\n" +
 	      "  }]";
 	
-    FactoidToBiopax converter = new FactoidToBiopax();
-    converter.addToModel(templates); //processing
+	FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
     Model m = converterResultToModel(converter.convertToBiopax());
     assertThat(m.getObjects().size(), equalTo(8));
@@ -447,8 +466,7 @@ public class FactoidToBiopaxTest {
 	      "    ]\n" +
 	      "  }]";
 	
-    FactoidToBiopax converter = new FactoidToBiopax();
-    converter.addToModel(templates); //processing
+	FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
     Model m = converterResultToModel(converter.convertToBiopax());
     assertThat(m.getObjects().size(), equalTo(7));
@@ -500,8 +518,7 @@ public class FactoidToBiopaxTest {
       "    ]\n" +
       "  }]";
 
-    FactoidToBiopax converter = new FactoidToBiopax();
-    converter.addToModel(templates); //processing
+    FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 
     Model m = converterResultToModel(converter.convertToBiopax());
     assertThat(m.getObjects().size(), equalTo(8));
@@ -616,8 +633,7 @@ public class FactoidToBiopaxTest {
 		      "    ]\n" +
 		      "  }" +
 		      "]";
-	  	FactoidToBiopax converter = new FactoidToBiopax();
-	    converter.addToModel(templates); //processing
+	    FactoidToBiopax converter = getBiopaxConvertor(templates, null);
 	
 	    Model m = converterResultToModel(converter.convertToBiopax());
 	    assertThat(m.getObjects(Complex.class).size(), equalTo(1));

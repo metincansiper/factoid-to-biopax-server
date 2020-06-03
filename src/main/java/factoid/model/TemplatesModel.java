@@ -254,4 +254,8 @@ public class TemplatesModel {
 		}
 	}
 
+	public void addPublication(XrefModel pubXref) {
+		model.createPublicaitonXref(pubXref);
+	}
+
 }

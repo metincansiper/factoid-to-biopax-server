@@ -22,6 +22,7 @@ import org.biopax.paxtools.model.BioPAXElement;
 import org.biopax.paxtools.model.BioPAXFactory;
 import org.biopax.paxtools.model.BioPAXLevel;
 import org.biopax.paxtools.model.Model;
+import org.biopax.paxtools.model.level2.pathwayComponent;
 import org.biopax.paxtools.model.level3.Complex;
 import org.biopax.paxtools.model.level3.Control;
 import org.biopax.paxtools.model.level3.ControlType;
@@ -31,9 +32,12 @@ import org.biopax.paxtools.model.level3.Conversion;
 import org.biopax.paxtools.model.level3.ConversionDirectionType;
 import org.biopax.paxtools.model.level3.EntityFeature;
 import org.biopax.paxtools.model.level3.EntityReference;
+import org.biopax.paxtools.model.level3.Interaction;
 import org.biopax.paxtools.model.level3.ModificationFeature;
+import org.biopax.paxtools.model.level3.Pathway;
 import org.biopax.paxtools.model.level3.PhysicalEntity;
 import org.biopax.paxtools.model.level3.Process;
+import org.biopax.paxtools.model.level3.PublicationXref;
 import org.biopax.paxtools.model.level3.RelationshipXref;
 import org.biopax.paxtools.model.level3.SequenceModificationVocabulary;
 import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
@@ -43,6 +47,7 @@ public class BioPAXModel {
 	
 	// Underlying paxtools model
 	private Model model;
+	private Pathway pathway;
 	// Map of term to cellular location
 //	private Map<String, CellularLocationVocabulary> cellularLocationMap;
 	// Map of xref id to xref itself
@@ -57,6 +62,8 @@ public class BioPAXModel {
 	public BioPAXModel() {
 		BioPAXFactory factory = BioPAXLevel.L3.getDefaultFactory();
 		model = factory.createModel();
+		
+		pathway = addNew(Pathway.class);
 		
 //		cellularLocationMap = new HashMap<String, CellularLocationVocabulary>();
 		xrefMap = new HashMap<String, RelationshipXref>();
@@ -79,6 +86,20 @@ public class BioPAXModel {
 	// add a new element to model by generating element id
 	public <T extends BioPAXElement> T addNew(Class<T> c) {
 		return addNew(c, generateUUID());
+	}
+	
+	// add a new element to model by generating element id
+	// if omitPathwayComponent parameter is not set to false then create
+	// a pathway component for the element if it is an instance of
+	// interaction or a subclass of interaction
+	public <T extends BioPAXElement> T addNew(Class<T> c, boolean omitPathwayComponent) {
+		T el = addNew(c, generateUUID());
+		
+		if( !omitPathwayComponent && isInteractionOrSubclass(c) ) {
+			pathway.addPathwayComponent((Interaction) el);
+		}
+		
+		return el;
 	}
 	
 	// Just get a physical entity, create it if not available yet.
@@ -365,6 +386,10 @@ public class BioPAXModel {
 		return SimplePhysicalEntity.class.isAssignableFrom(c);
 	}
 	
+	private static <T extends Object> boolean isInteractionOrSubclass(Class<T> c) {
+		return Interaction.class.isAssignableFrom(c);
+	}
+	
 	private static <T extends PhysicalEntity> void assertSimplePhysicalEntityOrSubclass(Class<T> c, String messageOpt) {
 		
 		String message = null;
@@ -532,5 +557,11 @@ public class BioPAXModel {
 		}
 		
 		return entityRef;
+	}
+
+	public void createPublicaitonXref(XrefModel model) {
+		PublicationXref xref = addNew(PublicationXref.class);
+		xref.setId(model.getId());
+		xref.setDb(model.getDb());
 	}
 }
