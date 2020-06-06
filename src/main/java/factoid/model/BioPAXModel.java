@@ -87,13 +87,19 @@ public class BioPAXModel {
 	// Section: public methods
 	
 	// add a new element to model with given id
-	public <T extends BioPAXElement> T addNew(Class<T> c, String id) {
-		return model.addNew(c, id);
+	public <T extends BioPAXElement> T addNew(Class<T> c, String id, boolean omitPathwayComponent) {
+		T el = model.addNew(c, id);
+		
+		if( !omitPathwayComponent && isInteractionOrSubclass(c) ) {
+			pathway.addPathwayComponent((Interaction) el);
+		}
+		
+		return el;
 	}
 	
 	// add a new element to model by generating element id
 	public <T extends BioPAXElement> T addNew(Class<T> c) {
-		return addNew(c, generateUUID());
+		return addNew(c, false);
 	}
 	
 	// add a new element to model by generating element id
@@ -101,13 +107,7 @@ public class BioPAXModel {
 	// a pathway component for the element if it is an instance of
 	// interaction or a subclass of interaction
 	public <T extends BioPAXElement> T addNew(Class<T> c, boolean omitPathwayComponent) {
-		T el = addNew(c, generateUUID());
-		
-		if( !omitPathwayComponent && isInteractionOrSubclass(c) ) {
-			pathway.addPathwayComponent((Interaction) el);
-		}
-		
-		return el;
+		return addNew(c, generateUUID(), omitPathwayComponent);
 	}
 	
 	// Just get a physical entity, create it if not available yet.

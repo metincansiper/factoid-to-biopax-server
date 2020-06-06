@@ -58,6 +58,9 @@ public class FactoidToBiopaxTest {
     
     Set<Complex> complexes = m.getObjects(Complex.class);
     assertThat(complexes.size(), is(2));
+    
+    Set<PublicationXref> pubs = m.getObjects(PublicationXref.class);
+    assertThat(pubs.size(), is(1));
   }
   
   public FactoidToBiopax getBiopaxConvertor(String intnsContent, String publicationContent) {
