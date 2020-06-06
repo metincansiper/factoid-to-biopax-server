@@ -594,7 +594,7 @@ public class BioPAXModel {
 		}
 		
 		if(organism != null) {
-			assert c.isAssignableFrom(SequenceEntityReference.class) 
+			assert SequenceEntityReference.class.isAssignableFrom(c) 
 				: "An entity reference must be subclass of SequenceEntityReference class to be able to have an organism";
 			
 			((SequenceEntityReference) entityRef).setOrganism(organism);
