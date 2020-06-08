@@ -607,5 +607,7 @@ public class BioPAXModel {
 		PublicationXref xref = addNew(PublicationXref.class);
 		xref.setId(model.getId());
 		xref.setDb(model.getDb());
+		
+		pathway.addXref(xref);
 	}
 }
