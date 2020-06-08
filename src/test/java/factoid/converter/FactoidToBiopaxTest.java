@@ -652,6 +652,44 @@ public class FactoidToBiopaxTest {
 	    assertThat(m.getObjects(Complex.class).size(), equalTo(1));
 	    assertThat(m.getObjects(Protein.class).size(), equalTo(4));
   }
+  
+ @Test
+ public void testOrganism() throws IOException {
+	  String templates = "[{\n" +
+	      "    \"type\": \"Other Interaction\",\n" +
+	      "    \"participants\": [\n" +
+	      "      {\n" +
+	      "        \"type\": \"protein\",\n" +
+	      "        \"name\": \"Saccharopepsin\",\n" +
+	      "        \"xref\": {\n" +
+	      "          \"id\": P07267,\n" +
+	      "          \"db\": \"uniprot\"\n" +
+	      "        },\n" +
+	      "        \"organism\": {\n" +
+	      "          \"id\": 9606,\n" +
+	      "          \"db\": \"taxonomy\"\n" +
+	      "        }\n" +
+	      "      },\n" +
+	      "      {\n" +
+	      "        \"type\": \"protein\",\n" +
+	      "        \"name\": \"Kalirin\",\n" +
+	      "        \"xref\": {\n" +
+	      "          \"id\": \"O60229\",\n" +
+	      "          \"db\": \"uniprot\"\n" +
+	      "        },\n" +
+	      "        \"organism\": {\n" +
+	      "          \"id\": 9606,\n" +
+	      "          \"db\": \"taxonomy\"\n" +
+	      "        }\n" +
+	      "      }\n" +
+	      "    ]\n" +
+	      "  }]";
+	
+	FactoidToBiopax converter = getBiopaxConvertor(templates, null);
+
+   Model m = converterResultToModel(converter.convertToBiopax());
+   assertThat(m.getObjects(BioSource.class).size(), equalTo(1));
+ }
 
   //local utils
 
