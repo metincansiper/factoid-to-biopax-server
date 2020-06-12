@@ -47,6 +47,7 @@ import org.biopax.paxtools.model.level3.SequenceEntityReference;
 import org.biopax.paxtools.model.level3.SequenceModificationVocabulary;
 import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
 import org.biopax.paxtools.model.level3.SmallMoleculeReference;
+import org.biopax.paxtools.model.level3.UnificationXref;
 import org.biopax.paxtools.model.level3.Xref;
 
 public class BioPAXModel {
@@ -158,7 +159,7 @@ public class BioPAXModel {
 		return getOrCreatePhysicalEntity(c, null);
 	}
 	
-	public RelationshipXref getOrCreateXref(XrefModel xrefModel) {
+	public RelationshipXref getOrCreateEntityXref(XrefModel xrefModel) {
 		
 		if (xrefModel == null) {
 			return null;
@@ -214,7 +215,7 @@ public class BioPAXModel {
 		}
 		
 		T entityRef = null;
-		RelationshipXref xref = getOrCreateXref(xrefModel);
+		RelationshipXref xref = getOrCreateEntityXref(xrefModel);
 		BioSource organism = null;
 		
 		if ( organismModel != null ) {
@@ -249,7 +250,7 @@ public class BioPAXModel {
 		
 		if (org == null) {
 			org = addNew(BioSource.class);
-			RelationshipXref xref = addNew(RelationshipXref.class);
+			UnificationXref xref = addNew(UnificationXref.class);
 			xref.setId(orgId);
 			xref.setDb(organismModel.getDb());
 			org.addXref(xref);
