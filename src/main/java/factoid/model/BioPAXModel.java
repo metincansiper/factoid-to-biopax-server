@@ -611,4 +611,8 @@ public class BioPAXModel {
 		
 		pathway.addXref(xref);
 	}
+
+	public void setPatwayName(String name) {
+		pathway.setDisplayName(name);
+	}
 }

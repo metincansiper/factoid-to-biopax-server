@@ -197,4 +197,8 @@ public class TemplateModel {
 		model.createPublicaitonXref(pubXref);
 	}
 
+	public void setPatwayName(String name) {
+		model.setPatwayName(name);
+	}
+
 }

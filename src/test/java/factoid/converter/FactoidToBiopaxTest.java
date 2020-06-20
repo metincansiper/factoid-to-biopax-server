@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 //TODO: test each distinct json template (cases 1 - 4E from the interaction types doc.)
@@ -64,6 +65,10 @@ public class FactoidToBiopaxTest {
   }
   
   public FactoidToBiopax getBiopaxConvertor(String intnsContent, String publicationContent) {
+	  return getBiopaxConvertor(intnsContent, publicationContent, null);
+  }
+  
+  public FactoidToBiopax getBiopaxConvertor(String intnsContent, String publicationContent, String pathwayName) {
 	  JsonParser jsonParser = new JsonParser();
 	  JsonObject template = new JsonObject();
 	  JsonArray intnTemplates = jsonParser.parse(intnsContent).getAsJsonArray();
@@ -73,6 +78,10 @@ public class FactoidToBiopaxTest {
 	  if ( publicationContent != null ) {
 		  JsonObject pubTemplate = jsonParser.parse(publicationContent).getAsJsonObject();
 		  template.add("publication", pubTemplate);
+	  }
+	  
+	  if ( pathwayName != null ) {
+		  template.addProperty("pathwayName", pathwayName);
 	  }
 	  
 	  
@@ -89,7 +98,18 @@ public class FactoidToBiopaxTest {
 	  
 	  FactoidToBiopax converter = getBiopaxConvertor(intnTemplates, publicationTemplate);
 	  Model m = converterResultToModel(converter.convertToBiopax());
-	  m.getObjects().forEach( n -> System.out.println(n.getClass()) );
+	  assertThat(m.getObjects(PublicationXref.class).size(), equalTo(1));
+  }
+  
+  @Test
+  public void testPathwayName() throws IOException {
+	  String intnTemplates = "[]";
+	  String publicationTemplate = null;
+	  String pathwayName = "MeCP2 facilitates breast cancer growth via promoting ubiquitination-mediated...";
+	  
+	  FactoidToBiopax converter = getBiopaxConvertor(intnTemplates, publicationTemplate, pathwayName);
+	  Model m = converterResultToModel(converter.convertToBiopax());
+	  assertEquals(m.getObjects(Pathway.class).iterator().next().getDisplayName(), pathwayName);
   }
   
   @Test

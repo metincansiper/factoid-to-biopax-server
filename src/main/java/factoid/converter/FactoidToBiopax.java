@@ -113,8 +113,17 @@ public class FactoidToBiopax {
 			JsonObject pubJson = docTemplate.get("publication").getAsJsonObject();
 			setPublication(pubJson);
 		}
+		
+		if ( docTemplate.has("pathwayName") ) {
+			String name = docTemplate.get("pathwayName").getAsString();
+			setPathwayName(name);
+		}
 	}
 	
+	private void setPathwayName(String name) {
+		model.setPatwayName(name);
+	}
+
 	private void setPublication(JsonObject pubJson) {
 		XrefModel pubXrefModel = gson.fromJson(pubJson, XrefModel.class);
 		
