@@ -33,24 +33,24 @@ public class FactoidToBiopax {
 
   private static final Map<String, ControlType> CONTROL_TYPE_MAP = createControlTypeMap();
 	
-	private TemplatesModel model;
+	private TemplateModel model;
 	private JsonParser jsonParser;
 	private Gson gson;
 	
 	public FactoidToBiopax() {
-		model = new TemplatesModel();
+		model = new TemplateModel();
 		jsonParser = new JsonParser();
 		gson = new Gson();
 	}
 	
-	public void addToModel(String templatesContent) {
-		JsonArray templates = jsonParser.parse(templatesContent).getAsJsonArray();
-		addToModel(templates);
+	public void addToModel(String templateContent) {
+		JsonObject template = jsonParser.parse(templateContent).getAsJsonObject();
+		addToModel(template);
 	}
 	
 	public void addToModel(Reader contentReader) {
-		JsonArray templates = jsonParser.parse(contentReader).getAsJsonArray();
-		addToModel(templates);
+		JsonObject template = jsonParser.parse(contentReader).getAsJsonObject();
+		addToModel(template);
 	}
 
   /**
@@ -58,9 +58,11 @@ public class FactoidToBiopax {
    * creates BioPAX objects and adds to the BioPAX model.
    * @param templates
    */
-	public void addToModel(JsonArray templates) {
+	public void addToModel(JsonObject docTemplate) {
 		
-		Iterator<JsonElement> it = templates.iterator();
+		JsonArray intnTemplates = docTemplate.get("interactions").getAsJsonArray();
+	
+		Iterator<JsonElement> it = intnTemplates.iterator();
 		
 		while (it.hasNext()) {
 			JsonObject template = (JsonObject) it.next();
@@ -106,8 +108,28 @@ public class FactoidToBiopax {
 				addOtherInteraction(participantsJSON, controlTypeStr);
 			}
 		}
+		
+		if ( docTemplate.has("publication") ) {
+			JsonObject pubJson = docTemplate.get("publication").getAsJsonObject();
+			setPublication(pubJson);
+		}
+		
+		if ( docTemplate.has("pathwayName") ) {
+			String name = docTemplate.get("pathwayName").getAsString();
+			setPathwayName(name);
+		}
 	}
 	
+	private void setPathwayName(String name) {
+		model.setPatwayName(name);
+	}
+
+	private void setPublication(JsonObject pubJson) {
+		XrefModel pubXrefModel = gson.fromJson(pubJson, XrefModel.class);
+		
+		model.setPublication(pubXrefModel);
+	}
+
 	public String convertToBiopax() {
 		return model.convertToOwl();
 	}

@@ -22,6 +22,8 @@ import org.biopax.paxtools.model.BioPAXElement;
 import org.biopax.paxtools.model.BioPAXFactory;
 import org.biopax.paxtools.model.BioPAXLevel;
 import org.biopax.paxtools.model.Model;
+import org.biopax.paxtools.model.level2.pathwayComponent;
+import org.biopax.paxtools.model.level3.BioSource;
 import org.biopax.paxtools.model.level3.Complex;
 import org.biopax.paxtools.model.level3.Control;
 import org.biopax.paxtools.model.level3.ControlType;
@@ -31,22 +33,33 @@ import org.biopax.paxtools.model.level3.Conversion;
 import org.biopax.paxtools.model.level3.ConversionDirectionType;
 import org.biopax.paxtools.model.level3.EntityFeature;
 import org.biopax.paxtools.model.level3.EntityReference;
+import org.biopax.paxtools.model.level3.Interaction;
 import org.biopax.paxtools.model.level3.ModificationFeature;
+import org.biopax.paxtools.model.level3.Pathway;
 import org.biopax.paxtools.model.level3.PhysicalEntity;
 import org.biopax.paxtools.model.level3.Process;
+import org.biopax.paxtools.model.level3.Protein;
+import org.biopax.paxtools.model.level3.ProteinReference;
+import org.biopax.paxtools.model.level3.PublicationXref;
 import org.biopax.paxtools.model.level3.RelationshipXref;
+import org.biopax.paxtools.model.level3.RnaReference;
+import org.biopax.paxtools.model.level3.SequenceEntityReference;
 import org.biopax.paxtools.model.level3.SequenceModificationVocabulary;
 import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
+import org.biopax.paxtools.model.level3.SmallMoleculeReference;
+import org.biopax.paxtools.model.level3.UnificationXref;
 import org.biopax.paxtools.model.level3.Xref;
 
 public class BioPAXModel {
 	
 	// Underlying paxtools model
 	private Model model;
+	private Pathway pathway;
 	// Map of term to cellular location
 //	private Map<String, CellularLocationVocabulary> cellularLocationMap;
 	// Map of xref id to xref itself
 	private Map<String, RelationshipXref> xrefMap;
+	private Map<String, BioSource> organismMap;
 	// Multiple key map of entity reference class and name to entity reference itself
 	private MultiKeyMap<Object, EntityReference> entityReferenceMap;
 	// Multiple key map of entity name class and name to entity reference itself
@@ -58,8 +71,11 @@ public class BioPAXModel {
 		BioPAXFactory factory = BioPAXLevel.L3.getDefaultFactory();
 		model = factory.createModel();
 		
+		pathway = addNew(Pathway.class);
+		
 //		cellularLocationMap = new HashMap<String, CellularLocationVocabulary>();
 		xrefMap = new HashMap<String, RelationshipXref>();
+		organismMap = new HashMap<String, BioSource>();
 		entityReferenceMap = new MultiKeyMap<Object, EntityReference>();
 		noRefPhysicalEntityMap = new MultiKeyMap<Object, Set<PhysicalEntity>>();
 	}
@@ -72,13 +88,27 @@ public class BioPAXModel {
 	// Section: public methods
 	
 	// add a new element to model with given id
-	public <T extends BioPAXElement> T addNew(Class<T> c, String id) {
-		return model.addNew(c, id);
+	public <T extends BioPAXElement> T addNew(Class<T> c, String id, boolean omitPathwayComponent) {
+		T el = model.addNew(c, id);
+		
+		if( !omitPathwayComponent && isInteractionOrSubclass(c) ) {
+			pathway.addPathwayComponent((Interaction) el);
+		}
+		
+		return el;
 	}
 	
 	// add a new element to model by generating element id
 	public <T extends BioPAXElement> T addNew(Class<T> c) {
-		return addNew(c, generateUUID());
+		return addNew(c, false);
+	}
+	
+	// add a new element to model by generating element id
+	// if omitPathwayComponent parameter is not set to false then create
+	// a pathway component for the element if it is an instance of
+	// interaction or a subclass of interaction
+	public <T extends BioPAXElement> T addNew(Class<T> c, boolean omitPathwayComponent) {
+		return addNew(c, generateUUID(), omitPathwayComponent);
 	}
 	
 	// Just get a physical entity, create it if not available yet.
@@ -129,7 +159,7 @@ public class BioPAXModel {
 		return getOrCreatePhysicalEntity(c, null);
 	}
 	
-	public RelationshipXref getOrCreateXref(XrefModel xrefModel) {
+	public RelationshipXref getOrCreateEntityXref(XrefModel xrefModel) {
 		
 		if (xrefModel == null) {
 			return null;
@@ -178,32 +208,61 @@ public class BioPAXModel {
 	}
 	
 	// Get entity reference that has given name and class, create a new one is not available yet.
-	public <T extends EntityReference> T getOrCreateEntityReference(Class<T> c, String name, XrefModel xrefModel) {
+	public <T extends EntityReference> T getOrCreateEntityReference(Class<T> c, String name, XrefModel xrefModel, XrefModel organismModel) {
 		
 		if ( c == null ) {
 			return null;
 		}
 		
 		T entityRef = null;
-		RelationshipXref xref = getOrCreateXref(xrefModel);
+		RelationshipXref xref = getOrCreateEntityXref(xrefModel);
+		BioSource organism = null;
+		
+		if ( organismModel != null ) {
+			organism = getOrCreateOrganism(organismModel);
+		}
 		
 		// if a name is specified try to get an existing entity reference with the
 		// same name and entity class first
 		if (name != null) {
-			entityRef = (T) entityReferenceMap.get(c, name, xref);
+			entityRef = (T) entityReferenceMap.get(c, name, xref, organism);
 		}
 		
 		if (entityRef == null) {
-			entityRef = addNewEntityReference(c, name, xref);
-			entityReferenceMap.put(c, name, xref, entityRef);
+			entityRef = addNewEntityReference(c, name, xref, organism);
+			entityReferenceMap.put(c, name, xref, organism, entityRef);
 		}
 		
 		return entityRef;
 	}
 	
+	public <T extends EntityReference> T getOrCreateEntityReference(Class<T> c, String name, XrefModel xrefModel) {
+		return getOrCreateEntityReference(c, name, xrefModel, null);
+	}
+	
+	private BioSource getOrCreateOrganism(XrefModel organismModel) {
+		if (organismModel == null) {
+			return null;
+		}
+		
+		String orgId = organismModel.getId();
+		BioSource org = organismMap.get(orgId);
+		
+		if (org == null) {
+			org = addNew(BioSource.class);
+			UnificationXref xref = addNew(UnificationXref.class);
+			xref.setId(orgId);
+			xref.setDb(organismModel.getDb());
+			org.addXref(xref);
+		}
+		
+		organismMap.put(orgId, org);
+		
+		return org;
+	}
+
 	// Create a new conversion by given properties
 	public <T extends Conversion> T addNewConversion(Class<T> c, PhysicalEntity left, PhysicalEntity right, ConversionDirectionType dir) {
-		
 		T conversion = addNew(c);
 		
 		if(left != null) {
@@ -365,6 +424,10 @@ public class BioPAXModel {
 		return SimplePhysicalEntity.class.isAssignableFrom(c);
 	}
 	
+	private static <T extends Object> boolean isInteractionOrSubclass(Class<T> c) {
+		return Interaction.class.isAssignableFrom(c);
+	}
+	
 	private static <T extends PhysicalEntity> void assertSimplePhysicalEntityOrSubclass(Class<T> c, String messageOpt) {
 		
 		String message = null;
@@ -519,7 +582,7 @@ public class BioPAXModel {
 	}
 	
 	// Create a new entity reference by given properties
-	private <T extends EntityReference> T addNewEntityReference(Class<T> c, String name, RelationshipXref xref) {
+	private <T extends EntityReference> T addNewEntityReference(Class<T> c, String name, RelationshipXref xref, BioSource organism) {
 		
 		T entityRef = addNew(c);
 		
@@ -531,6 +594,25 @@ public class BioPAXModel {
 			entityRef.addXref(xref);
 		}
 		
+		if(organism != null) {
+			assert SequenceEntityReference.class.isAssignableFrom(c) 
+				: "An entity reference must be subclass of SequenceEntityReference class to be able to have an organism";
+			
+			((SequenceEntityReference) entityRef).setOrganism(organism);
+		}
+		
 		return entityRef;
+	}
+
+	public void createPublicaitonXref(XrefModel model) {
+		PublicationXref xref = addNew(PublicationXref.class);
+		xref.setId(model.getId());
+		xref.setDb(model.getDb());
+		
+		pathway.addXref(xref);
+	}
+
+	public void setPatwayName(String name) {
+		pathway.setDisplayName(name);
 	}
 }
