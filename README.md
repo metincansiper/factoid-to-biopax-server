@@ -15,7 +15,7 @@ A java web server to convert [factoid](https://github.com/PathwayCommons/factoid
 ## Run
 
 ```commandline
-java -jar build/libs/factoid-converters-0.2.0.jar --server.port=8080
+java -jar build/libs/factoid-converters*.jar --server.port=8080
 ```
 
 RESTful API (Swagger docs):
@@ -29,7 +29,7 @@ You can deploy the server to a docker container by following the steps below
 (`<PORT>` - actual port number where the server will run). 
 
 ```commandline
-./gradlew build docker
+docker build . -t pathwaycommons/factoid-converters
 docker run -it --rm --name factoid-converters -p <PORT>:8080 pathwaycommons/factoid-converters 
 ```
 
@@ -55,7 +55,7 @@ Using cUrl tool:
 
 ```commandline
 cd src/test/resources
-curl -X POST -H 'Content-Type: application/json' -d @test.json "http://localhost:8080/convert/v2/json-to-biopax"
+curl -X POST -H 'Content-Type: application/json' -d @test2.json "http://localhost:8080/convert/v2/json-to-biopax"
 ```
 
 Using a Node.js client:

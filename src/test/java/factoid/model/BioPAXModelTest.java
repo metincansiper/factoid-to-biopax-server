@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.biopax.paxtools.model.Model;
-import org.biopax.paxtools.model.level3.CellularLocationVocabulary;
 import org.biopax.paxtools.model.level3.Control;
 import org.biopax.paxtools.model.level3.ControlType;
 import org.biopax.paxtools.model.level3.Conversion;
@@ -31,9 +30,6 @@ public class BioPAXModelTest {
 		String protName = "TP53";
 		XrefModel protXref = new XrefModel("xrefid1", "uniprot");
 		
-		String cellularLocationName = "cytoplasm";
-		String cellularLocationName2 = "cytoplasm2";
-		
 		Set<String> modificationTypes = new HashSet<String>();
 		modificationTypes.add("active");
 		
@@ -41,31 +37,24 @@ public class BioPAXModelTest {
 		modificationTypes2.add("inactive");
 		
 		ProteinReference protRef = model.getOrCreateEntityReference(ProteinReference.class, protName, protXref);
-		CellularLocationVocabulary cellularLocation = model.getOrCreateCellularLocationVocabulary(cellularLocationName);
-		CellularLocationVocabulary cellularLocation2 = model.getOrCreateCellularLocationVocabulary(cellularLocationName2);
 		
-		Protein prot1 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef, modificationTypes, null);
+		Protein prot1 = model.getOrCreatePhysicalEntity(Protein.class, protName, protRef, modificationTypes, null);
 		
 		assertTrue("Protein is added to the model", innerModel.contains(prot1));
 		assertEquals("Protein name is set", prot1.getDisplayName(), protName);
-		assertEquals("Protein cellular location is set", cellularLocation, prot1.getCellularLocation());
 		assertEquals("Protein reference is set", protRef, prot1.getEntityReference());
 		assertEquals("Protein modification types are set", modificationTypes.size(), prot1.getFeature().size());
 		assertEquals("Protein reference has a new modification", 1, protRef.getEntityFeature().size());
 		
-		Protein prot2 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef, modificationTypes, null);
+		Protein prot2 = model.getOrCreatePhysicalEntity(Protein.class, protName, protRef, modificationTypes, null);
 		assertEquals("No duplication in adding the second Protein with same features", prot1, prot2);
 		
-		Protein prot3 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef);
+		Protein prot3 = model.getOrCreatePhysicalEntity(Protein.class, protName, protRef);
 		assertNotEquals("A new protein is added with no modification", prot1, prot3);
 		
-		Protein prot4 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation, protRef, modificationTypes2, null);
+		Protein prot4 = model.getOrCreatePhysicalEntity(Protein.class, protName, protRef, modificationTypes2, null);
 		assertNotEquals("A new protein is added with with different modifications", prot1, prot4);
 		assertEquals("Protein reference has a new modification", 2, protRef.getEntityFeature().size());
-		
-		Protein prot5 = model.getOrCreatePhysicalEntity(Protein.class, protName, cellularLocation2, protRef, modificationTypes, null);
-		assertNotEquals("A new protein is added with with different cellular location", prot1, prot5);
-		assertEquals("Protein reference already had this modification", 2, protRef.getEntityFeature().size());
 	}
 	
 	@Test
@@ -96,27 +85,27 @@ public class BioPAXModelTest {
 		assertNotEquals("A new protein is added with a new name", protRef1, protRef3);
 	}
 	
-	@Test
-	public void addCellularLocationVocabularyTest() {
-		
-		BioPAXModel model = new BioPAXModel();
-		
-		// Underlying PAXTools model
-		Model innerModel = model.getPaxtoolsModel();
-		
-		String commonLocationName = "location1";
-		String uniqueLocationName = "location2";
-		
-		CellularLocationVocabulary clv1 = model.getOrCreateCellularLocationVocabulary(commonLocationName);
-		assertTrue("Cellular location vocabulary is added to the model", innerModel.contains(clv1));
-		assertEquals("Cellular location vocabulary has the name", 1, clv1.getTerm().size());
-		
-		CellularLocationVocabulary clv2 = model.getOrCreateCellularLocationVocabulary(commonLocationName);
-		assertEquals("No duplication in adding the second cellular location with the same name", clv1, clv2);
-		
-		CellularLocationVocabulary clv3 = model.getOrCreateCellularLocationVocabulary(uniqueLocationName);
-		assertNotEquals("A new cellular location is added with a new name", clv1, clv3);
-	}
+//	@Test
+//	public void addCellularLocationVocabularyTest() {
+//		
+//		BioPAXModel model = new BioPAXModel();
+//		
+//		// Underlying PAXTools model
+//		Model innerModel = model.getPaxtoolsModel();
+//		
+//		String commonLocationName = "location1";
+//		String uniqueLocationName = "location2";
+//		
+//		CellularLocationVocabulary clv1 = model.getOrCreateCellularLocationVocabulary(commonLocationName);
+//		assertTrue("Cellular location vocabulary is added to the model", innerModel.contains(clv1));
+//		assertEquals("Cellular location vocabulary has the name", 1, clv1.getTerm().size());
+//		
+//		CellularLocationVocabulary clv2 = model.getOrCreateCellularLocationVocabulary(commonLocationName);
+//		assertEquals("No duplication in adding the second cellular location with the same name", clv1, clv2);
+//		
+//		CellularLocationVocabulary clv3 = model.getOrCreateCellularLocationVocabulary(uniqueLocationName);
+//		assertNotEquals("A new cellular location is added with a new name", clv1, clv3);
+//	}
 	
 	@Test
 	public void addConversionTest() {
@@ -146,7 +135,9 @@ public class BioPAXModelTest {
 		Model innerModel = model.getPaxtoolsModel();
 		
 		Conversion controlled = model.addNewConversion(Conversion.class);
-		Protein controller = model.getOrCreatePhysicalEntity(Protein.class);
+		String protName = "prot1";
+		ProteinReference controllerref = model.getOrCreateEntityReference(ProteinReference.class, protName, null);
+		Protein controller = model.getOrCreatePhysicalEntity(Protein.class, protName, controllerref);
 		ControlType controlType = ControlType.ACTIVATION;
 		
 		Control control = model.addNewControl(Control.class, controller, controlled, controlType);

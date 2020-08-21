@@ -20,7 +20,7 @@ import org.biopax.paxtools.model.level3.TemplateReactionRegulation;
 /*
  * A model class that keeps an underlying BioPAX model and enables updating it by adding templates.
  */
-public class TemplatesModel {
+public class TemplateModel {
 	
 	private BioPAXModel model;
 
@@ -31,7 +31,7 @@ public class TemplatesModel {
 		RIGHT
 	}
 	
-	public TemplatesModel() {
+	public TemplateModel() {
 		model = new BioPAXModel();
 	}
 	
@@ -53,47 +53,22 @@ public class TemplatesModel {
 		
 		addActiveNotActiveFeatures(controlType, leftMFTypes, rightMFTypes, leftNotMFTypes, rightNotMFTypes);
 		
-		String targetName = targetModel.getName();
-		XrefModel targetXref = targetModel.getXref();
-		
-		String controllerName = controllerModel.getName();
-		XrefModel controllerXref = controllerModel.getXref();
-		
-		Class<? extends PhysicalEntity> targetClass = targetModel.getEntityClass();
-		Class<? extends EntityReference> targetRefClass = targetModel.getEntityRefClass();
-		
-		EntityReference targetRef = model.getOrCreateEntityReference(targetRefClass, targetName, targetXref);
-		PhysicalEntity left = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef, leftMFTypes, leftNotMFTypes);
-		PhysicalEntity right = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef, rightMFTypes, rightNotMFTypes);
+		PhysicalEntity left = physicalEntityFromModel(targetModel, leftMFTypes, leftNotMFTypes);
+		PhysicalEntity right = physicalEntityFromModel(targetModel, rightMFTypes, rightNotMFTypes);
 		
 		Class<? extends PhysicalEntity> controllerClass = targetModel.getEntityClass();
 		Class<? extends EntityReference> controllerRefClass = targetModel.getEntityRefClass();
 		
-		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
-		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
+		PhysicalEntity controller = physicalEntityFromModel(controllerModel);
 		
 		Conversion conversion = model.addNewConversion(Conversion.class, left, right);
 		model.addNewControl(Catalysis.class, controller, conversion, ControlType.ACTIVATION);
 	}
 	
 	public void addModulation(EntityModel controllerModel, EntityModel targetModel, ControlType controlType) {
-		String targetName = targetModel.getName();
-		XrefModel targetXref = targetModel.getXref();
 		
-		String controllerName = controllerModel.getName();
-		XrefModel controllerXref = controllerModel.getXref();
-		
-		Class<? extends PhysicalEntity> targetClass = targetModel.getEntityClass();
-		Class<? extends EntityReference> targetRefClass = targetModel.getEntityRefClass();
-		
-		EntityReference targetRef = model.getOrCreateEntityReference(targetRefClass, targetName, targetXref);
-		PhysicalEntity target = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef);
-		
-		Class<? extends PhysicalEntity> controllerClass = controllerModel.getEntityClass();
-		Class<? extends EntityReference> controllerRefClass = controllerModel.getEntityRefClass();
-		
-		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
-		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
+		PhysicalEntity target = physicalEntityFromModel(targetModel);
+		PhysicalEntity controller = physicalEntityFromModel(controllerModel);
 		
 		Catalysis catalysis = model.addNewControl(Catalysis.class, target, null, ControlType.ACTIVATION);
 		model.addNewControl(Modulation.class, controller, catalysis, controlType);
@@ -108,23 +83,8 @@ public class TemplatesModel {
 	}
 	
 	public void addExpressionRegulation(EntityModel controllerModel, EntityModel targetModel, ControlType controlType) {
-		
-		String controllerName = controllerModel.getName();
-		XrefModel controllerXref = controllerModel.getXref();
-		
-		String targetName = targetModel.getName();
-		XrefModel targetXref = targetModel.getXref();
-		
-		Class<? extends EntityReference> targetRefClass = targetModel.getEntityRefClass();
-		Class<? extends EntityReference> controllerRefClass = targetModel.getEntityRefClass();
-		Class<? extends PhysicalEntity> targetClass = targetModel.getEntityClass();
-		Class<? extends PhysicalEntity> controllerClass = targetModel.getEntityClass();
-		
-		EntityReference targetRef = model.getOrCreateEntityReference(targetRefClass, targetName, targetXref);
-		EntityReference controllerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
-		
-		PhysicalEntity controller = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, controllerRef);
-		PhysicalEntity product = model.getOrCreatePhysicalEntity(targetClass, targetName, null, targetRef);
+		PhysicalEntity controller = physicalEntityFromModel(controllerModel);
+		PhysicalEntity product = physicalEntityFromModel(targetModel);
 		
 		TemplateReaction reaction = model.addNew(TemplateReaction.class);
 		reaction.addProduct(product);
@@ -133,21 +93,8 @@ public class TemplatesModel {
 	}
 	
 	public void addControlSequence(EntityModel entityModel1, EntityModel entityModel2, ControlType controlType) {
-		String name1 = entityModel1.getName();
-		String name2 = entityModel2.getName();
-		XrefModel xref1 = entityModel1.getXref();
-		XrefModel xref2 = entityModel2.getXref();
-		
-		Class<? extends PhysicalEntity> entityClass1 = entityModel1.getEntityClass();
-		Class<? extends EntityReference> entityRefClass1 = entityModel1.getEntityRefClass();
-		Class<? extends PhysicalEntity> entityClass2 = entityModel2.getEntityClass();
-		Class<? extends EntityReference> entityRefClass2 = entityModel2.getEntityRefClass();
-		
-		EntityReference entityRef1 = model.getOrCreateEntityReference(entityRefClass1, name1, xref1);
-		EntityReference entityRef2 = model.getOrCreateEntityReference(entityRefClass2, name2, xref2);
-		
-		PhysicalEntity entity1 = model.getOrCreatePhysicalEntity(entityClass1, name1, null, entityRef1);
-		PhysicalEntity entity2 = model.getOrCreatePhysicalEntity(entityClass2, name2, null, entityRef2);
+		PhysicalEntity entity1 = physicalEntityFromModel(entityModel1);
+		PhysicalEntity entity2 = physicalEntityFromModel(entityModel2);
 		
 		// Second entity is controller in somewhere where controlled is unknown
 		// First entity controls the interaction above
@@ -156,18 +103,10 @@ public class TemplatesModel {
 	}
 	
 	public void addControlsConsumptionOrProduction(EntityModel controllerModel, EntityModel targetModel, ControlType controlType) {
-		String controllerName = controllerModel.getName();
-		XrefModel controllerXref = controllerModel.getXref();
-		Class<? extends PhysicalEntity> controllerClass = controllerModel.getEntityClass();
-		Class<? extends EntityReference> controllerRefClass = controllerModel.getEntityRefClass();
 		SideType targetSide = controlType.equals(ControlType.ACTIVATION) ? SideType.RIGHT : SideType.LEFT;
-		
 		BiochemicalReaction reaction = model.addNewConversion(BiochemicalReaction.class);
-		
 		addNewEntityToConversion(reaction, targetModel, targetSide);
-		
-		EntityReference catalyzerRef = model.getOrCreateEntityReference(controllerRefClass, controllerName, controllerXref);
-		PhysicalEntity catalyzer = model.getOrCreatePhysicalEntity(controllerClass, controllerName, null, catalyzerRef);
+		PhysicalEntity catalyzer = physicalEntityFromModel(controllerModel);
 		
 		model.addNewControl(Catalysis.class, catalyzer, reaction, null);
 	}
@@ -195,31 +134,40 @@ public class TemplatesModel {
 	
 	// Section: private helper methods
 	
+	private <T extends PhysicalEntity> T physicalEntityFromModel(EntityModel entityModel) {
+		return physicalEntityFromModel(entityModel, null, null);
+	}
+	
+	private <T extends PhysicalEntity> T physicalEntityFromModel(EntityModel entityModel, Set<String> modificationTypes, Set<String> modificationNotTypes) {
+		String name = entityModel.getName();
+		XrefModel xref = entityModel.getXref();
+		XrefModel org = entityModel.getOrganism();
+		
+		
+		List<EntityModel> componentModels = entityModel.getComponentModels();
+		boolean inComplex = false;
+		
+		Class<? extends EntityReference> entityRefClass = entityModel.getEntityRefClass();
+		Class<? extends PhysicalEntity> entityClass = entityModel.getEntityClass();
+		EntityReference entityRef = model.getOrCreateEntityReference(entityRefClass, name, xref, org);
+		
+		T entity = (T) model.getOrCreatePhysicalEntity(entityClass, name, entityRef, modificationTypes, modificationNotTypes, inComplex, componentModels);
+		
+		return entity;
+	}
+	
 	private <T extends Interaction> void addInteractionWithParticipants(Class<T> c, List<EntityModel> participantModels) {
 		T interaction = model.addNew(c);
 		
 		for(EntityModel participantModel : participantModels) {
-			String participantName = participantModel.getName();
-			XrefModel participantXref = participantModel.getXref();
-			
-			Class<? extends PhysicalEntity> participantClass = participantModel.getEntityClass();
-			Class<? extends EntityReference> participantRefClass = participantModel.getEntityRefClass();
-			
-			EntityReference participantRef = model.getOrCreateEntityReference(participantRefClass, participantName, participantXref);
-			PhysicalEntity participant = model.getOrCreatePhysicalEntity(participantClass, participantName, null, participantRef);
+			PhysicalEntity participant = physicalEntityFromModel(participantModel);
 			interaction.addParticipant(participant);
 		}
 	}
 	
 	// Add a new entity to the given side of conversion
 	private void addNewEntityToConversion(Conversion conversion, EntityModel entityModel, SideType sideType) {
-		String entityName = entityModel.getName();
-		XrefModel entityXref = entityModel.getXref();
-		Class<? extends EntityReference> entityRefClass = entityModel.getEntityRefClass();
-		Class<? extends PhysicalEntity> entityClass = entityModel.getEntityClass();
-		
-		EntityReference entityRef = model.getOrCreateEntityReference(entityRefClass, entityName, entityXref);
-		PhysicalEntity entity = model.getOrCreatePhysicalEntity(entityClass, entityName, null, entityRef);
+		PhysicalEntity entity = physicalEntityFromModel(entityModel);
 		addSideToConversion(conversion, entity, sideType);
 	}
 	
@@ -243,6 +191,14 @@ public class TemplatesModel {
 			leftTypes.add(ACTIVE);
 			rightNotTypes.add(ACTIVE);
 		}
+	}
+
+	public void setPublication(XrefModel pubXref) {
+		model.createPublicaitonXref(pubXref);
+	}
+
+	public void setPatwayName(String name) {
+		model.setPatwayName(name);
 	}
 
 }
