@@ -88,4 +88,25 @@ public class Controller {
     }
   }
 
+  @ApiOperation(value = "biopax-to-json", notes = "Converts a BioPAX model to Factoid JSON.")
+  @RequestMapping(path = "/biopax-to-json",
+    consumes = "application/vnd.biopax.rdf+xml",
+    produces = "application/json"
+  )
+  public String biopaxToFactoid(
+    @ApiParam("A BioPAX RDF/XML model") @RequestBody String body) {
+	return null;
+//    try {
+//      InputStream is = new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8));
+//      Model model = new SimpleIOHandler().convertFromOWL(is);
+//      is.close();
+//      L3ToSBGNPDConverter converter = new L3ToSBGNPDConverter();
+//      converter.setDoLayout(false);
+//      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//      converter.writeSBGN(model, baos);
+//      return baos.toString(StandardCharsets.UTF_8.name());
+//    } catch (Exception e) {
+//      throw new ConverterException(HttpStatus.INTERNAL_SERVER_ERROR, e.toString());
+//    }
+  }
 }
