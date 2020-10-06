@@ -60,4 +60,15 @@ public class ControllerT {
     assertNotNull(res);
     assertThat(res, containsString("http://sbgn.org/libsbgn/"));
   }
+  
+  @Test
+  public void testBiopaxToFactoid() throws IOException {
+    String data = new String(Files.readAllBytes(Paths.get(getClass().getResource("/pc_sm.owl").getFile())));
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Content-Type", "application/vnd.biopax.rdf+xml");
+    HttpEntity<String> request = new HttpEntity<>(data, headers);
+    String res = template.postForObject("/v2/biopax-to-json", request, String.class);
+    assertNotNull(res);
+    assertThat(res, containsString("Other"));
+  }
 }
