@@ -139,6 +139,7 @@ public class BiopaxToFactoid {
 	private JsonObject makeIntnJson(String type, ControlType ctrlType, List<String> participantIds, String srcId, String tgtId) {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", type);
+		obj.addProperty("association", type);
 		
 		if ( ctrlType != null ) {
 			obj.addProperty("controlType", ctrlType.toString());
@@ -177,12 +178,19 @@ public class BiopaxToFactoid {
 	private JsonObject makeEntityJson(Entity entity) {
 		String type = getEntityType(entity);
 		String name = entity.getDisplayName();
-		JsonObject xref = xrefToJson(getOptional(entity.getXref().stream().findFirst()));
+		JsonArray dbXrefs = new JsonArray();
+		
+		for ( Xref entXref : entity.getXref() ) {
+			dbXrefs.add(xrefToJson(entXref));
+		}
+		
+		JsonObject assoc = new JsonObject();
+		assoc.add("dbXrefs", dbXrefs);
 		
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", type);
 		obj.addProperty("name", name);
-		obj.add("xref", xref);
+		obj.add("association", assoc);
 		obj.addProperty("id", generateUUID());
 		
 		return obj;
