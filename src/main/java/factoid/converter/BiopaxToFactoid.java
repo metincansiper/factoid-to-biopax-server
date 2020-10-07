@@ -1,10 +1,12 @@
 package factoid.converter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,7 +73,7 @@ public class BiopaxToFactoid {
 								o.add(pmid, new JsonArray());
 							}
 							JsonArray arr = (JsonArray) o.get(pmid);
-							arr.add(intnToJson(intn));
+							handleIntn(arr, intn);
 							markedPmids.add(pmid);
 							System.out.println(intn.getUri() + ' ' + pmid);
 						}
@@ -134,7 +136,7 @@ public class BiopaxToFactoid {
 		return false;
 	}
 	
-	private JsonObject makeIntnJson(String type, ControlType ctrlType, Set<Entity> participants, Entity src, Entity tgt) {
+	private JsonObject makeIntnJson(String type, ControlType ctrlType, List<String> participantIds, String srcId, String tgtId) {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", type);
 		
@@ -142,30 +144,34 @@ public class BiopaxToFactoid {
 			obj.addProperty("controlType", ctrlType.toString());
 		}
 		
-		if (participants != null) {
-			Set<JsonObject> participantObjs = participants.stream().map(e -> makeEntityJson(e)).collect(Collectors.toSet());
-			JsonArray participantsArr = new JsonArray();
-			for ( JsonObject o : participantObjs ) {
-				participantsArr.add(o);
-			}
-			
-			obj.add("participants", participantsArr);
+		if (participantIds == null && srcId != null && tgtId != null) {
+//			Set<JsonObject> participantObjs = participants.stream().map(e -> makeEntityJson(e)).collect(Collectors.toSet());
+//			JsonArray participantsArr = new JsonArray();
+//			for ( JsonObject o : participantObjs ) {
+//				participantsArr.add(o);
+//			}
+			participantIds = new ArrayList<String>();
+			participantIds.add(srcId);
+			participantIds.add(tgtId);
 		}
-		
-		if (src != null && tgt != null) {
-			obj.add("controller", makeEntityJson(src));
-			obj.add("target", makeEntityJson(tgt));
-			
-			if ( tgt instanceof PhysicalEntity ) {
-				EntityFeature mf = getOptional(((PhysicalEntity) tgt).getFeature().stream().filter(f -> f instanceof ModificationFeature).findFirst());
-				if ( mf != null ) {
-					obj.addProperty("modification", mf.toString());
-				}
+		JsonArray participantsArr = new JsonArray();
+		for ( String pptId : participantIds ) {
+			JsonObject pptObj = new JsonObject();
+			pptObj.addProperty("id", pptId);
+			if ( pptId == tgtId ) {
+				pptObj.addProperty("group", "positive");
 			}
-			
+			participantsArr.add(pptObj);
 		}
+		obj.add("entries", participantsArr);
+		obj.addProperty("id", generateUUID());
 
 		return obj;
+	}
+	
+	// Generate unique id for new elements
+	private static String generateUUID() {
+		return UUID.randomUUID().toString();
 	}
 	
 	private JsonObject makeEntityJson(Entity entity) {
@@ -177,6 +183,7 @@ public class BiopaxToFactoid {
 		obj.addProperty("type", type);
 		obj.addProperty("name", name);
 		obj.add("xref", xref);
+		obj.addProperty("id", generateUUID());
 		
 		return obj;
 	}
@@ -259,7 +266,31 @@ public class BiopaxToFactoid {
 		return null;
 	}
 	
-	private JsonObject intnToJson(Interaction intn) {
+	private List<String> handleEntities(JsonArray arr, Set<Entity> ppts, Entity src, Entity tgt) {
+		List<String> ids = new ArrayList<String>();
+		
+		if ( src != null && tgt != null ) {
+			JsonObject srcObj = makeEntityJson(src);
+			JsonObject tgtObj = makeEntityJson(tgt);
+			
+			arr.add(srcObj);
+			arr.add(tgtObj);
+			
+			ids.add(srcObj.get("id").getAsString());
+			ids.add(tgtObj.get("id").getAsString());
+		}
+		if ( ppts != null ) {
+			for (Entity ppt : ppts) {
+				JsonObject pptObj = makeEntityJson(ppt);
+				arr.add(pptObj);
+				ids.add(pptObj.get("id").getAsString());
+			}
+		}
+		
+		return ids;
+	}
+	
+	private void handleIntn(JsonArray arr, Interaction intn) {
 		Class c = intn.getClass();
 		
 //		if ( c == MolecularInteraction.class ) {
@@ -277,8 +308,10 @@ public class BiopaxToFactoid {
 					Class tgtClass = tgt.getClass();
 					if ( isProtein(tgtClass) || isRna(tgtClass) ) {
 						ControlType ctrlType = regulation.getControlType();
-						JsonObject obj = makeIntnJson("Expression Regulation", ctrlType, null, src, tgt);
-						return obj;
+						List<String> ids = handleEntities(arr, null, src, tgt);
+						JsonObject intnObj = makeIntnJson("transcription-translation", ctrlType, null, ids.get(0), ids.get(1));
+						arr.add(intnObj);
+						return;
 					}
 				}
 			}
@@ -294,8 +327,16 @@ public class BiopaxToFactoid {
 				Class tgtClass = tgt.getClass();
 				if ( isMacromolecule(tgtClass) ) {
 					ControlType ctrlType = catalysis.getControlType();
-					JsonObject obj = makeIntnJson("Protein Controls State", ctrlType, null, src, tgt);
-					return obj;
+					String type = "modification";
+					EntityFeature mf = getOptional(((PhysicalEntity) tgt).getFeature().stream().filter(f -> f instanceof ModificationFeature).findFirst());
+					
+					if ( mf != null ) {
+						type = mf.toString().replace("ion", "ed");
+					}
+					List<String> ids = handleEntities(arr, null, src, tgt);
+					JsonObject intnObj = makeIntnJson(type, ctrlType, null, ids.get(0), ids.get(1));
+					arr.add(intnObj);
+					return;
 				}
 			}
 		}
@@ -304,16 +345,20 @@ public class BiopaxToFactoid {
 		List<Entity> pePPts = ppts.stream().filter(p -> p instanceof PhysicalEntity).collect(Collectors.toList());
 		List<Entity> intnPPts = ppts.stream().filter(p -> p instanceof Interaction).collect(Collectors.toList());
 		if ( pePPts.size() == ppts.size() ) {
-			JsonObject obj = makeIntnJson("Other", null, ppts, null, null);
-			return obj;
+			List<String> ids = handleEntities(arr, ppts, null, null);
+			JsonObject intnObj = makeIntnJson("interaction", null, ids, null, null);
+			arr.add(intnObj);
+			return;
 		}
 		if ( pePPts.size() == 1 && intnPPts.size() == 1 ) {
 			PhysicalEntity src = (PhysicalEntity) pePPts.get(0);
 			PhysicalEntity tgt = getLeafEntity(intnPPts.get(0));
 			
 			if ( tgt != null ) {
-				JsonObject obj = makeIntnJson("Other", null, null, src, tgt);
-				return obj;
+				List<String> ids = handleEntities(arr, null, src, tgt);
+				JsonObject intnObj = makeIntnJson("interaction", null, null, ids.get(0), ids.get(1));
+				arr.add(intnObj);
+				return;
 			}
 		}
 		Set<Entity> leafs = ppts.stream()
@@ -321,7 +366,8 @@ public class BiopaxToFactoid {
 				.filter(l -> l != null)
 				.collect(Collectors.toSet());
 		
-		JsonObject obj = makeIntnJson("Other", null, leafs, null, null);
-		return obj;
+		List<String> ids = handleEntities(arr, leafs, null, null);
+		JsonObject intnObj = makeIntnJson("interaction", null, ids, null, null);
+		arr.add(intnObj);
 	}
 }

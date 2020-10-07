@@ -6,19 +6,12 @@ import static org.hamcrest.Matchers.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.sql.RowSetInternal;
-import javax.sql.rowset.WebRowSet;
-import javax.sql.rowset.spi.XmlReader;
 
 import org.biopax.paxtools.io.BioPAXIOHandler;
 import org.biopax.paxtools.io.SimpleIOHandler;
@@ -39,23 +32,27 @@ public class BiopaxToFactoidTest {
 		BiopaxToFactoid b2f = new BiopaxToFactoid();
 		JsonObject js = b2f.convert(model);
 		System.out.println(js);
-		assertThat(1, is(1));
 		Set<Map.Entry<String, JsonElement>> entries = js.entrySet();
-		List<JsonObject> jsonObjs = new ArrayList<JsonObject>();
 		
 		for ( Map.Entry<String, JsonElement> entry : entries ) {
+			Set<String> entityIds1 = new HashSet<String>();
+			Set<String> entityIds2 = new HashSet<String>();
 			JsonArray arr = entry.getValue().getAsJsonArray();
-			for ( JsonElement obj : arr ) {
-				jsonObjs.add(obj.getAsJsonObject());
+			for ( JsonElement el : arr ) {
+				JsonObject obj = el.getAsJsonObject();
+				if ( obj.has("entries") ) {
+					for ( JsonElement entityEl : obj.get("entries").getAsJsonArray() ) {
+						entityIds1.add(entityEl.getAsJsonObject().get("id").getAsString());
+					}
+				}
+				else {
+					entityIds2.add(el.getAsJsonObject().get("id").getAsString());
+				}
 			}
+			
+			assertThat(entityIds1, is(entityIds2));
 		}
 		
-		for ( JsonObject obj : jsonObjs ) {
-			boolean condPpts = obj.has("participants") && obj.getAsJsonArray("participants").size() == 2;
-			boolean condSrcTgt = obj.has("controller") && obj.has("target");
-			boolean cond = condPpts ^ condSrcTgt;
-			
-			assertThat(cond, is(true));
-		}
+		
 	}
 }
