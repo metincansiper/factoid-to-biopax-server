@@ -69,6 +69,17 @@ public class ControllerT {
     HttpEntity<String> request = new HttpEntity<>(data, headers);
     String res = template.postForObject("/v2/biopax-to-json", request, String.class);
     assertNotNull(res);
-    assertThat(res, containsString("Other"));
+    assertThat(res, containsString("interaction"));
+  }
+  
+  @Test
+  public void testBiopaxUrlToFactoid() throws IOException {
+    String url = "https://www.pathwaycommons.org/archives/PC2/v12/PathwayCommons12.psp.BIOPAX.owl.gz";
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Content-Type", "text/plain");
+    HttpEntity<String> request = new HttpEntity<>(url, headers);
+    String res = template.postForObject("/v2/biopax-url-to-json", request, String.class);
+    assertNotNull(res);
+    assertThat(res, containsString("interaction"));
   }
 }

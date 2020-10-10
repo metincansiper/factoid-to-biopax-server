@@ -14,10 +14,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPInputStream;
 
 
 @RestController
@@ -108,4 +115,50 @@ public class Controller {
 		  throw new ConverterException(HttpStatus.INTERNAL_SERVER_ERROR, e.toString());
 	  }
   }
+  
+  @ApiOperation(value = "biopax-url-to-json", notes = "Converts a BioPAX model to Factoid JSON.")
+  @RequestMapping(path = "/biopax-url-to-json",
+    consumes = "text/plain",
+    produces = "application/json"
+  )
+  public String biopaxUrlToFactoid(
+		  @ApiParam("URL of a BioPAX RDF/XML file") @RequestBody String url) {
+	  BiopaxToFactoid converter = new BiopaxToFactoid();
+	  try {
+		  String body = getContentFromUrl(url);
+		  InputStream is = new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8));
+	      Model model = new SimpleIOHandler().convertFromOWL(is);
+		  return converter.convert(model).toString();
+	  } catch (IllegalStateException | JsonSyntaxException | JsonIOException e) {
+		  throw new ConverterException(HttpStatus.BAD_REQUEST, e.getMessage());
+	  } catch (Exception e) {
+		  throw new ConverterException(HttpStatus.INTERNAL_SERVER_ERROR, e.toString());
+	  }
+  }
+  
+  private String getContentFromUrl(String url) {
+		InputStream is = null;
+		GZIPInputStream gzipInputStream = null;
+		try {
+			is = new URL(url).openStream();
+			gzipInputStream = new GZIPInputStream(is);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		InputStreamReader reader = new InputStreamReader(gzipInputStream);
+		BufferedReader in = new BufferedReader(reader);
+		Writer writer = new StringWriter();
+
+		char[] buffer = new char[10240];
+	    try {
+			for (int length = 0; (length = reader.read(buffer)) > 0;) {
+			    writer.write(buffer, 0, length);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	    
+	    String body = writer.toString();
+	    return body;
+	}
 }
