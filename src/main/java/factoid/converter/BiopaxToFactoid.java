@@ -49,9 +49,6 @@ public class BiopaxToFactoid {
 	public JsonObject convert(Model model) {
 		JsonObject o = new JsonObject();
 		Set<Interaction> intns = model.getObjects(Interaction.class);
-//		for ( Interaction intn : intns ) {
-//			System.out.println(intn);
-//		}
 		intns = intns.stream()
 				.filter(intn -> intn.getControlledOf().size() == 0)
 				.filter(intn -> keepIntn(intn))
@@ -65,17 +62,13 @@ public class BiopaxToFactoid {
 					String db = xref.getDb();
 					if ( db != null && db.equalsIgnoreCase("pubmed") ) {
 						String pmid = xref.getId();
-						System.out.println(pmid);
 						if ( pmid != null && !markedPmids.contains(pmid) ) {
-							System.out.println(intn.getClass());
-							System.out.println(intn.getControlledOf());
 							if (o.get(pmid) == null) {
 								o.add(pmid, new JsonArray());
 							}
 							JsonArray arr = (JsonArray) o.get(pmid);
 							handleIntn(arr, intn);
 							markedPmids.add(pmid);
-							System.out.println(intn.getUri() + ' ' + pmid);
 						}
 					}
 				}
@@ -123,10 +116,8 @@ public class BiopaxToFactoid {
 			for(EvidenceCodeVocabulary v : evidence.getEvidenceCode()) {
 				for(Xref xref : v.getXref()) {
 					String id = xref.getId();
-					System.out.println("keep intn check");
 					if ( id.equalsIgnoreCase("MI:0074") || id.equalsIgnoreCase("MI:0421")
 							|| id.equalsIgnoreCase("MI:0113")) {
-						System.out.println("keep intn");
 						return true;
 					}
 				}
@@ -146,11 +137,6 @@ public class BiopaxToFactoid {
 		}
 		
 		if (participantIds == null && srcId != null && tgtId != null) {
-//			Set<JsonObject> participantObjs = participants.stream().map(e -> makeEntityJson(e)).collect(Collectors.toSet());
-//			JsonArray participantsArr = new JsonArray();
-//			for ( JsonObject o : participantObjs ) {
-//				participantsArr.add(o);
-//			}
 			participantIds = new ArrayList<String>();
 			participantIds.add(srcId);
 			participantIds.add(tgtId);
@@ -178,19 +164,19 @@ public class BiopaxToFactoid {
 	private JsonObject makeEntityJson(Entity entity) {
 		String type = getEntityType(entity);
 		String name = entity.getDisplayName();
-		JsonArray dbXrefs = new JsonArray();
-		
-		for ( Xref entXref : entity.getXref() ) {
-			dbXrefs.add(xrefToJson(entXref));
-		}
-		
-		JsonObject assoc = new JsonObject();
-		assoc.add("dbXrefs", dbXrefs);
+//		JsonArray dbXrefs = new JsonArray();
+//		
+//		for ( Xref entXref : entity.getXref() ) {
+//			dbXrefs.add(xrefToJson(entXref));
+//		}
+//		
+//		JsonObject assoc = new JsonObject();
+//		assoc.add("dbXrefs", dbXrefs);
 		
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", type);
 		obj.addProperty("name", name);
-		obj.add("association", assoc);
+//		obj.add("association", assoc);
 		obj.addProperty("id", generateUUID());
 		
 		return obj;
