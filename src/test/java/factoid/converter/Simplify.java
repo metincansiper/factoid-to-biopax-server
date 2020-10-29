@@ -23,10 +23,12 @@ import org.biopax.paxtools.model.Model;
 import org.biopax.paxtools.model.level3.Catalysis;
 import org.biopax.paxtools.model.level3.Control;
 import org.biopax.paxtools.model.level3.Entity;
+import org.biopax.paxtools.model.level3.EntityReference;
 import org.biopax.paxtools.model.level3.Evidence;
 import org.biopax.paxtools.model.level3.EvidenceCodeVocabulary;
 import org.biopax.paxtools.model.level3.Interaction;
 import org.biopax.paxtools.model.level3.Process;
+import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
 import org.biopax.paxtools.model.level3.TemplateReactionRegulation;
 import org.biopax.paxtools.model.level3.Xref;
 
@@ -85,7 +87,16 @@ public class Simplify {
 			els.addAll(intn.getXref());
 			Set<Entity> ppts = intn.getParticipant();
 			els.addAll(ppts);
-			ppts.stream().map(p -> els.addAll(p.getXref()));
+			
+			for ( Entity ppt : ppts ) {
+				els.addAll(ppt.getXref());
+				if ( ppt instanceof SimplePhysicalEntity ) {
+					EntityReference er = ((SimplePhysicalEntity) ppt).getEntityReference();
+					els.add(er);
+					els.addAll(er.getXref());
+				}
+			}
+//			ppts.stream().map(p -> els.addAll(p.getXref()));
 			Set<Process> controlledSet = intn.getControlled();
 			if (controlledSet.size() > 0) {
 				Interaction controlled = (Interaction) controlledSet.iterator().next();
@@ -120,7 +131,7 @@ public class Simplify {
 		FileWriter writer;
 		try {
 //			/Users/siperm/Documents/Workspace/factoid-converters/bin/test/pc2.owl
-			writer = new FileWriter(new File("src/test/resources/pc_sm3.owl"));
+			writer = new FileWriter(new File("src/test/resources/pc_sm4.owl"));
 			writer.write(owl);
 			writer.close();
 		} catch (IOException e) {

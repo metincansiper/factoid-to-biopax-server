@@ -21,6 +21,7 @@ import org.biopax.paxtools.model.level3.Dna;
 import org.biopax.paxtools.model.level3.DnaRegion;
 import org.biopax.paxtools.model.level3.Entity;
 import org.biopax.paxtools.model.level3.EntityFeature;
+import org.biopax.paxtools.model.level3.EntityReference;
 import org.biopax.paxtools.model.level3.Evidence;
 import org.biopax.paxtools.model.level3.EvidenceCodeVocabulary;
 import org.biopax.paxtools.model.level3.Interaction;
@@ -30,6 +31,8 @@ import org.biopax.paxtools.model.level3.PhysicalEntity;
 import org.biopax.paxtools.model.level3.Process;
 import org.biopax.paxtools.model.level3.Protein;
 import org.biopax.paxtools.model.level3.Rna;
+import org.biopax.paxtools.model.level3.SequenceEntity;
+import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
 import org.biopax.paxtools.model.level3.SmallMolecule;
 import org.biopax.paxtools.model.level3.TemplateReaction;
 import org.biopax.paxtools.model.level3.TemplateReactionRegulation;
@@ -164,20 +167,29 @@ public class BiopaxToFactoid {
 	private JsonObject makeEntityJson(Entity entity) {
 		String type = getEntityType(entity);
 		String name = entity.getDisplayName();
-//		JsonArray dbXrefs = new JsonArray();
-//		
-//		for ( Xref entXref : entity.getXref() ) {
-//			dbXrefs.add(xrefToJson(entXref));
-//		}
-//		
-//		JsonObject assoc = new JsonObject();
-//		assoc.add("dbXrefs", dbXrefs);
+		
+		Xref xref = null;
+		
+		if ( entity instanceof SimplePhysicalEntity ) {
+			EntityReference er = ((SimplePhysicalEntity) entity).getEntityReference();
+			if ( er != null && er.getXref().size() > 0 ) {
+				xref = getOptional(er.getXref().stream().findFirst());
+			}
+		}
 		
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", type);
 		obj.addProperty("name", name);
-//		obj.add("association", assoc);
 		obj.addProperty("id", generateUUID());
+		
+		if ( xref != null ) {
+			String db = xref.getDb();
+			String id = xref.getId();
+			
+			if ( db.equals("uniprot knowledgebase") ) {
+				obj.addProperty("uniprotId", id);
+			}
+		}
 		
 		return obj;
 	}
