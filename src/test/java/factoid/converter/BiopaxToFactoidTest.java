@@ -31,7 +31,6 @@ public class BiopaxToFactoidTest {
 		Model model = handler.convertFromOWL(f);
 		BiopaxToFactoid b2f = new BiopaxToFactoid();
 		JsonObject js = b2f.convert(model);
-		System.out.println(js);
 		Set<Map.Entry<String, JsonElement>> entries = js.entrySet();
 		
 		for ( Map.Entry<String, JsonElement> entry : entries ) {

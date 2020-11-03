@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,8 +46,10 @@ import com.google.gson.JsonObject;
 
 public class BiopaxToFactoid {
 	
+	Logger logger;
+	
 	public BiopaxToFactoid() {
-		
+		logger = Logger.getLogger(BiopaxToFactoid.class.getName()); 
 	}
 	
 	public JsonObject convert(Model model) {
@@ -177,17 +180,37 @@ public class BiopaxToFactoid {
 			}
 		}
 		
+//		if ( xref == null ) {
+//			return null;
+//		}
+		
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", type);
 		obj.addProperty("name", name);
 		obj.addProperty("id", generateUUID());
 		
 		if ( xref != null ) {
-			String db = xref.getDb();
+			JsonObject jsXref = null;
+			String originalDb = xref.getDb();
 			String id = xref.getId();
+			String db = null;
 			
-			if ( db.equals("uniprot knowledgebase") ) {
-				obj.addProperty("uniprotId", id);
+			if ( originalDb.contains("uniprot") ) {
+				db = "uniprot";
+			}
+			else if ( originalDb.equals("hgnc symbol") || originalDb.equals("refseq") ) {
+				db = originalDb;
+			}
+			else {
+				logger.warning("Unhandled xref database: " + originalDb);
+			}
+			
+			if ( db != null ) {
+				jsXref = new JsonObject();
+				jsXref.addProperty("db", db);
+				jsXref.addProperty("id", id);
+				
+				obj.add("_xref", jsXref);
 			}
 		}
 		
