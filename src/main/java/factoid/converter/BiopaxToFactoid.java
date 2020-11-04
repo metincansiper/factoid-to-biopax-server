@@ -40,6 +40,7 @@ import org.biopax.paxtools.model.level3.TemplateReactionRegulation;
 import org.biopax.paxtools.model.level3.Xref;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 
@@ -80,6 +81,22 @@ public class BiopaxToFactoid {
 				}
 			}
 		}
+		
+		Set<String> pmids = o.keySet();
+		Set<String> idsToRemove = new HashSet<>();
+		
+		// remove the documents including ungrounded entities
+		for ( String pmid : pmids ) {
+			JsonNull jsNull = new JsonNull();
+			if ( o.get(pmid).getAsJsonArray().contains(jsNull) ) {
+				idsToRemove.add(pmid);
+			}
+		}
+		
+		for ( String pmid : idsToRemove ) {
+			o.remove(pmid);
+		}
+		
 		return o;
 	}
 	
@@ -89,6 +106,15 @@ public class BiopaxToFactoid {
 		}
 		
 		return null;
+	}
+	
+	private void addToJsonArr(JsonArray arr, JsonObject o) {
+		if ( o == null ) {
+			arr.add(new JsonNull());
+		}
+		else {
+			arr.add(o);
+		}
 	}
 	
 	private Process getControlled(Interaction intn) {
@@ -180,38 +206,40 @@ public class BiopaxToFactoid {
 			}
 		}
 		
-//		if ( xref == null ) {
-//			return null;
-//		}
+		// if the entity has no grounding return null
+		// which will signal that the related document must be skipped as well
+		if ( xref == null ) {
+			return null;
+		}
 		
 		JsonObject obj = new JsonObject();
 		obj.addProperty("type", type);
 		obj.addProperty("name", name);
 		obj.addProperty("id", generateUUID());
 		
-		if ( xref != null ) {
-			JsonObject jsXref = null;
-			String originalDb = xref.getDb();
-			String id = xref.getId();
-			String db = null;
+		String originalDb = xref.getDb();
+		String id = xref.getId();
+		String db = null;
+		
+		if ( originalDb.contains("uniprot") ) {
+			db = "uniprot";
+		}
+		else if ( originalDb.equals("hgnc symbol") || originalDb.equals("refseq") ) {
+			db = originalDb;
+		}
+		else {
+			logger.warning("Unhandled xref database: " + originalDb);
+			// if the entity db is not handled return null
+			// which will signal that the related document must be skipped as well
+			return null;
+		}
+		
+		if ( db != null ) {
+			JsonObject jsXref = new JsonObject();
+			jsXref.addProperty("db", db);
+			jsXref.addProperty("id", id);
 			
-			if ( originalDb.contains("uniprot") ) {
-				db = "uniprot";
-			}
-			else if ( originalDb.equals("hgnc symbol") || originalDb.equals("refseq") ) {
-				db = originalDb;
-			}
-			else {
-				logger.warning("Unhandled xref database: " + originalDb);
-			}
-			
-			if ( db != null ) {
-				jsXref = new JsonObject();
-				jsXref.addProperty("db", db);
-				jsXref.addProperty("id", id);
-				
-				obj.add("_xref", jsXref);
-			}
+			obj.add("_xref", jsXref);
 		}
 		
 		return obj;
@@ -302,16 +330,27 @@ public class BiopaxToFactoid {
 			JsonObject srcObj = makeEntityJson(src);
 			JsonObject tgtObj = makeEntityJson(tgt);
 			
-			arr.add(srcObj);
-			arr.add(tgtObj);
+			addToJsonArr(arr, srcObj);
+			addToJsonArr(arr, tgtObj);
+			
+			if ( srcObj == null || tgtObj == null ) {
+				// if the interaction has entities skipped because of the grounding issues
+				// skip the interaction as well
+				return null;
+			}
 			
 			ids.add(srcObj.get("id").getAsString());
 			ids.add(tgtObj.get("id").getAsString());
 		}
 		if ( ppts != null ) {
 			for (Entity ppt : ppts) {
+				if ( ppt == null ) {
+					// if the interaction has entities skipped because of the grounding issues
+					// skip the interaction as well
+					return null;
+				}
 				JsonObject pptObj = makeEntityJson(ppt);
-				arr.add(pptObj);
+				addToJsonArr(arr, pptObj);
 				ids.add(pptObj.get("id").getAsString());
 			}
 		}
@@ -338,8 +377,11 @@ public class BiopaxToFactoid {
 					if ( isProtein(tgtClass) || isRna(tgtClass) ) {
 						ControlType ctrlType = regulation.getControlType();
 						List<String> ids = handleEntities(arr, null, src, tgt);
+						if ( ids == null ) {
+							return;
+						}
 						JsonObject intnObj = makeIntnJson("transcription-translation", ctrlType, null, ids.get(0), ids.get(1));
-						arr.add(intnObj);
+						addToJsonArr(arr, intnObj);
 						return;
 					}
 				}
@@ -363,8 +405,11 @@ public class BiopaxToFactoid {
 						type = mf.toString().replace("ion", "ed");
 					}
 					List<String> ids = handleEntities(arr, null, src, tgt);
+					if ( ids == null ) {
+						return;
+					}
 					JsonObject intnObj = makeIntnJson(type, ctrlType, null, ids.get(0), ids.get(1));
-					arr.add(intnObj);
+					addToJsonArr(arr, intnObj);
 					return;
 				}
 			}
@@ -375,8 +420,11 @@ public class BiopaxToFactoid {
 		List<Entity> intnPPts = ppts.stream().filter(p -> p instanceof Interaction).collect(Collectors.toList());
 		if ( pePPts.size() == ppts.size() ) {
 			List<String> ids = handleEntities(arr, ppts, null, null);
+			if ( ids == null ) {
+				return;
+			}
 			JsonObject intnObj = makeIntnJson("interaction", null, ids, null, null);
-			arr.add(intnObj);
+			addToJsonArr(arr, intnObj);
 			return;
 		}
 		if ( pePPts.size() == 1 && intnPPts.size() == 1 ) {
@@ -385,8 +433,11 @@ public class BiopaxToFactoid {
 			
 			if ( tgt != null ) {
 				List<String> ids = handleEntities(arr, null, src, tgt);
+				if ( ids == null ) {
+					return;
+				}
 				JsonObject intnObj = makeIntnJson("interaction", null, null, ids.get(0), ids.get(1));
-				arr.add(intnObj);
+				addToJsonArr(arr, intnObj);
 				return;
 			}
 		}
@@ -396,7 +447,10 @@ public class BiopaxToFactoid {
 				.collect(Collectors.toSet());
 		
 		List<String> ids = handleEntities(arr, leafs, null, null);
+		if ( ids == null ) {
+			return;
+		}
 		JsonObject intnObj = makeIntnJson("interaction", null, ids, null, null);
-		arr.add(intnObj);
+		addToJsonArr(arr, intnObj);
 	}
 }
