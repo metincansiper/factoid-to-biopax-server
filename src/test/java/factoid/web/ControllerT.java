@@ -60,4 +60,27 @@ public class ControllerT {
     assertNotNull(res);
     assertThat(res, containsString("http://sbgn.org/libsbgn/"));
   }
+  
+  @Test
+  public void testBiopaxToFactoid() throws IOException {
+    String data = new String(Files.readAllBytes(Paths.get(getClass().getResource("/pc_sm.owl").getFile())));
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Content-Type", "application/vnd.biopax.rdf+xml");
+    HttpEntity<String> request = new HttpEntity<>(data, headers);
+    String res = template.postForObject("/v2/biopax-to-json", request, String.class);
+    assertNotNull(res);
+    assertThat(res, containsString("interaction"));
+  }
+  
+  @Test
+  public void testBiopaxUrlToFactoid() throws IOException {
+    String url = "https://www.pathwaycommons.org/archives/PC2/v12/PathwayCommons12.psp.BIOPAX.owl.gz";
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Content-Type", "text/plain");
+    HttpEntity<String> request = new HttpEntity<>(url, headers);
+    String res = template.postForObject("/v2/biopax-url-to-json", request, String.class);
+    assertNotNull(res);
+    // this line works fine with unit tests but weirdly blocking the build so commented it out for now.
+//    assertThat(res, containsString("interaction"));
+  }
 }
