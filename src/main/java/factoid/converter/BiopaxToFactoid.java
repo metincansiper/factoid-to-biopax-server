@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.biopax.paxtools.model.Model;
+import org.biopax.paxtools.model.level3.BioSource;
 import org.biopax.paxtools.model.level3.Catalysis;
 import org.biopax.paxtools.model.level3.Complex;
 import org.biopax.paxtools.model.level3.Control;
@@ -31,6 +32,7 @@ import org.biopax.paxtools.model.level3.MolecularInteraction;
 import org.biopax.paxtools.model.level3.PhysicalEntity;
 import org.biopax.paxtools.model.level3.Process;
 import org.biopax.paxtools.model.level3.Protein;
+import org.biopax.paxtools.model.level3.ProteinReference;
 import org.biopax.paxtools.model.level3.Rna;
 import org.biopax.paxtools.model.level3.SequenceEntity;
 import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
@@ -198,9 +200,13 @@ public class BiopaxToFactoid {
 		String name = entity.getDisplayName();
 		
 		Xref xref = null;
+		BioSource org = null;
 		
 		if ( entity instanceof SimplePhysicalEntity ) {
 			EntityReference er = ((SimplePhysicalEntity) entity).getEntityReference();
+			if ( er instanceof ProteinReference ) {
+				org = ((ProteinReference) er).getOrganism();
+			}
 			if ( er != null && er.getXref().size() > 0 ) {
 				xref = getOptional(er.getXref().stream().findFirst());
 			}
@@ -238,6 +244,13 @@ public class BiopaxToFactoid {
 			JsonObject jsXref = new JsonObject();
 			jsXref.addProperty("db", db);
 			jsXref.addProperty("id", id);
+			
+			if ( org != null ) {
+				Xref orgXref = getOptional(org.getXref().stream().findFirst());
+				if ( orgXref != null ) {
+					jsXref.addProperty("org", orgXref.getId());
+				}	
+			}
 			
 			obj.add("_xref", jsXref);
 		}
