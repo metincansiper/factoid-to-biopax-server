@@ -39,6 +39,7 @@ public class FactoidToBiopax {
 	
 	public FactoidToBiopax() {
 		model = new TemplateModel();
+		model = null;
 		jsonParser = new JsonParser();
 		gson = new Gson();
 	}
@@ -59,6 +60,14 @@ public class FactoidToBiopax {
    * @param templates
    */
 	public void addToModel(JsonObject docTemplate) {
+		if ( docTemplate.has("pathwayId") ) {
+			String pathwayId = docTemplate.get("pathwayId").getAsString();
+			model = new TemplateModel(pathwayId);
+		}
+		else {
+			model = new TemplateModel(null);
+		}
+		
 		
 		JsonArray intnTemplates = docTemplate.get("interactions").getAsJsonArray();
 	
