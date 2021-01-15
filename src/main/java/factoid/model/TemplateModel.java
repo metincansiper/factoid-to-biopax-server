@@ -31,8 +31,12 @@ public class TemplateModel {
 		RIGHT
 	}
 	
+	public TemplateModel(String pathwayId) {
+		model = new BioPAXModel(pathwayId);
+	}
+	
 	public TemplateModel() {
-		model = new BioPAXModel();
+		this(null);
 	}
 	
 	// Section: public methods
