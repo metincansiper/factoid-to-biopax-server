@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -128,7 +129,10 @@ public class FactoidToBiopaxTest {
 	  
 	  FactoidToBiopax converter = getBiopaxConvertor(intnTemplates, publicationTemplate, null, pathwayId);
 	  Model m = converterResultToModel(converter.convertToBiopax());
-	  assertEquals(m.getObjects(Pathway.class).iterator().next().getUri(), pathwayId);
+	  Set<Xref> xrefs = m.getObjects(Pathway.class).iterator().next().getXref();
+	  Iterator<Xref> xrefIt = xrefs.stream().filter(xref -> xref instanceof UnificationXref).iterator();
+	  assertEquals(xrefIt.hasNext(), true);
+	  assertEquals(xrefIt.next().getId(), pathwayId);
   }
   
   @Test

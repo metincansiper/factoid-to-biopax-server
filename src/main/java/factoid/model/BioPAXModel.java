@@ -67,27 +67,17 @@ public class BioPAXModel {
 	
 	// Section: constructors
 	
-	public BioPAXModel(String pathwayId) {
+	public BioPAXModel() {
 		BioPAXFactory factory = BioPAXLevel.L3.getDefaultFactory();
 		model = factory.createModel();
 		
-		if ( pathwayId == null ) {
-			pathway = addNew( Pathway.class );
-		}
-		else {
-			pathway = addNew(Pathway.class, pathwayId, false);
-		}
-		
+		pathway = addNew(Pathway.class);
 		
 //		cellularLocationMap = new HashMap<String, CellularLocationVocabulary>();
 		xrefMap = new HashMap<String, RelationshipXref>();
 		organismMap = new HashMap<String, BioSource>();
 		entityReferenceMap = new MultiKeyMap<Object, EntityReference>();
 		noRefPhysicalEntityMap = new MultiKeyMap<Object, Set<PhysicalEntity>>();
-	}
-	
-	public BioPAXModel() {
-		this(null);
 	}
 
 	//for tests
@@ -629,5 +619,13 @@ public class BioPAXModel {
 
 	public void setPatwayName(String name) {
 		pathway.setDisplayName(name);
+	}
+
+	public void setPatwayId(String id) {
+		UnificationXref xref = addNew(UnificationXref.class);
+		xref.setId(id);
+		xref.setDb("BioFactoid");
+		
+		pathway.addXref(xref);
 	}
 }

@@ -31,12 +31,8 @@ public class TemplateModel {
 		RIGHT
 	}
 	
-	public TemplateModel(String pathwayId) {
-		model = new BioPAXModel(pathwayId);
-	}
-	
 	public TemplateModel() {
-		this(null);
+		model = new BioPAXModel();
 	}
 	
 	// Section: public methods
@@ -203,6 +199,10 @@ public class TemplateModel {
 
 	public void setPatwayName(String name) {
 		model.setPatwayName(name);
+	}
+
+	public void setPatwayId(String id) {
+		model.setPatwayId(id);
 	}
 
 }
