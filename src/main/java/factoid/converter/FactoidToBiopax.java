@@ -114,6 +114,11 @@ public class FactoidToBiopax {
 			setPublication(pubJson);
 		}
 		
+		if ( docTemplate.has("pathwayId") ) {
+			String id = docTemplate.get("pathwayId").getAsString();
+			setPathwayId(id);
+		}
+		
 		if ( docTemplate.has("pathwayName") ) {
 			String name = docTemplate.get("pathwayName").getAsString();
 			setPathwayName(name);
@@ -122,6 +127,10 @@ public class FactoidToBiopax {
 	
 	private void setPathwayName(String name) {
 		model.setPatwayName(name);
+	}
+	
+	private void setPathwayId(String id) {
+		model.setPatwayId(id);
 	}
 
 	private void setPublication(JsonObject pubJson) {

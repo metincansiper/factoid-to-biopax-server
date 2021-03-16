@@ -201,4 +201,8 @@ public class TemplateModel {
 		model.setPatwayName(name);
 	}
 
+	public void setPatwayId(String id) {
+		model.setPatwayId(id);
+	}
+
 }

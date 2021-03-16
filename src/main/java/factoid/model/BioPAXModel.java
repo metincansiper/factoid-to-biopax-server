@@ -620,4 +620,12 @@ public class BioPAXModel {
 	public void setPatwayName(String name) {
 		pathway.setDisplayName(name);
 	}
+
+	public void setPatwayId(String id) {
+		UnificationXref xref = addNew(UnificationXref.class);
+		xref.setId(id);
+		xref.setDb("BioFactoid");
+		
+		pathway.addXref(xref);
+	}
 }

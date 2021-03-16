@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,6 +70,10 @@ public class FactoidToBiopaxTest {
   }
   
   public FactoidToBiopax getBiopaxConvertor(String intnsContent, String publicationContent, String pathwayName) {
+	  return getBiopaxConvertor(intnsContent, publicationContent, pathwayName, null);
+  }
+  
+  public FactoidToBiopax getBiopaxConvertor(String intnsContent, String publicationContent, String pathwayName, String pathwayId) {
 	  JsonParser jsonParser = new JsonParser();
 	  JsonObject template = new JsonObject();
 	  JsonArray intnTemplates = jsonParser.parse(intnsContent).getAsJsonArray();
@@ -82,6 +87,10 @@ public class FactoidToBiopaxTest {
 	  
 	  if ( pathwayName != null ) {
 		  template.addProperty("pathwayName", pathwayName);
+	  }
+	  
+	  if ( pathwayId != null ) {
+		  template.addProperty("pathwayId", pathwayId);
 	  }
 	  
 	  
@@ -110,6 +119,20 @@ public class FactoidToBiopaxTest {
 	  FactoidToBiopax converter = getBiopaxConvertor(intnTemplates, publicationTemplate, pathwayName);
 	  Model m = converterResultToModel(converter.convertToBiopax());
 	  assertEquals(m.getObjects(Pathway.class).iterator().next().getDisplayName(), pathwayName);
+  }
+  
+  @Test
+  public void testPathwayId() throws IOException {
+	  String intnTemplates = "[]";
+	  String publicationTemplate = null;
+	  String pathwayId = "01b5959d-8022-4585-8d8c-6f71f8183e0c";
+	  
+	  FactoidToBiopax converter = getBiopaxConvertor(intnTemplates, publicationTemplate, null, pathwayId);
+	  Model m = converterResultToModel(converter.convertToBiopax());
+	  Set<Xref> xrefs = m.getObjects(Pathway.class).iterator().next().getXref();
+	  Iterator<Xref> xrefIt = xrefs.stream().filter(xref -> xref instanceof UnificationXref).iterator();
+	  assertEquals(xrefIt.hasNext(), true);
+	  assertEquals(xrefIt.next().getId(), pathwayId);
   }
   
   @Test
