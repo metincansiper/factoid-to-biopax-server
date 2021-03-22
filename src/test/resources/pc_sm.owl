@@ -517,6 +517,7 @@
  <bp:standardName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">cAMP-dependent protein kinase catalytic subunit alpha</bp:standardName>
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_uniprot_knowledgebase_P17612" />
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/RelationshipXref_hgnc_symbol_PRKACA_identity" />
+ <bp:organism rdf:resource="http://identifiers.org/taxonomy/9606" />
  <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">KAPCA_HUMAN</bp:displayName>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">2.7.11.11</bp:name>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">PRKACA</bp:name>
@@ -778,6 +779,11 @@
  <bp:controlled rdf:resource="http://pathwaycommons.org/pc12/BiochemicalReaction_89e4c2427e3567bffcc52498b643e2ee" />
  <bp:comment rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">REPLACED http://pathwaycommons.org/pc12/Catalysis_0d6377e9e148f7bf2b40d877718e00eb</bp:comment>
 </bp:Catalysis>
+
+<bp:BioSource rdf:about="http://identifiers.org/taxonomy/10090">
+ <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_taxonomy_10090" />
+ <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">mouse</bp:displayName>
+</bp:BioSource>
 
 <bp:PublicationXref rdf:about="http://identifiers.org/pubmed/24075978">
  <bp:year rdf:datatype = "http://www.w3.org/2001/XMLSchema#int">2013</bp:year>
@@ -1423,6 +1429,7 @@
  <bp:standardName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Rho-associated protein kinase 1</bp:standardName>
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/RelationshipXref_hgnc_symbol_ROCK1_identity" />
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_uniprot_knowledgebase_Q13464" />
+ <bp:organism rdf:resource="http://identifiers.org/taxonomy/9606" />
  <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">ROCK1_HUMAN</bp:displayName>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Rho-associated, coiled-coil-containing protein kinase I</bp:name>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">ROCK1</bp:name>
@@ -1548,6 +1555,11 @@
  <bp:evidenceCode rdf:resource="http://pathwaycommons.org/pc12/EvidenceCodeVocabulary_b5e00d0cdfd43a81f726c070c956473e" />
 </bp:Evidence>
 
+<bp:BioSource rdf:about="http://identifiers.org/taxonomy/9606">
+ <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_taxonomy_9606" />
+ <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">human</bp:displayName>
+</bp:BioSource>
+
 <bp:Evidence rdf:about="http://pathwaycommons.org/pc12/Evidence_7840c5c5dec9a331abd4cf0aa666d829">
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/PublicationXref_a2712524-cd1b-40c7-96d0-220e66cd332ehttp___www_phosphosite_org_phosphosite_owl_recid_4918532" />
  <bp:comment rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">REPLACED http://pathwaycommons.org/pc12/Evidence_7840c5c5dec9a331abd4cf0aa666d829</bp:comment>
@@ -1672,6 +1684,7 @@
  <bp:standardName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Casein kinase II subunit alpha</bp:standardName>
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/RelationshipXref_hgnc_symbol_CSNK2A1_identity" />
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_uniprot_knowledgebase_P68400" />
+ <bp:organism rdf:resource="http://identifiers.org/taxonomy/9606" />
  <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">CSK21_HUMAN</bp:displayName>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">CSNK2A1</bp:name>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">2.7.11.1</bp:name>
@@ -1766,6 +1779,7 @@
  <bp:standardName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Cyclin-dependent kinase 1</bp:standardName>
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_uniprot_knowledgebase_P06493" />
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/RelationshipXref_hgnc_symbol_CDK1_identity" />
+ <bp:organism rdf:resource="http://identifiers.org/taxonomy/9606" />
  <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">CDK1_HUMAN</bp:displayName>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Cell division control protein 2 homolog</bp:name>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">P34CDC2</bp:name>
@@ -2050,6 +2064,11 @@
  <bp:url rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">http://www.phosphosite.org/curatedInfoAction.do?record=8842</bp:url>
 </bp:PublicationXref>
 
+<bp:UnificationXref rdf:about="http://pathwaycommons.org/pc12/UnificationXref_taxonomy_10090">
+ <bp:id rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">10090</bp:id>
+ <bp:db rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">taxonomy</bp:db>
+</bp:UnificationXref>
+
 <bp:PublicationXref rdf:about="http://identifiers.org/pubmed/12226093">
  <bp:year rdf:datatype = "http://www.w3.org/2001/XMLSchema#int">2002</bp:year>
  <bp:id rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">12226093</bp:id>
@@ -2205,6 +2224,11 @@
  <bp:url rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">http://www.phosphosite.org/curatedInfoAction.do?record=17335001</bp:url>
 </bp:PublicationXref>
 
+<bp:UnificationXref rdf:about="http://pathwaycommons.org/pc12/UnificationXref_taxonomy_9606">
+ <bp:id rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">9606</bp:id>
+ <bp:db rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">taxonomy</bp:db>
+</bp:UnificationXref>
+
 <bp:Evidence rdf:about="http://pathwaycommons.org/pc12/Evidence_0f59d126fefce868fc8d21072b3c4211">
  <bp:xref rdf:resource="http://identifiers.org/pubmed/12484777" />
  <bp:comment rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">REPLACED http://pathwaycommons.org/pc12/Evidence_0f59d126fefce868fc8d21072b3c4211</bp:comment>
@@ -2283,6 +2307,7 @@
  <bp:standardName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Insulin receptor</bp:standardName>
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_uniprot_knowledgebase_P06213" />
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/RelationshipXref_hgnc_symbol_INSR_identity" />
+ <bp:organism rdf:resource="http://identifiers.org/taxonomy/9606" />
  <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">INSR_HUMAN</bp:displayName>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">CD220</bp:name>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">2.7.10.1</bp:name>
@@ -2589,6 +2614,7 @@
  <bp:standardName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Non-receptor tyrosine-protein kinase TYK2</bp:standardName>
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_uniprot_knowledgebase_P29597" />
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/RelationshipXref_hgnc_symbol_TYK2_identity" />
+ <bp:organism rdf:resource="http://identifiers.org/taxonomy/9606" />
  <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">TYK2_HUMAN</bp:displayName>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">2.7.10.2</bp:name>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">TYK2</bp:name>
@@ -3005,6 +3031,7 @@
  <bp:standardName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Serine/threonine-protein kinase Chk1</bp:standardName>
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/RelationshipXref_hgnc_symbol_CHEK1_identity" />
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_uniprot_knowledgebase_O14757" />
+ <bp:organism rdf:resource="http://identifiers.org/taxonomy/9606" />
  <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">CHK1_HUMAN</bp:displayName>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">CHK1</bp:name>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Checkpoint kinase-1</bp:name>
@@ -3087,6 +3114,7 @@
 
 <bp:ProteinReference rdf:about="http://pathwaycommons.org/pc12/ProteinReference_b956204933388ca20b98452a46372612">
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_uniprot_knowledgebase_Q61214" />
+ <bp:organism rdf:resource="http://identifiers.org/taxonomy/10090" />
  <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">DYRK1A</bp:displayName>
  <bp:comment rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">REPLACED http://pathwaycommons.org/pc12/ProteinReference_b956204933388ca20b98452a46372612</bp:comment>
 </bp:ProteinReference>
@@ -3170,6 +3198,7 @@
  <bp:standardName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">Tyrosine-protein kinase Lyn</bp:standardName>
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/RelationshipXref_hgnc_symbol_LYN_identity" />
  <bp:xref rdf:resource="http://pathwaycommons.org/pc12/UnificationXref_uniprot_knowledgebase_P07948" />
+ <bp:organism rdf:resource="http://identifiers.org/taxonomy/9606" />
  <bp:displayName rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">LYN_HUMAN</bp:displayName>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">LYN</bp:name>
  <bp:name rdf:datatype = "http://www.w3.org/2001/XMLSchema#string">p53Lyn</bp:name>

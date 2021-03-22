@@ -20,6 +20,7 @@ import org.biopax.paxtools.model.BioPAXElement;
 import org.biopax.paxtools.model.BioPAXFactory;
 import org.biopax.paxtools.model.BioPAXLevel;
 import org.biopax.paxtools.model.Model;
+import org.biopax.paxtools.model.level3.BioSource;
 import org.biopax.paxtools.model.level3.Catalysis;
 import org.biopax.paxtools.model.level3.Control;
 import org.biopax.paxtools.model.level3.Entity;
@@ -28,6 +29,7 @@ import org.biopax.paxtools.model.level3.Evidence;
 import org.biopax.paxtools.model.level3.EvidenceCodeVocabulary;
 import org.biopax.paxtools.model.level3.Interaction;
 import org.biopax.paxtools.model.level3.Process;
+import org.biopax.paxtools.model.level3.ProteinReference;
 import org.biopax.paxtools.model.level3.SimplePhysicalEntity;
 import org.biopax.paxtools.model.level3.TemplateReactionRegulation;
 import org.biopax.paxtools.model.level3.Xref;
@@ -94,6 +96,12 @@ public class Simplify {
 					EntityReference er = ((SimplePhysicalEntity) ppt).getEntityReference();
 					els.add(er);
 					els.addAll(er.getXref());
+					if ( er instanceof ProteinReference ) {
+						BioSource org = ((ProteinReference) er).getOrganism();
+						els.add(org);
+						els.addAll(org.getXref());
+					}
+					
 				}
 			}
 //			ppts.stream().map(p -> els.addAll(p.getXref()));
