@@ -89,8 +89,7 @@ public class BiopaxToFactoid {
 		
 		// remove the documents including ungrounded entities
 		for ( String pmid : pmids ) {
-			JsonNull jsNull = new JsonNull();
-			if ( o.get(pmid).getAsJsonArray().contains(jsNull) ) {
+			if ( o.get(pmid).getAsJsonArray().size() == 0 ) {
 				idsToRemove.add(pmid);
 			}
 		}
@@ -111,10 +110,7 @@ public class BiopaxToFactoid {
 	}
 	
 	private void addToJsonArr(JsonArray arr, JsonObject o) {
-		if ( o == null ) {
-			arr.add(new JsonNull());
-		}
-		else {
+		if ( o != null ) {
 			arr.add(o);
 		}
 	}
@@ -214,7 +210,7 @@ public class BiopaxToFactoid {
 		
 		// if the entity has no grounding return null
 		// which will signal that the related document must be skipped as well
-		if ( xref == null ) {
+		if ( xref == null || org == null ) {
 			return null;
 		}
 		
@@ -245,13 +241,12 @@ public class BiopaxToFactoid {
 			jsXref.addProperty("db", db);
 			jsXref.addProperty("id", id);
 			
-			if ( org != null ) {
-				Xref orgXref = getOptional(org.getXref().stream().findFirst());
-				if ( orgXref != null ) {
-					jsXref.addProperty("org", orgXref.getId());
-				}	
+			Xref orgXref = getOptional(org.getXref().stream().findFirst());
+			if ( orgXref == null ) {
+				return null;
 			}
 			
+			jsXref.addProperty("org", orgXref.getId());
 			obj.add("_xref", jsXref);
 		}
 		
@@ -343,28 +338,36 @@ public class BiopaxToFactoid {
 			JsonObject srcObj = makeEntityJson(src);
 			JsonObject tgtObj = makeEntityJson(tgt);
 			
-			addToJsonArr(arr, srcObj);
-			addToJsonArr(arr, tgtObj);
-			
 			if ( srcObj == null || tgtObj == null ) {
 				// if the interaction has entities skipped because of the grounding issues
 				// skip the interaction as well
 				return null;
 			}
 			
+			addToJsonArr(arr, srcObj);
+			addToJsonArr(arr, tgtObj);
+			
 			ids.add(srcObj.get("id").getAsString());
 			ids.add(tgtObj.get("id").getAsString());
 		}
 		if ( ppts != null ) {
+			Set<JsonObject> pptObjs = new HashSet<JsonObject>();
 			for (Entity ppt : ppts) {
-				if ( ppt == null ) {
+				JsonObject pptObj = makeEntityJson(ppt);
+				
+				if ( pptObj == null ) {
 					// if the interaction has entities skipped because of the grounding issues
 					// skip the interaction as well
 					return null;
 				}
-				JsonObject pptObj = makeEntityJson(ppt);
-				addToJsonArr(arr, pptObj);
+				
+				pptObjs.add(pptObj);
+				
 				ids.add(pptObj.get("id").getAsString());
+			}
+			
+			for ( JsonObject pptObj : pptObjs ) {
+				addToJsonArr(arr, pptObj);
 			}
 		}
 		
