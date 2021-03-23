@@ -209,7 +209,7 @@ public class BiopaxToFactoid {
 		}
 		
 		// if the entity has no grounding return null
-		// which will signal that the related document must be skipped as well
+		// which will signal that the related interaction must be skipped as well
 		if ( xref == null || org == null ) {
 			return null;
 		}
@@ -232,7 +232,7 @@ public class BiopaxToFactoid {
 		else {
 			logger.warning("Unhandled xref database: " + originalDb);
 			// if the entity db is not handled return null
-			// which will signal that the related document must be skipped as well
+			// which will signal that the related interaction must be skipped as well
 			return null;
 		}
 		

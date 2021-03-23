@@ -10,3 +10,4 @@ build
 out
 *.log
 *.out
+src/test/resources/pc2.owl

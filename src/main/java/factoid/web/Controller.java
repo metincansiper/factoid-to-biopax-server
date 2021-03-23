@@ -122,7 +122,7 @@ public class Controller {
     produces = "application/json"
   )
   public String biopaxUrlToFactoid(
-		  @ApiParam("URL of a BioPAX RDF/XML file") @RequestBody String url) {
+		  @ApiParam("URL of a TAR-GZ compressed BioPAX RDF/XML file") @RequestBody String url) {
 	  BiopaxToFactoid converter = new BiopaxToFactoid();
 	  try {
 		  String body = getContentFromUrl(url);
